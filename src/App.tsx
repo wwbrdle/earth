@@ -3,6 +3,8 @@ import './App.css';
 import QuestionCard from './components/QuestionCard.tsx';
 import SpeechRecognition from './components/SpeechRecognition.tsx';
 import ResultDisplay from './components/ResultDisplay.tsx';
+import LandingPage from './components/LandingPage.tsx';
+import TEFCanada from './components/TEFCanada.tsx';
 
 interface Question {
   id: number;
@@ -1306,6 +1308,7 @@ const part2Questions: Part2Question[] = [
 ];
 
 function App() {
+  const [currentView, setCurrentView] = useState<'landing' | 'ielts' | 'tef'>('landing');
   const [currentPart, setCurrentPart] = useState<'part1' | 'part2' | 'part3'>('part1');
   const [currentQuestion, setCurrentQuestion] = useState<Question>(sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)]);
   const [currentPart2Question, setCurrentPart2Question] = useState<Part2Question>(part2Questions[0]);
@@ -1369,10 +1372,34 @@ function App() {
     setShowResult(true);
   };
 
+  if (currentView === 'landing') {
+    return (
+      <LandingPage
+        onSelectIELTS={() => setCurrentView('ielts')}
+        onSelectTEF={() => setCurrentView('tef')}
+      />
+    );
+  }
+
+  if (currentView === 'tef') {
+    return (
+      <TEFCanada onBack={() => setCurrentView('landing')} />
+    );
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <h1>🎤 IELTS 스피킹 연습</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <button 
+            onClick={() => setCurrentView('landing')}
+            className="back-button"
+            style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+          >
+            ← 뒤로 가기
+          </button>
+          <h1>🎤 IELTS 스피킹 연습</h1>
+        </div>
       </header>
       
       <main className="App-main">

@@ -1,5 +1,5 @@
 {
-  "name": "ielts-speaking-practice",
+  "name": "earth",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -15,7 +15,7 @@
     "@types/string-similarity": "^1.2.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

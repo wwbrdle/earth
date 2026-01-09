@@ -1,0 +1,100 @@
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.landing-container {
+  background: white;
+  border-radius: 20px;
+  padding: 60px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+.landing-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.landing-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.exam-buttons {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.exam-button {
+  flex: 1;
+  min-width: 250px;
+  padding: 40px 30px;
+  border: 3px solid #e0e0e0;
+  border-radius: 15px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.exam-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-color: #667eea;
+}
+
+.ielts-button:hover {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+}
+
+.tef-button:hover {
+  border-color: #f093fb;
+  background: linear-gradient(135deg, #f093fb15 0%, #f5576c15 100%);
+}
+
+.exam-icon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+}
+
+.exam-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.exam-description {
+  font-size: 1rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .landing-container {
+    padding: 40px 20px;
+  }
+  
+  .landing-container h1 {
+    font-size: 2rem;
+  }
+  
+  .exam-buttons {
+    flex-direction: column;
+  }
+  
+  .exam-button {
+    width: 100%;
+  }
+}

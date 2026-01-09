@@ -7,6 +7,7 @@ interface SpeechRecognitionProps {
   onStopRecording: () => void;
   onRecordingComplete: (transcript: string) => void;
   onTranscriptUpdate: (transcript: string) => void;
+  language?: string;
 }
 
 const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
@@ -14,7 +15,8 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
   onStartRecording,
   onStopRecording,
   onRecordingComplete,
-  onTranscriptUpdate
+  onTranscriptUpdate,
+  language = 'en-US'
 }) => {
 
   const [isSupported, setIsSupported] = useState<boolean>(false);
@@ -22,13 +24,13 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
 
   useEffect(() => {
     // Web Speech API 지원 확인
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       setIsSupported(true);
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.lang = language;
 
       recognitionRef.current.onresult = (event: any) => {
         let finalTranscript = '';
@@ -55,11 +57,14 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
-          alert('음성이 감지되지 않았습니다. 다시 시도해주세요.');
+          const errorMessage = language.startsWith('fr') 
+            ? 'Aucune voix détectée. Veuillez réessayer.'
+            : '음성이 감지되지 않았습니다. 다시 시도해주세요.';
+          alert(errorMessage);
         }
       };
     }
-  }, [onRecordingComplete, onTranscriptUpdate]);
+  }, [onRecordingComplete, onTranscriptUpdate, language]);
 
   const handleStartRecording = () => {
     if (recognitionRef.current) {
@@ -76,15 +81,27 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
   };
 
   if (!isSupported) {
+    const notSupportedMessage = language.startsWith('fr')
+      ? '⚠️ La reconnaissance vocale n\'est pas prise en charge dans ce navigateur.'
+      : '⚠️ 이 브라우저에서는 음성 인식이 지원되지 않습니다.';
+    const browserMessage = language.startsWith('fr')
+      ? 'Veuillez utiliser un navigateur moderne comme Chrome, Edge ou Safari.'
+      : 'Chrome, Edge, Safari 등의 최신 브라우저를 사용해주세요.';
+    
     return (
       <div className="speech-recognition">
         <div className="not-supported">
-          <p>⚠️ 이 브라우저에서는 음성 인식이 지원되지 않습니다.</p>
-          <p>Chrome, Edge, Safari 등의 최신 브라우저를 사용해주세요.</p>
+          <p>{notSupportedMessage}</p>
+          <p>{browserMessage}</p>
         </div>
       </div>
     );
   }
+
+  const isFrench = language.startsWith('fr');
+  const startButtonText = isFrench ? '🎤 Démarrer l\'enregistrement' : '🎤 녹음 시작';
+  const stopButtonText = isFrench ? '⏹️ Arrêter l\'enregistrement' : '⏹️ 녹음 중지';
+  const recordingText = isFrench ? 'Enregistrement en cours... Parlez s\'il vous plaît!' : '녹음 중... 말씀해주세요!';
 
   return (
     <div className="speech-recognition">
@@ -94,14 +111,14 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
             onClick={handleStartRecording}
             className="start-button"
           >
-            🎤 녹음 시작
+            {startButtonText}
           </button>
         ) : (
           <button
             onClick={handleStopRecording}
             className="stop-button"
           >
-            ⏹️ 녹음 중지
+            {stopButtonText}
           </button>
         )}
       </div>
@@ -110,7 +127,7 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
         <div className="recording-status">
           <div className="recording-indicator">
             <div className="pulse"></div>
-            <span>녹음 중... 말씀해주세요!</span>
+            <span>{recordingText}</span>
           </div>
         </div>
       )}

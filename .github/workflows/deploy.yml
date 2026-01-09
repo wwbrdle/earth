@@ -79,12 +79,12 @@ jobs:
           
           # 각 단계별 상세 로그
           echo "Step 1: Creating app directory..."
-          sudo mkdir -p /var/www/ielts-app
-          sudo chown -R opc:opc /var/www/ielts-app
-          echo "Directory created: $(ls -la /var/www/ielts-app/)"
+          sudo mkdir -p /var/www/earth-app
+          sudo chown -R opc:opc /var/www/earth-app
+          echo "Directory created: $(ls -la /var/www/earth-app/)"
           
           # 앱 디렉토리로 이동
-          cd /var/www/ielts-app
+          cd /var/www/earth-app
           echo "Current directory: $(pwd)"
           
           # 기존 파일 백업
@@ -98,18 +98,18 @@ jobs:
           echo "Build directory created: $(ls -la build/)"
           
           echo "Extracting build.tar.gz..."
-          sudo tar -xzf /tmp/build.tar.gz -C /var/www/ielts-app/
+          sudo tar -xzf /tmp/build.tar.gz -C /var/www/earth-app/
           echo "Extraction completed. Build contents: $(ls -la build/)"
           sudo rm /tmp/build.tar.gz
           
           # 권한 설정
           echo "Step 4: Setting permissions..."
-          sudo chown -R opc:opc /var/www/ielts-app/build
-          sudo chmod -R 755 /var/www/ielts-app/build
+          sudo chown -R opc:opc /var/www/earth-app/build
+          sudo chmod -R 755 /var/www/earth-app/build
           echo "Permissions set: $(ls -la build/)"
           
           echo "🎉 React app deployed successfully!"
-          echo "📁 Files are available at: /var/www/ielts-app/build"
+          echo "📁 Files are available at: /var/www/earth-app/build"
           echo "🚀 Ready to start web server in next step"
           
     - name: Setup and start web server
@@ -125,22 +125,22 @@ jobs:
           echo "🚀 Setting up web server service..."
           echo "Step 1: Checking current directory and permissions..."
           pwd
-          ls -la /var/www/ielts-app/
+          ls -la /var/www/earth-app/
           
           echo "Step 2: Stopping existing web server service if running..."
-          sudo systemctl stop ielts-app || true
+          sudo systemctl stop earth-app || true
           echo "Service stop completed (ignored if not running)"
           
           echo "Step 3: Creating systemd service file..."
-          sudo bash -c 'cat > /etc/systemd/system/ielts-app.service << EOF
+          sudo bash -c 'cat > /etc/systemd/system/earth-app.service << EOF
           [Unit]
-          Description=IELTS App Web Server
+          Description=Earth App Web Server
           After=network.target
           
           [Service]
           Type=simple
           User=opc
-          WorkingDirectory=/var/www/ielts-app
+          WorkingDirectory=/var/www/earth-app
           ExecStart=/usr/bin/python3 -m http.server 8080 --directory build
           Restart=always
           RestartSec=3
@@ -153,17 +153,17 @@ jobs:
           sudo systemctl daemon-reload
           
           echo "Step 5: Enabling and starting service..."
-          sudo systemctl enable ielts-app
-          sudo systemctl restart ielts-app
+          sudo systemctl enable earth-app
+          sudo systemctl restart earth-app
           
           echo "Step 6: Checking service status..."
-          systemctl status ielts-app --no-pager -l || true
+          systemctl status earth-app --no-pager -l || true
           sudo ss -tlnp | grep :8080 || echo "Port 8080 not listening"
           
-          if sudo systemctl is-active --quiet ielts-app; then
+          if sudo systemctl is-active --quiet earth-app; then
             echo "✅ SUCCESS: Web server service is running!"
             echo "🌐 React app accessible at: http://$(curl -s ifconfig.me):8080"
           else
             echo "❌ FAILED: Service is not running"
-            sudo journalctl -u ielts-app --no-pager -l | tail -10
+            sudo journalctl -u earth-app --no-pager -l | tail -10
           fi
