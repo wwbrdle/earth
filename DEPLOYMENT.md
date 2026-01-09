@@ -1,6 +1,6 @@
 # Oracle Cloud 배포 가이드
 
-이 문서는 IELTS 스피킹 연습 앱을 Oracle Cloud 인스턴스에 배포하는 방법을 설명합니다.
+이 문서는 Earth 앱을 Oracle Cloud 인스턴스에 배포하는 방법을 설명합니다.
 
 ## 🚀 1단계: Oracle Cloud 인스턴스 생성
 
@@ -37,7 +37,7 @@ chmod +x setup-server.sh
 ### 2.3 도메인 설정 (선택사항)
 ```bash
 # nginx.conf 파일 수정
-sudo nano /etc/nginx/sites-available/ielts-app
+sudo nano /etc/nginx/sites-available/earth
 
 # server_name을 실제 도메인으로 변경
 server_name your-domain.com;
@@ -109,12 +109,12 @@ sudo tail -f /var/log/nginx/error.log
 
 ### 6.2 앱 접속 테스트
 - 브라우저에서 `http://YOUR_INSTANCE_IP` 또는 `https://your-domain.com` 접속
-- IELTS 스피킹 연습 앱이 정상적으로 로드되는지 확인
+- Earth 앱이 정상적으로 로드되는지 확인
 
 ## 🚨 문제 해결
 
 ### 6.1 일반적인 문제들
-- **권한 오류**: `sudo chown -R www-data:www-data /var/www/ielts-app`
+- **권한 오류**: `sudo chown -R www-data:www-data /var/www/earth`
 - **Nginx 오류**: `sudo nginx -t`로 설정 파일 문법 확인
 - **방화벽 문제**: Oracle Cloud Security Lists에서 포트 허용 확인
 
@@ -124,7 +124,7 @@ sudo tail -f /var/log/nginx/error.log
 sudo journalctl -u nginx -f
 
 # 앱 디렉토리 확인
-ls -la /var/www/ielts-app/
+ls -la /var/www/earth/
 
 # Nginx 상태 확인
 sudo systemctl status nginx

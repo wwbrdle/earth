@@ -63,6 +63,7 @@ jobs:
     - name: Copy files to server
       run: |
         scp -P ${{ secrets.ORACLE_PORT }} build.tar.gz ${{ secrets.ORACLE_USERNAME }}@${{ secrets.ORACLE_HOST }}:/tmp/
+        scp -P ${{ secrets.ORACLE_PORT }} nginx.conf ${{ secrets.ORACLE_USERNAME }}@${{ secrets.ORACLE_HOST }}:/tmp/
         
     - name: Extract and deploy
       uses: appleboy/ssh-action@v1.0.0
@@ -79,12 +80,12 @@ jobs:
           
           # 각 단계별 상세 로그
           echo "Step 1: Creating app directory..."
-          sudo mkdir -p /var/www/earth-app
-          sudo chown -R opc:opc /var/www/earth-app
-          echo "Directory created: $(ls -la /var/www/earth-app/)"
+          sudo mkdir -p /var/www/earth
+          sudo chown -R opc:opc /var/www/earth
+          echo "Directory created: $(ls -la /var/www/earth/)"
           
           # 앱 디렉토리로 이동
-          cd /var/www/earth-app
+          cd /var/www/earth
           echo "Current directory: $(pwd)"
           
           # 기존 파일 백업
@@ -98,21 +99,21 @@ jobs:
           echo "Build directory created: $(ls -la build/)"
           
           echo "Extracting build.tar.gz..."
-          sudo tar -xzf /tmp/build.tar.gz -C /var/www/earth-app/
+          sudo tar -xzf /tmp/build.tar.gz -C /var/www/earth/
           echo "Extraction completed. Build contents: $(ls -la build/)"
           sudo rm /tmp/build.tar.gz
           
           # 권한 설정
           echo "Step 4: Setting permissions..."
-          sudo chown -R opc:opc /var/www/earth-app/build
-          sudo chmod -R 755 /var/www/earth-app/build
+          sudo chown -R opc:opc /var/www/earth/build
+          sudo chmod -R 755 /var/www/earth/build
           echo "Permissions set: $(ls -la build/)"
           
           echo "🎉 React app deployed successfully!"
-          echo "📁 Files are available at: /var/www/earth-app/build"
-          echo "🚀 Ready to start web server in next step"
+          echo "📁 Files are available at: /var/www/earth/build"
+          echo "🚀 Ready to configure nginx in next step"
           
-    - name: Setup and start web server
+    - name: Setup and configure nginx
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.ORACLE_HOST }}
@@ -122,48 +123,77 @@ jobs:
         timeout: 20s
         command_timeout: 1m
         script: |
-          echo "🚀 Setting up web server service..."
-          echo "Step 1: Checking current directory and permissions..."
-          pwd
-          ls -la /var/www/earth-app/
+          echo "🚀 Setting up nginx web server..."
+          echo "Step 1: Checking deployment directory..."
+          ls -la /var/www/earth/
           
-          echo "Step 2: Stopping existing web server service if running..."
-          sudo systemctl stop earth-app || true
-          echo "Service stop completed (ignored if not running)"
-          
-          echo "Step 3: Creating systemd service file..."
-          sudo bash -c 'cat > /etc/systemd/system/earth-app.service << EOF
-          [Unit]
-          Description=Earth App Web Server
-          After=network.target
-          
-          [Service]
-          Type=simple
-          User=opc
-          WorkingDirectory=/var/www/earth-app
-          ExecStart=/usr/bin/python3 -m http.server 8080 --directory build
-          Restart=always
-          RestartSec=3
-          
-          [Install]
-          WantedBy=multi-user.target
-          EOF'
-          
-          echo "Step 4: Reloading systemd daemon..."
-          sudo systemctl daemon-reload
-          
-          echo "Step 5: Enabling and starting service..."
-          sudo systemctl enable earth-app
-          sudo systemctl restart earth-app
-          
-          echo "Step 6: Checking service status..."
-          systemctl status earth-app --no-pager -l || true
-          sudo ss -tlnp | grep :8080 || echo "Port 8080 not listening"
-          
-          if sudo systemctl is-active --quiet earth-app; then
-            echo "✅ SUCCESS: Web server service is running!"
-            echo "🌐 React app accessible at: http://$(curl -s ifconfig.me):8080"
+          echo "Step 2: Copying nginx configuration..."
+          # nginx.conf 파일을 /tmp에서 복사
+          if [ -f /tmp/nginx.conf ]; then
+            sudo cp /tmp/nginx.conf /etc/nginx/sites-available/earth
+            sudo rm /tmp/nginx.conf
           else
-            echo "❌ FAILED: Service is not running"
-            sudo journalctl -u earth-app --no-pager -l | tail -10
+            # 기본 nginx 설정 생성
+            sudo bash -c 'cat > /etc/nginx/sites-available/earth << EOF
+          server {
+              listen 80;
+              server_name _;
+              
+              root /var/www/earth/build;
+              index index.html;
+              
+              # gzip 압축 활성화
+              gzip on;
+              gzip_vary on;
+              gzip_min_length 1024;
+              gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+              
+              # 보안 헤더
+              add_header X-Frame-Options "SAMEORIGIN" always;
+              add_header X-XSS-Protection "1; mode=block" always;
+              add_header X-Content-Type-Options "nosniff" always;
+              add_header Referrer-Policy "no-referrer-when-downgrade" always;
+              add_header Content-Security-Policy "default-src '\''self'\'' http: https: data: blob: '\''unsafe-inline'\''" always;
+              
+              # 정적 파일 캐싱
+              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+                  expires 1y;
+                  add_header Cache-Control "public, immutable";
+              }
+              
+              # React Router를 위한 설정
+              location / {
+                  try_files $uri $uri/ /index.html;
+              }
+              
+              # 에러 페이지
+              error_page 404 /index.html;
+          }
+          EOF'
+          fi
+          
+          echo "Step 3: Enabling nginx site..."
+          sudo ln -sf /etc/nginx/sites-available/earth /etc/nginx/sites-enabled/
+          sudo rm -f /etc/nginx/sites-enabled/default
+          
+          echo "Step 4: Testing nginx configuration..."
+          sudo nginx -t
+          
+          echo "Step 5: Setting proper permissions..."
+          sudo chown -R www-data:www-data /var/www/earth/build
+          sudo chmod -R 755 /var/www/earth/build
+          
+          echo "Step 6: Reloading nginx..."
+          sudo systemctl reload nginx
+          
+          echo "Step 7: Checking nginx status..."
+          sudo systemctl status nginx --no-pager -l || true
+          sudo ss -tlnp | grep :80 || echo "Port 80 not listening"
+          
+          if sudo systemctl is-active --quiet nginx; then
+            echo "✅ SUCCESS: Nginx is running!"
+            echo "🌐 React app accessible at: http://$(curl -s ifconfig.me)"
+          else
+            echo "❌ FAILED: Nginx is not running"
+            sudo journalctl -u nginx --no-pager -l | tail -20
           fi

@@ -20,12 +20,12 @@ sudo apt-get install -y nodejs
 
 # Nginx 설정
 echo "🌐 Nginx 설정 중..."
-sudo mkdir -p /var/www/ielts-app/build
-sudo chown -R $USER:$USER /var/www/ielts-app
+sudo mkdir -p /var/www/earth/build
+sudo chown -R $USER:$USER /var/www/earth
 
 # Nginx 설정 파일 복사
-sudo cp nginx.conf /etc/nginx/sites-available/ielts-app
-sudo ln -sf /etc/nginx/sites-available/ielts-app /etc/nginx/sites-enabled/
+sudo cp nginx.conf /etc/nginx/sites-available/earth
+sudo ln -sf /etc/nginx/sites-available/earth /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 
 # Nginx 설정 테스트 및 재시작
