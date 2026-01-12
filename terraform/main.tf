@@ -245,11 +245,7 @@ resource "aws_lambda_function" "gemini_analysis" {
   timeout         = 30
   memory_size     = 256
 
-  environment {
-    variables = {
-      AWS_REGION = var.aws_region
-    }
-  }
+  # AWS_REGION은 Lambda에서 자동으로 제공되므로 환경 변수로 설정할 필요 없음
 
   depends_on = [
     aws_iam_role_policy.lambda_ssm
