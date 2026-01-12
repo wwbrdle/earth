@@ -40,22 +40,11 @@ async function getApiKeyFromParameterStore() {
  * Lambda 함수: Gemini API를 사용하여 답변 분석
  */
 exports.handler = async (event) => {
-    // CORS 헤더 설정
+    // Lambda Function URL의 CORS 설정이 자동으로 CORS 헤더를 처리하므로
+    // 여기서는 Content-Type만 설정
     const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+        'Content-Type': 'application/json'
     };
-
-    // OPTIONS 요청 처리 (CORS preflight)
-    if (event.requestContext?.http?.method === 'OPTIONS' || event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({})
-        };
-    }
 
     try {
         // API 키 가져오기
