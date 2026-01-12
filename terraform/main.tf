@@ -131,7 +131,7 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = var.domain_name == "" || length(data.aws_acm_certificate.cloudfront) == 0
+    cloudfront_default_certificate = true
   }
 
   tags = {
@@ -220,19 +220,17 @@ data "archive_file" "lambda_zip" {
 
 # AWS Systems Manager Parameter Store에 Gemini API 키 저장
 # terraform.tfvars에서 gemini_api_key를 제공하지 않으면 기존 값을 유지
+# 주의: 이미 Parameter Store에 키가 있으면 이 리소스를 import하거나 생략해야 합니다
 resource "aws_ssm_parameter" "gemini_api_key" {
+  count       = var.gemini_api_key != "" ? 1 : 0
   name        = "/gemini/api_key"
   description = "Google Gemini API Key"
   type        = "SecureString"
-  value       = var.gemini_api_key != "" ? var.gemini_api_key : "placeholder"  # 기존 값 유지를 위한 placeholder
+  value       = var.gemini_api_key
 
   tags = {
     Name        = "gemini-api-key"
     Environment = var.environment
-  }
-
-  lifecycle {
-    ignore_changes = [value]  # 기존 값이 있으면 변경하지 않음
   }
 }
 
@@ -254,7 +252,6 @@ resource "aws_lambda_function" "gemini_analysis" {
   }
 
   depends_on = [
-    aws_ssm_parameter.gemini_api_key,
     aws_iam_role_policy.lambda_ssm
   ]
 }
