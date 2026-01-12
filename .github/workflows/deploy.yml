@@ -170,6 +170,19 @@ jobs:
         REACT_APP_LAMBDA_FUNCTION_URL: ${{ needs.deploy-infrastructure.outputs.lambda_url }}
       run: npm run build
       
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+        terraform_wrapper: false
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
     - name: Get Terraform outputs
       id: terraform-output
       working-directory: ./terraform
