@@ -111,45 +111,51 @@ Sample Answer: ${sampleAnswer}
 
 Student Answer: ${userAnswer}
 
-IMPORTANT: You must respond ONLY with valid JSON. Do not include any markdown formatting, code blocks, or explanatory text. Only return the JSON object.
+IMPORTANT: 
+1. You must respond ONLY with valid JSON. Do not include any markdown formatting, code blocks, or explanatory text. Only return the JSON object.
+2. All text in the JSON response must be in Korean (한국어). Write all analysis, differences, strengths, improvements, and suggestions in Korean.
 
 Required JSON structure:
 {
   "similarityScore": <number between 0-100>,
-  "keyDifferences": ["<difference1>", "<difference2>", ...],
-  "strengths": ["<strength1>", "<strength2>", ...],
-  "improvements": ["<improvement1>", "<improvement2>", ...],
-  "suggestions": ["<suggestion1>", "<suggestion2>", ...]
+  "keyDifferences": ["<difference1 in Korean>", "<difference2 in Korean>", ...],
+  "strengths": ["<strength1 in Korean>", "<strength2 in Korean>", ...],
+  "improvements": ["<improvement1 in Korean>", "<improvement2 in Korean>", ...],
+  "suggestions": ["<suggestion1 in Korean>", "<suggestion2 in Korean>", ...]
 }
 
 Provide:
 1. Similarity score (0-100): How similar is the student's answer to the sample answer?
-2. Key differences: List 3-5 main differences between the two answers
-3. Strengths: List 2-3 strengths of the student's answer
-4. Improvements: List 3-5 areas where the student can improve
-5. Suggestions: List 3-5 specific, actionable suggestions
+2. Key differences: List 3-5 main differences between the two answers (in Korean)
+3. Strengths: List 2-3 strengths of the student's answer (in Korean)
+4. Improvements: List 3-5 areas where the student can improve (in Korean)
+5. Suggestions: List 3-5 specific, actionable suggestions (in Korean)
 
-Remember: Respond ONLY with valid JSON, nothing else.`;
+Remember: Respond ONLY with valid JSON in Korean, nothing else.`;
                 break;
             case 'grammar':
                 prompt = `Analyze the grammar and language accuracy of this IELTS speaking answer:
 
 Answer: ${userAnswer}
 
+IMPORTANT: All text in the JSON response must be in Korean (한국어). Write all analysis, errors, corrections, and feedback in Korean.
+
 Provide:
-1. Grammar errors found
-2. Vocabulary usage assessment
-3. Sentence structure evaluation
+1. Grammar errors found (in Korean)
+2. Vocabulary usage assessment (in Korean)
+3. Sentence structure evaluation (in Korean)
 4. Overall language accuracy score (0-100)
 
 Format as JSON:
 {
-  "grammarErrors": [{"error": "<error>", "correction": "<correction>"}, ...],
+  "grammarErrors": [{"error": "<error in Korean>", "correction": "<correction in Korean>"}, ...],
   "vocabularyScore": <number>,
   "sentenceStructureScore": <number>,
   "overallScore": <number>,
-  "feedback": "<overall feedback>"
-}`;
+  "feedback": "<overall feedback in Korean>"
+}
+
+Remember: Respond ONLY with valid JSON in Korean, nothing else.`;
                 break;
             case 'improvement':
                 prompt = `Provide specific improvement suggestions for this IELTS speaking answer:
@@ -157,17 +163,21 @@ Format as JSON:
 Question: ${question || 'IELTS Speaking Question'}
 Answer: ${userAnswer}
 
+IMPORTANT: All text in the JSON response must be in Korean (한국어). Write all suggestions in Korean.
+
 Provide detailed suggestions for:
-1. Content (ideas, examples, details)
-2. Language (vocabulary, grammar, fluency)
-3. Structure (organization, coherence)
+1. Content (ideas, examples, details) - in Korean
+2. Language (vocabulary, grammar, fluency) - in Korean
+3. Structure (organization, coherence) - in Korean
 
 Format as JSON:
 {
-  "contentSuggestions": ["<suggestion1>", ...],
-  "languageSuggestions": ["<suggestion1>", ...],
-  "structureSuggestions": ["<suggestion1>", ...]
-}`;
+  "contentSuggestions": ["<suggestion1 in Korean>", ...],
+  "languageSuggestions": ["<suggestion1 in Korean>", ...],
+  "structureSuggestions": ["<suggestion1 in Korean>", ...]
+}
+
+Remember: Respond ONLY with valid JSON in Korean, nothing else.`;
                 break;
             default:
                 prompt = `Analyze this IELTS speaking answer: ${userAnswer}`;
