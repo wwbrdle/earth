@@ -112,9 +112,27 @@ function generatePrompt(request: GeminiAnalysisRequest): string {
 
   switch (analysisType) {
     case 'similarity':
-      return `You are an IELTS speaking test evaluator. Compare the following two answers and provide a detailed analysis.
+      // TEF Canada Writing인지 확인 (question에 "TEF" 또는 "Expression Écrite" 또는 "Fait Diver" 또는 "Letters"가 포함되어 있는지)
+      const isTEFCanada = question && (
+        question.includes('TEF') || 
+        question.includes('Expression Écrite') || 
+        question.includes('Fait Diver') || 
+        question.includes('Letters') ||
+        question.includes('Section A') ||
+        question.includes('Section B')
+      );
+      
+      const evaluatorRole = isTEFCanada 
+        ? 'TEF Canada writing test evaluator (Expression Écrite)' 
+        : 'IELTS speaking test evaluator';
+      
+      const questionLabel = isTEFCanada 
+        ? 'TEF Canada Writing Question' 
+        : 'IELTS Speaking Question';
+      
+      return `You are a ${evaluatorRole}. Compare the following two answers and provide a detailed analysis.
 
-Question: ${question || 'IELTS Speaking Question'}
+Question: ${question || questionLabel}
 
 Sample Answer: ${sampleAnswer}
 
