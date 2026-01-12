@@ -1,13 +1,81 @@
-name: Deploy to Oracle Cloud
+name: Deploy to AWS (Terraform)
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ prod ]
+    paths:
+      - 'terraform/**'
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'lambda/**'
   workflow_dispatch:
 
+env:
+  AWS_REGION: ap-northeast-2
+  TF_VERSION: 1.6.0
+
 jobs:
-  build-and-deploy:
+  deploy-infrastructure:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+        terraform_wrapper: false
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Terraform Init
+      run: terraform init
+    
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
+      continue-on-error: true
+    
+    - name: Package Lambda function
+      run: |
+        cd ../lambda/gemini-analysis
+        npm install --production
+        zip -r ../../terraform/lambda-function.zip . -x "*.git*" "*.md" "README*"
+        cd ../../terraform
+    
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/prod' || github.event_name == 'workflow_dispatch'
+      run: terraform apply -auto-approve tfplan
+    
+    - name: Get CloudFront Distribution ID
+      id: cloudfront
+      run: |
+        DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id)
+        echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+        echo "CloudFront Distribution ID: $DISTRIBUTION_ID"
+    
+    - name: Get S3 Bucket Name
+      id: s3
+      run: |
+        BUCKET_NAME=$(terraform output -raw s3_bucket_name)
+        echo "bucket_name=$BUCKET_NAME" >> $GITHUB_OUTPUT
+        echo "S3 Bucket Name: $BUCKET_NAME"
+
+  build-and-deploy:
+    needs: deploy-infrastructure
+    runs-on: ubuntu-latest
+    outputs:
+      website_url: ${{ steps.terraform-output.outputs.website_url }}
     
     steps:
     - name: Checkout code
@@ -21,179 +89,75 @@ jobs:
         
     - name: Install dependencies
       run: npm ci
-        
+      
     - name: Build application
+      env:
+        REACT_APP_LAMBDA_FUNCTION_URL: ${{ steps.terraform-output.outputs.lambda_url }}
       run: npm run build
-        
-    - name: Create deployment package
+      
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+        terraform_wrapper: false
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Get Terraform outputs
+      id: terraform-output
+      working-directory: ./terraform
       run: |
-        tar -czf build.tar.gz build/
-        
-    - name: Setup SSH key
+        terraform init
+        BUCKET_NAME=$(terraform output -raw s3_bucket_name)
+        DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id)
+        WEBSITE_URL=$(terraform output -raw website_url)
+        LAMBDA_URL=$(terraform output -raw lambda_function_url)
+        echo "bucket_name=$BUCKET_NAME" >> $GITHUB_OUTPUT
+        echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+        echo "website_url=$WEBSITE_URL" >> $GITHUB_OUTPUT
+        echo "lambda_url=$LAMBDA_URL" >> $GITHUB_OUTPUT
+    
+    - name: Deploy to S3
       run: |
-        mkdir -p ~/.ssh
-        echo "SSH key length: ${#ORACLE_SSH_KEY}"
+        # 정적 파일 업로드 (캐싱 1년)
+        aws s3 sync build/ s3://${{ steps.terraform-output.outputs.bucket_name }} \
+          --delete \
+          --cache-control "public, max-age=31536000, immutable" \
+          --exclude "*.html" \
+          --exclude "service-worker.js" \
+          --exclude "manifest.json"
         
-        # SSH 키가 비어있는지 확인
-        if [ -z "${{ secrets.ORACLE_SSH_KEY }}" ]; then
-          echo "ERROR: ORACLE_SSH_KEY is empty!"
-          exit 1
+        # HTML 파일 업로드 (캐싱 없음)
+        aws s3 sync build/ s3://${{ steps.terraform-output.outputs.bucket_name }} \
+          --delete \
+          --cache-control "public, max-age=0, must-revalidate" \
+          --exclude "*" \
+          --include "*.html"
+        
+        # service-worker와 manifest는 캐싱 없음
+        if [ -f build/service-worker.js ]; then
+          aws s3 cp build/service-worker.js s3://${{ steps.terraform-output.outputs.bucket_name }}/ \
+            --cache-control "public, max-age=0, must-revalidate"
         fi
-        
-        # SSH 키 내용 확인 (처음과 끝 부분만)
-        echo "SSH key starts with: $(echo "${{ secrets.ORACLE_SSH_KEY }}" | head -c 50)"
-        echo "SSH key ends with: $(echo "${{ secrets.ORACLE_SSH_KEY }}" | tail -c 50)"
-        
-        echo "${{ secrets.ORACLE_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        
-        # SSH 키 파일 내용 확인
-        echo "SSH key file content (first 100 chars):"
-        head -c 100 ~/.ssh/id_rsa
-        
-        ls -la ~/.ssh/
-        eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_rsa
-        echo "Running ssh-keyscan..."
-        ssh-keyscan -H ${{ secrets.ORACLE_HOST }} >> ~/.ssh/known_hosts
-        echo "SSH setup completed"
-        
-        echo "SSH setup completed - ready for deployment"
-        
-    - name: Copy files to server
+        if [ -f build/manifest.json ]; then
+          aws s3 cp build/manifest.json s3://${{ steps.terraform-output.outputs.bucket_name }}/ \
+            --cache-control "public, max-age=0, must-revalidate"
+        fi
+    
+    - name: Invalidate CloudFront cache
+      if: steps.terraform-output.outputs.distribution_id != ''
       run: |
-        scp -P ${{ secrets.ORACLE_PORT }} build.tar.gz ${{ secrets.ORACLE_USERNAME }}@${{ secrets.ORACLE_HOST }}:/tmp/
-        scp -P ${{ secrets.ORACLE_PORT }} nginx.conf ${{ secrets.ORACLE_USERNAME }}@${{ secrets.ORACLE_HOST }}:/tmp/
-        
-    - name: Extract and deploy
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.ORACLE_HOST }}
-        username: ${{ secrets.ORACLE_USERNAME }}
-        key: ${{ secrets.ORACLE_SSH_KEY }}
-        port: ${{ secrets.ORACLE_PORT }}
-        timeout: 60s
-        command_timeout: 10m
-        script: |
-          # React 앱 배포
-          echo "Deploying React app..."
-          
-          # 각 단계별 상세 로그
-          echo "Step 1: Creating app directory..."
-          sudo mkdir -p /var/www/earth
-          sudo chown -R opc:opc /var/www/earth
-          echo "Directory created: $(ls -la /var/www/earth/)"
-          
-          # 앱 디렉토리로 이동
-          cd /var/www/earth
-          echo "Current directory: $(pwd)"
-          
-          # 기존 파일 백업
-          echo "Step 2: Backing up existing files..."
-          sudo cp -r build build.backup.$(date +%Y%m%d_%H%M%S) || echo "No existing build to backup"
-          
-          # 새 빌드 파일 압축 해제
-          echo "Step 3: Extracting new build files..."
-          sudo rm -rf build
-          sudo mkdir -p build
-          echo "Build directory created: $(ls -la build/)"
-          
-          echo "Extracting build.tar.gz..."
-          sudo tar -xzf /tmp/build.tar.gz -C /var/www/earth/
-          echo "Extraction completed. Build contents: $(ls -la build/)"
-          sudo rm /tmp/build.tar.gz
-          
-          # 권한 설정
-          echo "Step 4: Setting permissions..."
-          sudo chown -R opc:opc /var/www/earth/build
-          sudo chmod -R 755 /var/www/earth/build
-          echo "Permissions set: $(ls -la build/)"
-          
-          echo "🎉 React app deployed successfully!"
-          echo "📁 Files are available at: /var/www/earth/build"
-          echo "🚀 Ready to configure nginx in next step"
-          
-    - name: Setup and configure nginx
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.ORACLE_HOST }}
-        username: ${{ secrets.ORACLE_USERNAME }}
-        key: ${{ secrets.ORACLE_SSH_KEY }}
-        port: ${{ secrets.ORACLE_PORT }}
-        timeout: 20s
-        command_timeout: 1m
-        script: |
-          echo "🚀 Setting up nginx web server..."
-          echo "Step 1: Checking deployment directory..."
-          ls -la /var/www/earth/
-          
-          echo "Step 2: Copying nginx configuration..."
-          # nginx.conf 파일을 /tmp에서 복사
-          if [ -f /tmp/nginx.conf ]; then
-            sudo cp /tmp/nginx.conf /etc/nginx/sites-available/earth
-            sudo rm /tmp/nginx.conf
-          else
-            # 기본 nginx 설정 생성
-            sudo bash -c 'cat > /etc/nginx/sites-available/earth << EOF
-          server {
-              listen 80;
-              server_name _;
-              
-              root /var/www/earth/build;
-              index index.html;
-              
-              # gzip 압축 활성화
-              gzip on;
-              gzip_vary on;
-              gzip_min_length 1024;
-              gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
-              
-              # 보안 헤더
-              add_header X-Frame-Options "SAMEORIGIN" always;
-              add_header X-XSS-Protection "1; mode=block" always;
-              add_header X-Content-Type-Options "nosniff" always;
-              add_header Referrer-Policy "no-referrer-when-downgrade" always;
-              add_header Content-Security-Policy "default-src '\''self'\'' http: https: data: blob: '\''unsafe-inline'\''" always;
-              
-              # 정적 파일 캐싱
-              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-                  expires 1y;
-                  add_header Cache-Control "public, immutable";
-              }
-              
-              # React Router를 위한 설정
-              location / {
-                  try_files $uri $uri/ /index.html;
-              }
-              
-              # 에러 페이지
-              error_page 404 /index.html;
-          }
-          EOF'
-          fi
-          
-          echo "Step 3: Enabling nginx site..."
-          sudo ln -sf /etc/nginx/sites-available/earth /etc/nginx/sites-enabled/
-          sudo rm -f /etc/nginx/sites-enabled/default
-          
-          echo "Step 4: Testing nginx configuration..."
-          sudo nginx -t
-          
-          echo "Step 5: Setting proper permissions..."
-          sudo chown -R www-data:www-data /var/www/earth/build
-          sudo chmod -R 755 /var/www/earth/build
-          
-          echo "Step 6: Reloading nginx..."
-          sudo systemctl reload nginx
-          
-          echo "Step 7: Checking nginx status..."
-          sudo systemctl status nginx --no-pager -l || true
-          sudo ss -tlnp | grep :80 || echo "Port 80 not listening"
-          
-          if sudo systemctl is-active --quiet nginx; then
-            echo "✅ SUCCESS: Nginx is running!"
-            echo "🌐 React app accessible at: http://$(curl -s ifconfig.me)"
-          else
-            echo "❌ FAILED: Nginx is not running"
-            sudo journalctl -u nginx --no-pager -l | tail -20
-          fi
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ steps.terraform-output.outputs.distribution_id }} \
+          --paths "/*"
+    
+    - name: Deployment summary
+      run: |
+        echo "✅ Deployment completed!"
+        echo "🌐 Your app is available at:"
+        echo "   ${{ steps.terraform-output.outputs.website_url }}"

@@ -81,6 +81,148 @@
   color: #666;
 }
 
+.model-info-section {
+  margin-top: 50px;
+  padding-top: 30px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.model-info-title {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.current-model {
+  background: #f5f5f5;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.current-model-label {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.current-model-value {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.current-model-value strong {
+  color: #667eea;
+}
+
+.available-models {
+  margin-top: 20px;
+}
+
+.models-summary {
+  cursor: pointer;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #667eea;
+  user-select: none;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.loading-indicator {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: normal;
+}
+
+.models-summary:hover {
+  background: #e9ecef;
+}
+
+.models-list {
+  margin-top: 15px;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.api-version {
+  margin-bottom: 25px;
+}
+
+.api-version:last-child {
+  margin-bottom: 0;
+}
+
+.api-version h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.model-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.model-item {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-item.supported {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.model-item.unsupported {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.model-badge {
+  background: #667eea;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.model-error {
+  padding: 15px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  color: #856404;
+  margin-top: 10px;
+}
+
+.no-models {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}
+
 @media (max-width: 768px) {
   .landing-container {
     padding: 40px 20px;
@@ -96,5 +238,14 @@
   
   .exam-button {
     width: 100%;
+  }
+
+  .current-model {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .models-list {
+    max-height: 300px;
   }
 }

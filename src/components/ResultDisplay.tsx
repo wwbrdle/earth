@@ -1,16 +1,36 @@
 import React from 'react';
 import './ResultDisplay.css';
 
+interface GeminiAnalysis {
+  similarityScore?: number;
+  overallScore?: number;
+  keyDifferences?: string[];
+  strengths?: string[];
+  improvements?: string[];
+  suggestions?: string[];
+  grammarErrors?: Array<{ error: string; correction: string }>;
+  vocabularyScore?: number;
+  sentenceStructureScore?: number;
+  feedback?: string;
+  contentSuggestions?: string[];
+  languageSuggestions?: string[];
+  structureSuggestions?: string[];
+}
+
 interface ResultDisplayProps {
   similarityScore: number;
   userAnswer: string;
   sampleAnswer: string;
+  geminiAnalysis?: GeminiAnalysis | null;
+  isAnalyzing?: boolean;
 }
 
 const ResultDisplay: React.FC<ResultDisplayProps> = ({
   similarityScore,
   userAnswer,
-  sampleAnswer
+  sampleAnswer,
+  geminiAnalysis,
+  isAnalyzing = false
 }) => {
   const getScoreColor = (score: number) => {
     if (score >= 80) return '#28a745';
@@ -63,15 +83,91 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
         </div>
       </div>
 
-      <div className="tips-section">
-        <h4>💡 개선 팁</h4>
-        <ul>
-          <li>더 구체적인 예시를 들어보세요</li>
-          <li>다양한 어휘와 표현을 사용해보세요</li>
-          <li>연결어를 활용하여 답변을 더 자연스럽게 만들어보세요</li>
-          <li>충분한 설명과 근거를 제공해보세요</li>
-        </ul>
-      </div>
+      {isAnalyzing && (
+        <div className="analyzing-section">
+          <p>🤖 AI 분석 중...</p>
+        </div>
+      )}
+
+      {geminiAnalysis && (
+        <div className="gemini-analysis-section">
+          {geminiAnalysis.keyDifferences && geminiAnalysis.keyDifferences.length > 0 && (
+            <div className="analysis-item">
+              <h4>🔍 주요 차이점</h4>
+              <ul>
+                {geminiAnalysis.keyDifferences.map((diff, index) => (
+                  <li key={index}>{diff}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {geminiAnalysis.strengths && geminiAnalysis.strengths.length > 0 && (
+            <div className="analysis-item">
+              <h4>✨ 강점</h4>
+              <ul>
+                {geminiAnalysis.strengths.map((strength, index) => (
+                  <li key={index}>{strength}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {geminiAnalysis.improvements && geminiAnalysis.improvements.length > 0 && (
+            <div className="analysis-item">
+              <h4>📈 개선 사항</h4>
+              <ul>
+                {geminiAnalysis.improvements.map((improvement, index) => (
+                  <li key={index}>{improvement}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {geminiAnalysis.suggestions && geminiAnalysis.suggestions.length > 0 && (
+            <div className="analysis-item">
+              <h4>💡 구체적인 제안</h4>
+              <ul>
+                {geminiAnalysis.suggestions.map((suggestion, index) => (
+                  <li key={index}>{suggestion}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {geminiAnalysis.grammarErrors && geminiAnalysis.grammarErrors.length > 0 && (
+            <div className="analysis-item">
+              <h4>✏️ 문법 오류</h4>
+              <ul>
+                {geminiAnalysis.grammarErrors.map((error, index) => (
+                  <li key={index}>
+                    <strong>오류:</strong> {error.error} → <strong>수정:</strong> {error.correction}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {geminiAnalysis.feedback && (
+            <div className="analysis-item">
+              <h4>📝 종합 피드백</h4>
+              <p>{geminiAnalysis.feedback}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!geminiAnalysis && !isAnalyzing && (
+        <div className="tips-section">
+          <h4>💡 개선 팁</h4>
+          <ul>
+            <li>더 구체적인 예시를 들어보세요</li>
+            <li>다양한 어휘와 표현을 사용해보세요</li>
+            <li>연결어를 활용하여 답변을 더 자연스럽게 만들어보세요</li>
+            <li>충분한 설명과 근거를 제공해보세요</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

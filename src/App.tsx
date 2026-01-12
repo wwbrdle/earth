@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import './App.css';
-import QuestionCard from './components/QuestionCard.tsx';
-import SpeechRecognition from './components/SpeechRecognition.tsx';
-import ResultDisplay from './components/ResultDisplay.tsx';
-import LandingPage from './components/LandingPage.tsx';
-import TEFCanada from './components/TEFCanada.tsx';
+import QuestionCard from './components/QuestionCard';
+import SpeechRecognition from './components/SpeechRecognition';
+import ResultDisplay from './components/ResultDisplay';
+import LandingPage from './components/LandingPage';
+import TEFCanada from './components/TEFCanada';
+import { analyzeWithGemini } from './utils/geminiApi';
 
 interface Question {
   id: number;
@@ -1318,6 +1319,9 @@ function App() {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [similarityScore, setSimilarityScore] = useState<number | null>(null);
   const [showResult, setShowResult] = useState<boolean>(false);
+  const [geminiAnalysis, setGeminiAnalysis] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [lambdaFunctionUrl, setLambdaFunctionUrl] = useState<string>('');
 
 
 
@@ -1349,27 +1353,76 @@ function App() {
     setIsRecording(false);
   };
 
-  const calculateSimilarity = () => {
+  const calculateSimilarity = async () => {
     if (!userAnswer.trim()) return;
     
-    // 간단한 유사도 계산 (실제로는 더 정교한 알고리즘이 필요)
+    setIsAnalyzing(true);
+    setGeminiAnalysis(null);
+    
     let sampleAnswer = '';
+    let question = '';
+    
     if (currentPart === 'part1') {
       sampleAnswer = currentQuestion.sampleAnswer;
+      question = currentQuestion.question;
     } else if (currentPart === 'part2') {
       sampleAnswer = currentPart2Question.sampleAnswer;
+      question = currentPart2Question.mainQuestion;
     } else if (currentPart === 'part3') {
       sampleAnswer = currentPart3Question.sampleAnswer;
+      question = currentPart3Question.question;
     }
     
-    const userWords = userAnswer.toLowerCase().split(/\s+/);
-    const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
-    
-    const commonWords = userWords.filter(word => sampleWords.includes(word));
-    const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
-    
-    setSimilarityScore(Math.round(similarity));
-    setShowResult(true);
+    try {
+      // Gemini API 호출 (환경에 따라 자동 선택)
+      const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL || lambdaFunctionUrl;
+      const data = await analyzeWithGemini(
+        {
+          userAnswer,
+          sampleAnswer,
+          question,
+          analysisType: 'similarity'
+        },
+        lambdaUrl
+      );
+      
+      console.log('Gemini API 응답:', data); // 디버깅용
+      
+      if (data.success && data.analysis) {
+        // Gemini 분석 결과 처리
+        console.log('Gemini 분석 결과:', data.analysis); // 디버깅용
+        setGeminiAnalysis(data.analysis);
+        
+        // 유사도 점수 추출
+        if (data.analysis.similarityScore !== undefined) {
+          setSimilarityScore(data.analysis.similarityScore);
+        } else if (data.analysis.overallScore !== undefined) {
+          setSimilarityScore(data.analysis.overallScore);
+        } else {
+          // 점수를 찾을 수 없으면 기본 계산 사용
+          const userWords = userAnswer.toLowerCase().split(/\s+/);
+          const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+          const commonWords = userWords.filter(word => sampleWords.includes(word));
+          const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
+          setSimilarityScore(Math.round(similarity));
+        }
+        
+        setShowResult(true);
+      } else {
+        throw new Error(data.error || 'Analysis failed');
+      }
+    } catch (error) {
+      console.error('Error analyzing with Gemini:', error);
+      // 에러 발생 시 기본 유사도 계산 사용
+      const userWords = userAnswer.toLowerCase().split(/\s+/);
+      const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+      const commonWords = userWords.filter(word => sampleWords.includes(word));
+      const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
+      setSimilarityScore(Math.round(similarity));
+      setShowResult(true);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   if (currentView === 'landing') {
@@ -1571,8 +1624,12 @@ function App() {
           <div className="user-answer">
             <h3>🎤 당신의 답변:</h3>
             <p>{userAnswer}</p>
-            <button onClick={calculateSimilarity} className="compare-button">
-              📊 유사도 분석하기
+            <button 
+              onClick={calculateSimilarity} 
+              className="compare-button"
+              disabled={isAnalyzing}
+            >
+              {isAnalyzing ? '🤖 AI 분석 중...' : '📊 유사도 분석하기'}
             </button>
           </div>
         )}
@@ -1588,6 +1645,8 @@ function App() {
                 ? currentPart2Question.sampleAnswer
                 : currentPart3Question.sampleAnswer
             }
+            geminiAnalysis={geminiAnalysis}
+            isAnalyzing={isAnalyzing}
           />
         )}
       </main>

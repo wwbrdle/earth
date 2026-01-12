@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './TEFCanada.css';
-import SpeechRecognition from './SpeechRecognition.tsx';
+import SpeechRecognition from './SpeechRecognition';
 
 interface TEFCanadaProps {
   onBack: () => void;

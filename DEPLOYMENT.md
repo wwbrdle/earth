@@ -1,146 +1,278 @@
-# Oracle Cloud 배포 가이드
+# 🚀 배포 가이드
 
-이 문서는 Earth 앱을 Oracle Cloud 인스턴스에 배포하는 방법을 설명합니다.
+이 문서는 Earth 앱을 AWS에 배포하는 방법을 설명합니다.
 
-## 🚀 1단계: Oracle Cloud 인스턴스 생성
+## 📋 배포 전 준비사항
 
-### 1.1 인스턴스 생성
-- Oracle Cloud Console에 로그인
-- Compute > Instances > Create Instance
-- **Image**: Canonical Ubuntu 22.04
-- **Shape**: VM.Standard.A1.Flex (1 OCPU, 6GB RAM 권장)
-- **Networking**: 기본 VCN 사용 또는 새로 생성
-- **Public IP**: Yes
+### 1. AWS 계정 설정
 
-### 1.2 보안 그룹 설정
-- **Ingress Rules**:
-  - Port 22 (SSH)
-  - Port 80 (HTTP)
-  - Port 443 (HTTPS)
+1. **AWS 계정 생성** (없는 경우)
+   - [AWS 콘솔](https://console.aws.amazon.com/)에서 계정 생성
 
-## 🔧 2단계: 서버 초기 설정
+2. **AWS CLI 설치 및 구성**
+   ```bash
+   # AWS CLI 설치 (macOS)
+   brew install awscli
+   
+   # AWS 자격 증명 설정
+   aws configure
+   # AWS Access Key ID 입력
+   # AWS Secret Access Key 입력
+   # Default region: ap-northeast-2
+   # Default output format: json
+   ```
 
-### 2.1 SSH 연결
+3. **IAM 사용자 생성** (GitHub Actions용)
+   - AWS 콘솔 → IAM → 사용자 → 사용자 추가
+   - 권한: `AmazonS3FullAccess`, `CloudFrontFullAccess`, `LambdaFullAccess`, `IAMFullAccess`, `SSMFullAccess`
+   - 액세스 키 생성 및 저장
+
+### 2. Google Gemini API 키 발급
+
+1. [Google AI Studio](https://makersuite.google.com/app/apikey) 접속
+2. API 키 생성
+3. API 키 복사 및 안전하게 보관
+
+### 3. Terraform 변수 설정
+
 ```bash
-ssh ubuntu@YOUR_INSTANCE_IP
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
 ```
 
-### 2.2 서버 설정 스크립트 실행
-```bash
-# 스크립트를 실행 가능하게 만들기
-chmod +x setup-server.sh
-
-# 스크립트 실행
-./setup-server.sh
+`terraform.tfvars` 파일 편집:
+```hcl
+aws_region   = "ap-northeast-2"
+bucket_name  = "earth-app-prod"  # 고유한 버킷 이름으로 변경
+environment  = "production"
+gemini_api_key = "your-gemini-api-key-here"  # 실제 Gemini API 키 입력
 ```
 
-### 2.3 도메인 설정 (선택사항)
-```bash
-# nginx.conf 파일 수정
-sudo nano /etc/nginx/sites-available/earth
+### 4. GitHub Secrets 설정
 
-# server_name을 실제 도메인으로 변경
-server_name your-domain.com;
+GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret
+
+다음 secrets 추가:
+- `AWS_ACCESS_KEY_ID`: AWS IAM 사용자의 액세스 키 ID
+- `AWS_SECRET_ACCESS_KEY`: AWS IAM 사용자의 시크릿 액세스 키
+
+## 🚀 배포 방법
+
+### 방법 1: GitHub Actions 자동 배포 (권장)
+
+가장 간단한 방법입니다. 코드를 푸시하면 자동으로 배포됩니다.
+
+1. **코드 커밋 및 푸시**
+   ```bash
+   git add .
+   git commit -m "Deploy to production"
+   git push origin prod  # prod 브랜치에만 배포됩니다
+   ```
+   
+   **참고**: `prod` 브랜치가 없으면 먼저 생성하세요:
+   ```bash
+   git checkout -b prod
+   git push -u origin prod
+   ```
+
+2. **GitHub Actions 확인**
+   - GitHub 저장소 → Actions 탭
+   - 배포 워크플로우 실행 확인
+   - 완료되면 웹사이트 URL 확인
+
+3. **배포 완료 확인**
+   - GitHub Actions 로그에서 `website_url` 확인
+   - 또는 Terraform outputs에서 확인:
+     ```bash
+     cd terraform
+     terraform output website_url
+     ```
+
+### 방법 2: 수동 배포
+
+#### 2-1. 인프라 배포 (Terraform)
+
+```bash
+cd terraform
+
+# Terraform 초기화
+terraform init
+
+# 배포 계획 확인
+terraform plan
+
+# 인프라 배포
+terraform apply
 ```
 
-## 🔑 3단계: GitHub Secrets 설정
+배포되는 리소스:
+- S3 버킷 (정적 웹사이트 호스팅)
+- CloudFront 배포 (CDN, HTTPS)
+- Lambda 함수 (Gemini API 호출)
+- API Gateway (Lambda 함수 URL)
+- Parameter Store (Gemini API 키 저장)
 
-GitHub 저장소의 Settings > Secrets and variables > Actions에서 다음 secrets를 추가하세요:
+#### 2-2. Lambda 함수 배포
 
-### 3.1 필수 Secrets
-- `ORACLE_HOST`: Oracle Cloud 인스턴스의 공인 IP 주소
-- `ORACLE_USERNAME`: SSH 사용자명 (보통 `ubuntu`)
-- `ORACLE_SSH_KEY`: SSH 개인키 내용 (전체 내용)
-- `ORACLE_PORT`: SSH 포트 (기본값: 22)
-
-### 3.2 SSH 키 생성 및 설정
 ```bash
-# 로컬에서 SSH 키 생성
-ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
+# Lambda 함수 패키징
+cd lambda/gemini-analysis
+npm install --production
+zip -r ../../terraform/lambda-function.zip . -x "*.git*" "*.md" "README*"
 
-# 공개키를 서버에 복사
-ssh-copy-id -i ~/.ssh/id_rsa.pub ubuntu@YOUR_INSTANCE_IP
-
-# 개인키 내용을 GitHub Secrets에 추가
-cat ~/.ssh/id_rsa
+# Terraform으로 Lambda 함수 업데이트
+cd ../../terraform
+terraform apply
 ```
 
-## 📦 4단계: 첫 번째 배포
+#### 2-3. 프론트엔드 배포
 
-### 4.1 자동 배포
-- GitHub 저장소에 코드를 push하면 자동으로 배포됩니다
-- `main` 또는 `master` 브랜치에 push할 때마다 배포가 실행됩니다
-
-### 4.2 수동 배포
-- GitHub Actions 탭에서 "Deploy to Oracle Cloud" 워크플로우 선택
-- "Run workflow" 버튼 클릭
-
-## 🌐 5단계: SSL 인증서 설정 (권장)
-
-### 5.1 Let's Encrypt 인증서 발급
 ```bash
-# 도메인이 설정된 경우
-sudo certbot --nginx -d your-domain.com
+# 프로젝트 루트로 이동
+cd ..
 
-# IP 주소만 있는 경우 (개발용)
-sudo certbot --nginx --agree-tos --no-eff-email --email your-email@example.com
+# 의존성 설치
+npm install
+
+# Lambda 함수 URL 가져오기
+cd terraform
+LAMBDA_URL=$(terraform output -raw lambda_function_url)
+cd ..
+
+# 빌드 (Lambda URL 환경 변수 포함)
+REACT_APP_LAMBDA_FUNCTION_URL=$LAMBDA_URL npm run build
+
+# S3 버킷 이름 가져오기
+BUCKET_NAME=$(cd terraform && terraform output -raw s3_bucket_name)
+
+# S3에 배포
+aws s3 sync build/ s3://$BUCKET_NAME \
+  --delete \
+  --cache-control "public, max-age=31536000, immutable" \
+  --exclude "*.html"
+
+aws s3 sync build/ s3://$BUCKET_NAME \
+  --delete \
+  --cache-control "public, max-age=0, must-revalidate" \
+  --exclude "*" \
+  --include "*.html"
+
+# CloudFront 캐시 무효화
+DISTRIBUTION_ID=$(cd terraform && terraform output -raw cloudfront_distribution_id)
+aws cloudfront create-invalidation \
+  --distribution-id $DISTRIBUTION_ID \
+  --paths "/*"
 ```
 
-### 5.2 자동 갱신 설정
-```bash
-# 자동 갱신 테스트
-sudo certbot renew --dry-run
+## 🔍 배포 확인
 
-# cron 작업 확인
-sudo crontab -l
+### 1. 웹사이트 접속
+```bash
+cd terraform
+terraform output website_url
+```
+출력된 URL로 접속하여 앱이 정상 작동하는지 확인
+
+### 2. Lambda 함수 테스트
+```bash
+LAMBDA_URL=$(cd terraform && terraform output -raw lambda_function_url)
+curl -X POST $LAMBDA_URL \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userAnswer": "I like watching documentaries.",
+    "sampleAnswer": "I enjoy watching nature documentaries because they are educational.",
+    "question": "What kind of TV programs do you like?",
+    "analysisType": "similarity"
+  }'
 ```
 
-## 🔍 6단계: 배포 확인
-
-### 6.1 로그 확인
+### 3. CloudFront 배포 상태 확인
 ```bash
-# Nginx 로그
-sudo tail -f /var/log/nginx/access.log
-sudo tail -f /var/log/nginx/error.log
-
-# GitHub Actions 로그
-# GitHub 저장소의 Actions 탭에서 확인
+DISTRIBUTION_ID=$(cd terraform && terraform output -raw cloudfront_distribution_id)
+aws cloudfront get-distribution --id $DISTRIBUTION_ID
 ```
 
-### 6.2 앱 접속 테스트
-- 브라우저에서 `http://YOUR_INSTANCE_IP` 또는 `https://your-domain.com` 접속
-- Earth 앱이 정상적으로 로드되는지 확인
+## 🔄 업데이트 배포
 
-## 🚨 문제 해결
+### 코드 변경 후 재배포
 
-### 6.1 일반적인 문제들
-- **권한 오류**: `sudo chown -R www-data:www-data /var/www/earth`
-- **Nginx 오류**: `sudo nginx -t`로 설정 파일 문법 확인
-- **방화벽 문제**: Oracle Cloud Security Lists에서 포트 허용 확인
+1. **자동 배포 (GitHub Actions)**
+   ```bash
+   git add .
+   git commit -m "Update features"
+   git push origin main
+   ```
 
-### 6.2 로그 확인 명령어
+2. **수동 배포**
+   ```bash
+   # 프론트엔드만 업데이트
+   npm run build
+   aws s3 sync build/ s3://$(cd terraform && terraform output -raw s3_bucket_name) --delete
+   
+   # CloudFront 캐시 무효화
+   aws cloudfront create-invalidation \
+     --distribution-id $(cd terraform && terraform output -raw cloudfront_distribution_id) \
+     --paths "/*"
+   ```
+
+### Lambda 함수만 업데이트
+
 ```bash
-# 시스템 로그
-sudo journalctl -u nginx -f
-
-# 앱 디렉토리 확인
-ls -la /var/www/earth/
-
-# Nginx 상태 확인
-sudo systemctl status nginx
+cd lambda/gemini-analysis
+npm install --production
+zip -r ../../terraform/lambda-function.zip . -x "*.git*" "*.md" "README*"
+cd ../../terraform
+terraform apply
 ```
+
+## 🗑️ 인프라 삭제
+
+⚠️ **주의**: 모든 리소스가 삭제됩니다!
+
+```bash
+cd terraform
+terraform destroy
+```
+
+## 📝 주요 Terraform Outputs
+
+```bash
+cd terraform
+terraform output
+```
+
+출력되는 값:
+- `website_url`: CloudFront 배포 URL
+- `s3_bucket_name`: S3 버킷 이름
+- `cloudfront_distribution_id`: CloudFront 배포 ID
+- `lambda_function_url`: Lambda 함수 URL
+
+## 🐛 문제 해결
+
+### 배포 실패 시
+
+1. **Terraform 오류**
+   ```bash
+   cd terraform
+   terraform plan  # 계획 확인
+   terraform validate  # 설정 검증
+   ```
+
+2. **S3 업로드 실패**
+   - AWS 자격 증명 확인: `aws sts get-caller-identity`
+   - 버킷 권한 확인
+
+3. **Lambda 함수 오류**
+   - CloudWatch Logs 확인
+   - Lambda 함수 테스트 실행
+
+4. **CloudFront 캐시 문제**
+   - 캐시 무효화 실행
+   - 브라우저 캐시 삭제
 
 ## 📚 추가 리소스
 
-- [Oracle Cloud Documentation](https://docs.oracle.com/en-us/iaas/Content/home.htm)
-- [Nginx Configuration](https://nginx.org/en/docs/)
-- [GitHub Actions](https://docs.github.com/en/actions)
-- [Let's Encrypt](https://letsencrypt.org/docs/)
-
-## 🆘 지원
-
-문제가 발생하면 다음을 확인하세요:
-1. GitHub Actions 로그
-2. 서버 로그
-3. 방화벽 설정
-4. 네트워크 연결
+- [Terraform AWS Provider 문서](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+- [AWS S3 정적 웹사이트 호스팅](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
+- [AWS CloudFront 문서](https://docs.aws.amazon.com/cloudfront/)
+- [AWS Lambda 문서](https://docs.aws.amazon.com/lambda/)

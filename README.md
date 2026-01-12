@@ -14,10 +14,6 @@ IELTS 스피킹 테스트를 연습할 수 있는 웹 애플리케이션입니�
 
 ### 필수 요구사항
 
-bl216@macbookair ielts % vi ~/.ssh/config
-bl216@macbookair ielts % git remote set-url origin git@wwbrdle:wwbrdle/ielts.git
-이렇게 설정을 해줘야 wwbrdle의 카를 갖고 푸쉬할수있음
-
 - Node.js (v14 이상)
 - 최신 웹 브라우저 (Chrome, Edge, Safari 등)
 - 마이크 권한
@@ -29,12 +25,43 @@ bl216@macbookair ielts % git remote set-url origin git@wwbrdle:wwbrdle/ielts.git
 npm install
 ```
 
-2. 개발 서버 실행:
+2. 환경 변수 설정 (개발 환경):
+```bash
+# 프로젝트 루트에 .env 파일 생성
+cat > .env << EOF
+REACT_APP_GEMINI_API_KEY=your-gemini-api-key-here
+EOF
+```
+   - `.env` 파일은 **프로젝트 루트 디렉토리**에 위치해야 합니다
+   - 개발 환경에서는 `.env` 파일의 `REACT_APP_GEMINI_API_KEY`를 사용합니다
+   - 프로덕션에서는 AWS Parameter Store의 `/gemini/api_key`를 사용합니다
+   - `.env` 파일은 `.gitignore`에 포함되어 있어 Git에 커밋되지 않습니다
+
+3. 개발 서버 실행:
 ```bash
 npm start
 ```
 
-3. 브라우저에서 `http://localhost:3000`으로 접속
+4. 브라우저에서 `http://localhost:3001`으로 접속
+
+### Lambda 함수 로컬 테스트
+
+개발 환경에서 Lambda 함수를 로컬로 테스트할 수 있습니다:
+
+```bash
+cd lambda/gemini-analysis
+npm install
+
+# 환경 변수 설정 후 테스트
+REACT_APP_GEMINI_API_KEY=your-api-key node test-local.js
+```
+
+또는 npm 스크립트 사용:
+```bash
+REACT_APP_GEMINI_API_KEY=your-api-key npm run test:local
+```
+
+자세한 내용은 `lambda/gemini-analysis/README.md`를 참고하세요.
 
 ## 📱 사용 방법
 
@@ -50,6 +77,8 @@ npm start
 - **음성 인식**: Web Speech API
 - **스타일링**: CSS3 (모던 디자인)
 - **빌드 도구**: Create React App
+- **인프라**: AWS S3 + CloudFront (Terraform)
+- **배포**: GitHub Actions
 
 ## 📊 유사도 계산 방식
 
@@ -72,6 +101,68 @@ npm start
 - **실시간 피드백**: 즉시 결과 확인 가능
 - **반응형 디자인**: 모든 기기에서 최적화
 - **접근성**: 다양한 사용자를 고려한 설계
+
+## ☁️ 배포
+
+이 앱은 AWS S3 + CloudFront를 사용하여 배포됩니다. Terraform을 사용하여 인프라를 코드로 관리합니다.
+
+### 빠른 배포 가이드
+
+1. **Terraform 변수 설정**
+   ```bash
+   cd terraform
+   cp terraform.tfvars.example terraform.tfvars
+   # terraform.tfvars 파일을 열어서 버킷 이름과 Gemini API 키 설정
+   ```
+
+2. **GitHub Secrets 설정** (자동 배포용)
+   - GitHub 저장소 → Settings → Secrets and variables → Actions
+   - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` 추가
+
+3. **코드 푸시** (자동 배포)
+   ```bash
+   git push origin main
+   ```
+
+자세한 배포 가이드는 [DEPLOYMENT.md](./DEPLOYMENT.md)를 참고하세요.
+
+### 배포 방법
+
+**Terraform으로 인프라 생성:**
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+**자동 배포:**
+- `prod` 브랜치에 push하면 GitHub Actions가 자동으로 프로덕션에 배포합니다
+- Terraform으로 인프라를 생성/업데이트하고, 앱을 빌드하여 S3에 배포합니다
+- 다른 브랜치에서는 배포되지 않습니다
+
+### 배포 아키텍처
+
+- **S3**: 정적 파일 호스팅
+- **CloudFront**: HTTPS + 글로벌 CDN
+- **Lambda**: Gemini API 연동 (답변 분석)
+- **Terraform**: 인프라 코드 관리
+- **GitHub Actions**: CI/CD 자동화
+
+### Gemini AI 기능
+
+- **유사도 분석**: 사용자 답변과 모범 답안의 정교한 비교
+- **문법 검사**: 문법 오류 및 수정 제안
+- **개선 제안**: 구체적인 개선 사항 및 학습 팁 제공
+- **종합 피드백**: AI 기반 상세한 피드백
+
+### 비용
+
+- 예상 월 비용: $1~5 (트래픽에 따라)
+- S3 스토리지: $0.023/GB/월
+- CloudFront 전송: $0.085/GB (첫 10TB)
+
+자세한 배포 가이드는 `terraform/README.md`를 참고하세요.
 
 ## 📄 라이선스
 
