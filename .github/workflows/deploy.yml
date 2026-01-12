@@ -42,16 +42,16 @@ jobs:
     - name: Terraform Init
       run: terraform init
     
-    - name: Terraform Plan
-      run: terraform plan -out=tfplan
-      continue-on-error: true
-    
     - name: Package Lambda function
       run: |
         cd ../lambda/gemini-analysis
         npm install --production
         zip -r ../../terraform/lambda-function.zip . -x "*.git*" "*.md" "README*"
         cd ../../terraform
+    
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
+      continue-on-error: true
     
     - name: Terraform Apply
       if: github.ref == 'refs/heads/prod' || github.event_name == 'workflow_dispatch'
