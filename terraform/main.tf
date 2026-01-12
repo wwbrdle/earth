@@ -182,9 +182,10 @@ resource "aws_s3_bucket_policy" "cloudfront" {
   depends_on = [aws_cloudfront_distribution.app]
 }
 
-# Lambda 함수용 IAM 역할
+# Lambda 함수용 IAM 역할 (us-east-1)
 resource "aws_iam_role" "lambda_role" {
-  name = "${var.bucket_name}-lambda-role"
+  provider = aws.us_east_1
+  name     = "${var.bucket_name}-lambda-role"
 
   lifecycle {
     ignore_changes = [name]  # 기존 역할이 있으면 무시
@@ -206,14 +207,16 @@ resource "aws_iam_role" "lambda_role" {
 
 # Lambda 함수용 IAM 정책 (기본 실행 권한)
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  provider   = aws.us_east_1
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # Lambda 함수용 IAM 정책 (Parameter Store 읽기 권한)
 resource "aws_iam_role_policy" "lambda_ssm" {
-  name = "${var.bucket_name}-lambda-ssm-policy"
-  role = aws_iam_role.lambda_role.id
+  provider = aws.us_east_1
+  name     = "${var.bucket_name}-lambda-ssm-policy"
+  role     = aws_iam_role.lambda_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -224,7 +227,7 @@ resource "aws_iam_role_policy" "lambda_ssm" {
           "ssm:GetParameter",
           "ssm:GetParameters"
         ]
-        Resource = "arn:aws:ssm:${var.aws_region}:*:parameter/gemini/api_key"
+        Resource = "arn:aws:ssm:us-east-1:*:parameter/gemini/api_key"
       }
     ]
   })
@@ -237,10 +240,11 @@ data "archive_file" "lambda_zip" {
   output_path = "${path.module}/lambda-function.zip"
 }
 
-# AWS Systems Manager Parameter Store에 Gemini API 키 저장
+# AWS Systems Manager Parameter Store에 Gemini API 키 저장 (us-east-1)
 # terraform.tfvars에서 gemini_api_key를 제공하지 않으면 기존 값을 유지
 # 주의: 이미 Parameter Store에 키가 있으면 이 리소스를 import하거나 생략해야 합니다
 resource "aws_ssm_parameter" "gemini_api_key" {
+  provider    = aws.us_east_1
   count       = var.gemini_api_key != "" ? 1 : 0
   name        = "/gemini/api_key"
   description = "Google Gemini API Key"
@@ -253,8 +257,9 @@ resource "aws_ssm_parameter" "gemini_api_key" {
   }
 }
 
-# Lambda 함수
+# Lambda 함수 (us-east-1)
 resource "aws_lambda_function" "gemini_analysis" {
+  provider         = aws.us_east_1
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "${var.bucket_name}-gemini-analysis"
   role            = aws_iam_role.lambda_role.arn
@@ -271,8 +276,9 @@ resource "aws_lambda_function" "gemini_analysis" {
   ]
 }
 
-# Lambda Function URL (CORS 활성화)
+# Lambda Function URL (CORS 활성화, us-east-1)
 resource "aws_lambda_function_url" "gemini_analysis" {
+  provider          = aws.us_east_1
   function_name      = aws_lambda_function.gemini_analysis.function_name
   authorization_type = "NONE"
   cors {
