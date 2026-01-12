@@ -213,15 +213,20 @@ data "archive_file" "lambda_zip" {
 }
 
 # AWS Systems Manager Parameter Store에 Gemini API 키 저장
+# terraform.tfvars에서 gemini_api_key를 제공하지 않으면 기존 값을 유지
 resource "aws_ssm_parameter" "gemini_api_key" {
   name        = "/gemini/api_key"
   description = "Google Gemini API Key"
   type        = "SecureString"
-  value       = var.gemini_api_key
+  value       = var.gemini_api_key != "" ? var.gemini_api_key : "placeholder"  # 기존 값 유지를 위한 placeholder
 
   tags = {
     Name        = "gemini-api-key"
     Environment = var.environment
+  }
+
+  lifecycle {
+    ignore_changes = [value]  # 기존 값이 있으면 변경하지 않음
   }
 }
 
