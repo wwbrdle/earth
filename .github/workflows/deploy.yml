@@ -44,12 +44,12 @@ jobs:
         cd ../../terraform
     
     - name: Terraform Plan
-      run: terraform plan -out=tfplan
+      run: terraform plan
       continue-on-error: true
     
     - name: Terraform Apply
       if: github.ref == 'refs/heads/prod' || github.event_name == 'workflow_dispatch'
-      run: terraform apply -auto-approve tfplan
+      run: terraform apply -auto-approve
     
     - name: Get CloudFront Distribution ID
       id: cloudfront
