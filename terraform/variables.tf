@@ -28,3 +28,9 @@ variable "domain_name" {
   type        = string
   default     = ""
 }
+
+variable "route53_zone_id" {
+  description = "Route 53 hosted zone ID for DNS management (optional, if not provided, DNS records must be added manually)"
+  type        = string
+  default     = ""
+}

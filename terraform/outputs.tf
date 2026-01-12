@@ -37,3 +37,24 @@ output "lambda_function_url" {
   description = "Lambda Function URL for Gemini API"
   value       = aws_lambda_function_url.gemini_analysis.function_url
 }
+
+output "acm_certificate_arn" {
+  description = "ACM Certificate ARN (for CloudFront)"
+  value       = var.domain_name != "" ? aws_acm_certificate.cloudfront[0].arn : null
+}
+
+output "acm_certificate_dns_validation" {
+  description = "DNS validation records for ACM certificate. Add these to your DNS provider if not using Route 53"
+  value = var.domain_name != "" && var.route53_zone_id == "" ? [
+    for record in aws_acm_certificate.cloudfront[0].domain_validation_options : {
+      name   = record.resource_record_name
+      type   = record.resource_record_type
+      value  = record.resource_record_value
+    }
+  ] : []
+}
+
+output "route53_zone_needed" {
+  description = "If Route 53 zone ID is not provided, you need to manually add DNS validation records"
+  value       = var.domain_name != "" && var.route53_zone_id == "" ? "Please add DNS validation records manually or provide route53_zone_id" : null
+}

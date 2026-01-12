@@ -30,6 +30,75 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Route 53 호스팅 존 (선택사항 - 기존 존이 있으면 route53_zone_id 변수 사용)
+# DuckDNS를 사용하는 경우, Route 53 호스팅 존을 생성하거나 기존 존을 사용해야 합니다
+# data "aws_route53_zone" "main" {
+#   name = var.domain_name
+# }
+
+# ACM 인증서 (CloudFront용, us-east-1 리전에서만 가능)
+resource "aws_acm_certificate" "cloudfront" {
+  provider          = aws.us_east_1
+  count             = var.domain_name != "" ? 1 : 0
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name        = "${var.bucket_name}-certificate"
+    Environment = var.environment
+  }
+}
+
+# Route 53 DNS 검증 레코드 (Route 53을 사용하는 경우)
+resource "aws_route53_record" "acm_validation" {
+  provider = aws.us_east_1
+  for_each = var.domain_name != "" && var.route53_zone_id != "" ? {
+    for dvo in aws_acm_certificate.cloudfront[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  } : {}
+
+  zone_id = var.route53_zone_id
+  name    = each.value.name
+  type    = each.value.type
+  records = [each.value.record]
+  ttl     = 60
+
+  allow_overwrite = true
+}
+
+# ACM 인증서 DNS 검증 (Route 53을 사용하는 경우 자동 검증)
+resource "aws_acm_certificate_validation" "cloudfront" {
+  provider        = aws.us_east_1
+  count           = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
+  certificate_arn = aws_acm_certificate.cloudfront[0].arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
+
+  timeouts {
+    create = "5m"
+  }
+}
+
+# Route 53 A 레코드 (CloudFront 배포)
+resource "aws_route53_record" "cloudfront" {
+  count   = var.domain_name != "" && var.route53_zone_id != "" ? 1 : 0
+  zone_id = var.route53_zone_id
+  name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.app.domain_name
+    zone_id                = aws_cloudfront_distribution.app.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
 # S3 버킷 (정적 웹사이트 호스팅)
 resource "aws_s3_bucket" "app" {
   bucket = var.bucket_name
@@ -145,8 +214,15 @@ resource "aws_cloudfront_distribution" "app" {
     }
   }
 
+  # 커스텀 도메인 별칭 추가
+  aliases = var.domain_name != "" ? [var.domain_name] : []
+
+  # 커스텀 도메인이 있으면 ACM 인증서 사용, 없으면 CloudFront 기본 인증서 사용
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.domain_name != "" ? aws_acm_certificate.cloudfront[0].arn : null
+    ssl_support_method       = var.domain_name != "" ? "sni-only" : null
+    minimum_protocol_version = var.domain_name != "" ? "TLSv1.2_2021" : null
+    cloudfront_default_certificate = var.domain_name == "" ? true : null
   }
 
   tags = {
