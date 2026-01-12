@@ -1321,7 +1321,6 @@ function App() {
   const [showResult, setShowResult] = useState<boolean>(false);
   const [geminiAnalysis, setGeminiAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
-  const [lambdaFunctionUrl, setLambdaFunctionUrl] = useState<string>('');
 
 
 
@@ -1375,7 +1374,7 @@ function App() {
     
     try {
       // Gemini API 호출 (환경에 따라 자동 선택)
-      const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL || lambdaFunctionUrl;
+      const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL;
       const data = await analyzeWithGemini(
         {
           userAnswer,
