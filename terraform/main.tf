@@ -278,8 +278,8 @@ resource "aws_lambda_function_url" "gemini_analysis" {
   cors {
     allow_credentials = false
     allow_origins     = ["*"]
-    allow_methods     = ["POST", "OPTIONS"]
-    allow_headers     = ["content-type"]
+    allow_methods     = ["*"]
+    allow_headers     = ["*"]
     expose_headers    = []
     max_age           = 86400
   }
