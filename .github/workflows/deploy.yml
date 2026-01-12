@@ -8,6 +8,7 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   TF_VERSION: 1.6.0
+  BUCKET_NAME: earth-app-prod
 
 jobs:
   deploy-infrastructure:
@@ -34,7 +35,78 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
     
     - name: Terraform Init
-      run: terraform init
+      run: terraform init -migrate-state
+    
+    - name: Import existing resources (if needed)
+      continue-on-error: true
+      run: |
+        set +e  # 에러가 발생해도 계속 진행
+        
+        # S3 버킷 및 관련 리소스 import
+        echo "=== Importing S3 resources ==="
+        if terraform state show aws_s3_bucket.app >/dev/null 2>&1; then
+          echo "S3 bucket already in state"
+        else
+          echo "Importing S3 bucket..."
+          terraform import aws_s3_bucket.app ${{ env.BUCKET_NAME }} && echo "✅ S3 bucket imported" || echo "❌ S3 bucket import failed"
+        fi
+        
+        if terraform state show aws_s3_bucket_public_access_block.app >/dev/null 2>&1; then
+          echo "S3 public access block already in state"
+        else
+          terraform import aws_s3_bucket_public_access_block.app ${{ env.BUCKET_NAME }} && echo "✅ S3 public access block imported" || echo "❌ S3 public access block import failed"
+        fi
+        
+        if terraform state show aws_s3_bucket_policy.app >/dev/null 2>&1; then
+          echo "S3 bucket policy already in state"
+        else
+          terraform import aws_s3_bucket_policy.app ${{ env.BUCKET_NAME }} && echo "✅ S3 bucket policy imported" || echo "❌ S3 bucket policy import failed"
+        fi
+        
+        if terraform state show aws_s3_bucket_website_configuration.app >/dev/null 2>&1; then
+          echo "S3 website config already in state"
+        else
+          terraform import aws_s3_bucket_website_configuration.app ${{ env.BUCKET_NAME }} && echo "✅ S3 website config imported" || echo "❌ S3 website config import failed"
+        fi
+        
+        # CloudFront OAC import (ID 필요)
+        echo "=== Importing CloudFront OAC ==="
+        if terraform state show aws_cloudfront_origin_access_control.app >/dev/null 2>&1; then
+          echo "CloudFront OAC already in state"
+        else
+          OAC_ID=$(aws cloudfront list-origin-access-controls --query 'OriginAccessControlList.Items[?Name==`earth-app-prod-oac`].Id' --output text 2>/dev/null | head -1)
+          if [ ! -z "$OAC_ID" ] && [ "$OAC_ID" != "None" ] && [ "$OAC_ID" != "" ]; then
+            echo "Found OAC ID: $OAC_ID"
+            terraform import aws_cloudfront_origin_access_control.app $OAC_ID && echo "✅ CloudFront OAC imported" || echo "❌ CloudFront OAC import failed"
+          else
+            echo "CloudFront OAC not found, will be created"
+          fi
+        fi
+        
+        # IAM Role import
+        echo "=== Importing IAM resources ==="
+        if terraform state show aws_iam_role.lambda_role >/dev/null 2>&1; then
+          echo "IAM role already in state"
+        else
+          terraform import aws_iam_role.lambda_role earth-app-prod-lambda-role && echo "✅ IAM role imported" || echo "❌ IAM role import failed"
+        fi
+        
+        if terraform state show aws_iam_role_policy.lambda_ssm >/dev/null 2>&1; then
+          echo "IAM role policy already in state"
+        else
+          terraform import aws_iam_role_policy.lambda_ssm earth-app-prod-lambda-role:earth-app-prod-lambda-ssm-policy && echo "✅ IAM role policy imported" || echo "❌ IAM role policy import failed"
+        fi
+        
+        if terraform state show aws_iam_role_policy_attachment.lambda_basic >/dev/null 2>&1; then
+          echo "IAM role policy attachment already in state"
+        else
+          terraform import aws_iam_role_policy_attachment.lambda_basic earth-app-prod-lambda-role/arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole && echo "✅ IAM role policy attachment imported" || echo "❌ IAM role policy attachment import failed"
+        fi
+        
+        echo "=== Import completed, refreshing state ==="
+        terraform refresh -no-color || true
+        
+        set -e  # 다시 에러 체크 활성화
     
     - name: Package Lambda function
       run: |
@@ -44,7 +116,7 @@ jobs:
         cd ../../terraform
     
     - name: Terraform Plan
-      run: terraform plan
+      run: terraform plan -refresh=false
       continue-on-error: true
     
     - name: Terraform Apply
