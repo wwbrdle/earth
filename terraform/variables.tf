@@ -22,3 +22,9 @@ variable "gemini_api_key" {
   sensitive   = true
   default     = ""
 }
+
+variable "domain_name" {
+  description = "Custom domain name for CloudFront (e.g., earth-prod.duckdns.org)"
+  type        = string
+  default     = ""
+}

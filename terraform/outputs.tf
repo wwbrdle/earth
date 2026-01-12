@@ -25,7 +25,12 @@ output "cloudfront_arn" {
 
 output "website_url" {
   description = "Website URL"
-  value       = "https://${aws_cloudfront_distribution.app.domain_name}"
+  value       = var.domain_name != "" ? "https://${var.domain_name}" : "https://${aws_cloudfront_distribution.app.domain_name}"
+}
+
+output "custom_domain_name" {
+  description = "Custom domain name (if configured)"
+  value       = var.domain_name != "" ? var.domain_name : null
 }
 
 output "lambda_function_url" {

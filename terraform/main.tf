@@ -17,6 +17,12 @@ provider "aws" {
   region = var.aws_region
 }
 
+# CloudFront용 ACM 인증서는 us-east-1 리전에서만 발급 가능
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 # S3 버킷 (정적 웹사이트 호스팅)
 resource "aws_s3_bucket" "app" {
   bucket = var.bucket_name
@@ -125,7 +131,10 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.domain_name != "" ? data.aws_acm_certificate.cloudfront[0].arn : null
+    ssl_support_method       = var.domain_name != "" ? "sni-only" : null
+    minimum_protocol_version = var.domain_name != "" ? "TLSv1.2_2021" : null
+    cloudfront_default_certificate = var.domain_name == "" ? true : false
   }
 
   tags = {
