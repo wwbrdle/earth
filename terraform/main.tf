@@ -131,10 +131,7 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = var.domain_name != "" ? data.aws_acm_certificate.cloudfront[0].arn : null
-    ssl_support_method       = var.domain_name != "" ? "sni-only" : null
-    minimum_protocol_version = var.domain_name != "" ? "TLSv1.2_2021" : null
-    cloudfront_default_certificate = var.domain_name == "" ? true : false
+    cloudfront_default_certificate = var.domain_name == "" || length(data.aws_acm_certificate.cloudfront) == 0
   }
 
   tags = {
