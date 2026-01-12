@@ -3,12 +3,6 @@ name: Deploy to AWS (Terraform)
 on:
   push:
     branches: [ prod ]
-    paths:
-      - 'terraform/**'
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'lambda/**'
   workflow_dispatch:
 
 env:
