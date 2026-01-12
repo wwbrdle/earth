@@ -1,45 +1,35 @@
-import React, { useState } from 'react';
-import './TEFCanada.css';
-import SpeechRecognition from './SpeechRecognition';
-import ResultDisplay from './ResultDisplay';
-import { analyzeWithGemini } from '../utils/geminiApi';
-
-interface TEFCanadaProps {
-  onBack: () => void;
-}
-
-// TEF Canada 모범 답안 데이터
-const sampleAnswers: Record<string, Record<number, string>> = {
+// TEF Canada 모범 답안 데이터 (Writing과 Speaking 공통 사용)
+export const sampleAnswers: Record<string, Record<number, string>> = {
   sectionA: {
     1: `
-    1️⃣ 파리 체류(여행) 문의
-	1.	Bonjour, je vous appelle pour le séjour à Paris.
-	2.	Quelles sont les dates disponibles ?
-	3.	Combien de jours dure le séjour ?
-	4.	Est-ce que l’hébergement est inclus ?
-	5.	Où se situe l’hôtel ?
-	6.	Le petit déjeuner est-il compris ?
-	7.	Y a-t-il des visites organisées ?
-	8.	Quel est le prix total du séjour ?
-	9.	Est-ce possible de venir seul(e) ?
-	10.	Comment peut-on réserver ?
+     1️⃣ 파리 체류(여행) 문의
+ 	1.	Bonjour, je vous appelle pour le séjour à Paris.
+ 	2.	Quelles sont les dates disponibles ?
+ 	3.	Combien de jours dure le séjour ?
+ 	4.	Est-ce que l'hébergement est inclus ?
+ 	5.	Où se situe l'hôtel ?
+ 	6.	Le petit déjeuner est-il compris ?
+ 	7.	Y a-t-il des visites organisées ?
+ 	8.	Quel est le prix total du séjour ?
+ 	9.	Est-ce possible de venir seul(e) ?
+ 	10.	Comment peut-on réserver ?
     `,
     2: `
     2️⃣ 반려동물 돌봄(펫시터)
-	1.	Bonjour, je vous appelle pour l’annonce de garde d’animaux.
-	2.	Quels types d’animaux faut-il garder ?
+	1.	Bonjour, je vous appelle pour l'annonce de garde d'animaux.
+	2.	Quels types d'animaux faut-il garder ?
 	3.	Combien de temps dure la garde ?
 	4.	Est-ce chez le propriétaire ou chez le gardien ?
-	5.	À quelles dates avez-vous besoin de quelqu’un ?
+	5.	À quelles dates avez-vous besoin de quelqu'un ?
 	6.	Y a-t-il une rémunération ?
-	7.	Faut-il de l’expérience avec les animaux ?
+	7.	Faut-il de l'expérience avec les animaux ?
 	8.	Est-ce tous les jours ou seulement certains jours ?
 	9.	Où habitez-vous ?
 	10.	Quand pouvons-nous nous rencontrer ?
     `,
     3: `
     3️⃣ 구직 관련 전화 문의 (일반)
-	1.	Bonjour, je téléphone pour l’offre d’emploi.
+	1.	Bonjour, je téléphone pour l'offre d'emploi.
 	2.	Quel est le poste exactement ?
 	3.	Quelles sont les tâches principales ?
 	4.	Est-ce un travail à temps plein ou à temps partiel ?
@@ -53,7 +43,7 @@ const sampleAnswers: Record<string, Record<number, string>> = {
     4: `
     4️⃣ 휴가 센터 문의
 	1.	Bonjour, je vous appelle pour le centre de vacances.
-	2.	À qui s’adresse ce centre ?
+	2.	À qui s'adresse ce centre ?
 	3.	Quelles activités sont proposées ?
 	4.	Est-ce adapté aux enfants ?
 	5.	Combien de jours dure le séjour ?
@@ -61,7 +51,7 @@ const sampleAnswers: Record<string, Record<number, string>> = {
 	7.	Où se trouve le centre ?
 	8.	Quel est le prix ?
 	9.	Y a-t-il des réductions ?
-	10.	Comment s’inscrire ?
+	10.	Comment s'inscrire ?
     `,
     5: `
     5️⃣ 사진 촬영(포트레이트)
@@ -79,54 +69,54 @@ const sampleAnswers: Record<string, Record<number, string>> = {
     6: `
     6️⃣ 여가 활동 문의 (일반)
 	1.	Bonjour, je téléphone pour votre offre de loisirs.
-	2.	En quoi consiste exactement l’activité ?
-	3.	À qui s’adresse cette activité ?
+	2.	En quoi consiste exactement l'activité ?
+	3.	À qui s'adresse cette activité ?
 	4.	Quels sont les horaires ?
-	5.	Où se déroule l’activité ?
+	5.	Où se déroule l'activité ?
 	6.	Combien de personnes participent ?
 	7.	Quel est le prix ?
 	8.	Le matériel est-il fourni ?
-	9.	Est-ce toute l’année ?
-	10.	Comment s’inscrire ?
+	9.	Est-ce toute l'année ?
+	10.	Comment s'inscrire ?
     `,
     7: `
-    Bonjour, je vous téléphone pour l’annonce Recrut-Consso. Je suis intéressé(e) pour devenir testeur / testeuse de produits.
+    Bonjour, je vous téléphone pour l'annonce Recrut-Consso. Je suis intéressé(e) pour devenir testeur / testeuse de produits.
 
-C’est quoi exactement le travail ? On teste quels types de produits ?
-Est-ce que c’est seulement des produits alimentaires ou aussi d’autres choses (cosmétique, téléphone, vêtements…) ?
+C'est quoi exactement le travail ? On teste quels types de produits ?
+Est-ce que c'est seulement des produits alimentaires ou aussi d'autres choses (cosmétique, téléphone, vêtements…) ?
 Il faut venir combien de fois par mois environ ?
 Chaque séance dure combien de temps ?
-Les séances sont le matin, l’après-midi ou le soir ?
-C’est à quel endroit ? À Montréal ou dans une autre ville ?
-Est-ce qu’on est payé à chaque fois qu’on vient ? Combien on gagne par séance ?
+Les séances sont le matin, l'après-midi ou le soir ?
+C'est à quel endroit ? À Montréal ou dans une autre ville ?
+Est-ce qu'on est payé à chaque fois qu'on vient ? Combien on gagne par séance ?
 Il faut parler français tout le temps pendant les tests ?
-Est-ce qu’il y a d’autres personnes en même temps que moi ? Combien de personnes par groupe ?
-Quelles sont les conditions pour s’inscrire ? Il faut avoir quel âge minimum ?
-Est-ce qu’il faut être disponible tous les jours ou seulement certains jours ?
+Est-ce qu'il y a d'autres personnes en même temps que moi ? Combien de personnes par groupe ?
+Quelles sont les conditions pour s'inscrire ? Il faut avoir quel âge minimum ?
+Est-ce qu'il faut être disponible tous les jours ou seulement certains jours ?
 Comment ça se passe si je ne peux pas venir à une séance ?
 
 Bonus (pour montrer que tu parles un peu plus) :
 
-Est-ce qu’on reçoit des cadeaux ou des produits gratuits en plus ?
-Je dois m’inscrire comment exactement ? Par téléphone seulement ?
+Est-ce qu'on reçoit des cadeaux ou des produits gratuits en plus ?
+Je dois m'inscrire comment exactement ? Par téléphone seulement ?
 
 Petit conseil B1 :
-Commence par : « Bonjour, je m’appelle … et je téléphone pour l’annonce Recrut-Consso. »
-Ensuite pose les questions une par une, attends la réponse de l’examinateur, et dis merci ou « D’accord, je comprends » entre chaque question.
+Commence par : « Bonjour, je m'appelle … et je téléphone pour l'annonce Recrut-Consso. »
+Ensuite pose les questions une par une, attends la réponse de l'examinateur, et dis merci ou « D'accord, je comprends » entre chaque question.
 Bonne chance pour ton TEF Canada ! Tu vas y arriver ! 💪 😊
     `,
     8: `
     Voici une liste de 10 questions simples, naturelles et adaptées au niveau B1 du TEF Canada pour cet appel téléphonique (poste d'éducateur sportif au club AS Brive) :
 
-Bonjour, je vous appelle pour l’offre d’emploi d’éducateur sportif. Est-ce que le poste est toujours disponible s’il vous plaît ?
+Bonjour, je vous appelle pour l'offre d'emploi d'éducateur sportif. Est-ce que le poste est toujours disponible s'il vous plaît ?
 Le contrat est à durée déterminée… vous pouvez me dire combien de mois ça dure environ ?
-Est-ce que c’est pour les enfants, les adolescents ou aussi les adultes ?
-Combien d’heures par semaine il faut travailler en général ?
+Est-ce que c'est pour les enfants, les adolescents ou aussi les adultes ?
+Combien d'heures par semaine il faut travailler en général ?
 Les entraînements sont le week-end aussi ou seulement en semaine ?
-Il faut obligatoirement avoir le diplôme BPJEPS ou c’est possible avec d’autres diplômes ?
-Est-ce que vous cherchez quelqu’un qui peut aussi arbitrer les matchs ?
-Le salaire, c’est à l’heure ou au mois ? Et est-ce qu’il y a des primes possibles ?
-Est-ce que je dois habiter à Brive ou c’est possible d’être un peu plus loin ?
+Il faut obligatoirement avoir le diplôme BPJEPS ou c'est possible avec d'autres diplômes ?
+Est-ce que vous cherchez quelqu'un qui peut aussi arbitrer les matchs ?
+Le salaire, c'est à l'heure ou au mois ? Et est-ce qu'il y a des primes possibles ?
+Est-ce que je dois habiter à Brive ou c'est possible d'être un peu plus loin ?
 Quelles sont les prochaines étapes si je suis intéressé(e) ? Il faut envoyer un CV par mail ou venir directement ?
 
 Tu peux les dire dans cet ordre ou les mélanger un peu selon la conversation.
@@ -212,15 +202,15 @@ Est-ce que nous devons apporter des vêtements spécifiques pour l'enfant ? (아
 
 날짜 확인: 광고에 명시된 기간(Du 15 au 20 mars)을 언급하며 질문하는 것은 지문을 잘 이해했다는 좋은 신호입니다.
 
-마무리: "Merci beaucoup pour vos réponses. C’est très clair. Je vais réfléchir et je vous rappelle pour confirmer le rendez-vous. Bonne journée !"
+마무리: "Merci beaucoup pour vos réponses. C'est très clair. Je vais réfléchir et je vous rappelle pour confirmer le rendez-vous. Bonne journée !"
 
 이 질문들 중에서 본인이 발음하기 가장 편한 문장들을 먼저 익혀보세요. 실제 시험처럼 저와 대화 연습을 해보고 싶으신가요?
     `,
     11: `
-    이번에는 **"Parc Aventur’et vous !"**라는 레저 활동 광고를 보고 질문하는 상황이군요. **3시간의 어드벤처 활동(Accrobranche)**과 **카누 하강(Descente en Canoë)**이 포함된 **"Pass Duo Aventure"**에 대한 질문들을 B1 수준에 맞춰 준비했습니다.
+    이번에는 **"Parc Aventur'et vous !"**라는 레저 활동 광고를 보고 질문하는 상황이군요. **3시간의 어드벤처 활동(Accrobranche)**과 **카누 하강(Descente en Canoë)**이 포함된 **"Pass Duo Aventure"**에 대한 질문들을 B1 수준에 맞춰 준비했습니다.
 
 📞 도입부 (Introduction)
-"Bonjour, je vous appelle car j'ai vu votre offre 'Pass Duo Aventure' pour le parc Aventur’et vous. Je suis très intéressé par ces activités et j'aimerais avoir plus de détails, s'il vous plaît." (안녕하세요, 'Parc Aventur’et vous'의 'Pass Duo Aventure' 광고를 보고 전화드렸습니다. 활동에 관심이 많아 자세한 내용을 알고 싶습니다.)
+"Bonjour, je vous appelle car j'ai vu votre offre 'Pass Duo Aventure' pour le parc Aventur'et vous. Je suis très intéressé par ces activités et j'aimerais avoir plus de détails, s'il vous plaît." (안녕하세요, 'Parc Aventur'et vous'의 'Pass Duo Aventure' 광고를 보고 전화드렸습니다. 활동에 관심이 많아 자세한 내용을 알고 싶습니다.)
 
 ❓ 10가지 질문 (Questions)
 1. 예약 및 운영 관련
@@ -261,34 +251,34 @@ Pass Duo의 의미: 'Duo'는 보통 2인용을 의미하므로, 가격을 물을
     1: `
     🔹 Exemple 1 : 퀘벡 여행 설득
 
-Tu cherches une idée pour les vacances ? J’ai trouvé un circuit vraiment intéressant au Québec.
-C’est un voyage de 8 jours et 7 nuits en pension complète, à partir de seulement 300 dollars, ce qui est très abordable.
+Tu cherches une idée pour les vacances ? J'ai trouvé un circuit vraiment intéressant au Québec.
+C'est un voyage de 8 jours et 7 nuits en pension complète, à partir de seulement 300 dollars, ce qui est très abordable.
 
-Le séjour comprend l’hébergement dans des hôtels trois étoiles, les déplacements en autocar climatisé, ainsi que plusieurs visites et activités. Il y a aussi un guide francophone, donc c’est très rassurant et pratique.
+Le séjour comprend l'hébergement dans des hôtels trois étoiles, les déplacements en autocar climatisé, ainsi que plusieurs visites et activités. Il y a aussi un guide francophone, donc c'est très rassurant et pratique.
 
-Je pense que ce voyage serait parfait pour toi, car tu aimes découvrir de nouveaux paysages sans stress. Tout est organisé, on n’a rien à gérer. En plus, le Québec est une région magnifique, avec la nature, la culture et la gastronomie.
+Je pense que ce voyage serait parfait pour toi, car tu aimes découvrir de nouveaux paysages sans stress. Tout est organisé, on n'a rien à gérer. En plus, le Québec est une région magnifique, avec la nature, la culture et la gastronomie.
 
 Franchement, à ce prix-là, on ne peut pas hésiter. Ce serait génial de partir ensemble !
     `,
     2: `
     🔹 Exemple 2 : 과외 교사 일자리 설득
 
-J’ai vu une offre d’emploi qui pourrait vraiment t’intéresser.
-Il s’agit de donner des cours à domicile avec l’organisme Dométudes.
+J'ai vu une offre d'emploi qui pourrait vraiment t'intéresser.
+Il s'agit de donner des cours à domicile avec l'organisme Dométudes.
 
-Ils recherchent des personnes ayant fait des études universitaires, comme toi. Ce qui est intéressant, c’est la grande souplesse : tu choisis tes horaires et les matières que tu veux enseigner. La rémunération est bonne et tu peux travailler avec des enfants, des adolescents ou même des adultes.
+Ils recherchent des personnes ayant fait des études universitaires, comme toi. Ce qui est intéressant, c'est la grande souplesse : tu choisis tes horaires et les matières que tu veux enseigner. La rémunération est bonne et tu peux travailler avec des enfants, des adolescents ou même des adultes.
 
-C’est un excellent moyen de gagner de l’argent tout en partageant tes connaissances. En plus, c’est une expérience valorisante pour le CV.
+C'est un excellent moyen de gagner de l'argent tout en partageant tes connaissances. En plus, c'est une expérience valorisante pour le CV.
 
 Je pense sincèrement que ce travail te correspond très bien.
     `,
     3: `
     🔹 Exemple 3 : 봉사활동 설득 (S.O.S Amitié)
 
-J’ai lu une annonce d’une association qui recherche des bénévoles dans le quartier.
-Il s’agit de S.O.S Amitié, une association qui aide les personnes isolées.
+J'ai lu une annonce d'une association qui recherche des bénévoles dans le quartier.
+Il s'agit de S.O.S Amitié, une association qui aide les personnes isolées.
 
-Ils proposent une formation, des horaires flexibles et même la possibilité d’un contrat à durée déterminée. Le but est de créer du lien social et d’aider des personnes qui en ont besoin.
+Ils proposent une formation, des horaires flexibles et même la possibilité d'un contrat à durée déterminée. Le but est de créer du lien social et d'aider des personnes qui en ont besoin.
 
 Je sais que tu as du temps libre et que tu aimes le contact humain. Ce bénévolat pourrait être très enrichissant sur le plan personnel. On se sent utile et on participe à quelque chose de positif.
 
@@ -297,14 +287,14 @@ Je pense que ce serait une très belle expérience pour toi.
     4: `
     🔹 Exemple 4 : 어학 수업 설득
 
-J’ai trouvé une école de langues qui propose des cours très intéressants.
+J'ai trouvé une école de langues qui propose des cours très intéressants.
 MEDIA Langues offre des cours en ligne pour toutes les langues, avec des horaires flexibles et des tarifs très avantageux.
 
 Ils proposent plusieurs formules : une formule courte pour se débrouiller rapidement, une formule longue pour progresser en profondeur, ou une formule à la carte selon les besoins.
 
-C’est idéal pour toi, car tu veux apprendre une langue sans contrainte de temps. En plus, les cours en ligne permettent d’apprendre de chez soi.
+C'est idéal pour toi, car tu veux apprendre une langue sans contrainte de temps. En plus, les cours en ligne permettent d'apprendre de chez soi.
 
-Honnêtement, c’est une très bonne opportunité pour progresser efficacement.
+Honnêtement, c'est une très bonne opportunité pour progresser efficacement.
     `,
     5: `
     이번 문제는 **"Rendez-vous à la ferme (농장으로 오세요)"**라는 행사 광고입니다. 유기농 제품 시식, 농장 방문, 동물들과의 만남 등 아주 평화롭고 즐거운 활동들이 가득하네요. 친구에게 이번 주말 나들이를 제안하는 Section B 스크립트입니다.
@@ -319,7 +309,7 @@ Honnêtement, c’est une très bonne opportunité pour progresser efficacement.
 "Il y a un marché de producteurs sur place, on pourra acheter des produits frais pour la semaine." (현장에 생산자 마켓도 열려서, 일주일 동안 먹을 신선한 재료들도 살 수 있어.)
 
 2. 동물들과의 만남 (정서적 휴식)
-"On peut rencontrer les animaux de la ferme. C’est tellement relaxant de passer du temps avec eux !" (농장 동물들을 직접 만날 수 있대. 동물들이랑 시간 보내는 게 얼마나 힐링인데!)
+"On peut rencontrer les animaux de la ferme. C'est tellement relaxant de passer du temps avec eux !" (농장 동물들을 직접 만날 수 있대. 동물들이랑 시간 보내는 게 얼마나 힐링인데!)
 
 3. 아이들과 함께하기 좋은 분위기
 "Si tu veux, on peut emmener les enfants. Il y a des jeux et des ateliers spécialement pour eux." (원하면 애들도 데려가자. 애들을 위한 게임이랑 워크숍도 준비되어 있대.)
@@ -332,7 +322,7 @@ Honnêtement, c’est une très bonne opportunité pour progresser efficacement.
 📋 B1 합격 전략 (Section B)
 핵심 키워드 활용: 광고에 나온 "Produits bio", "Gratuit", "Jeux et ateliers" 같은 단어들을 꼭 언급하세요.
 
-거절 대응: 친구가 "멀 것 같아"라고 하면, "C’est juste à côté, à la ferme du coin"(우리 근처 농장이야)라고 하거나, "무료 입장인데 한번 가보자"라고 설득하세요.
+거절 대응: 친구가 "멀 것 같아"라고 하면, "C'est juste à côté, à la ferme du coin"(우리 근처 농장이야)라고 하거나, "무료 입장인데 한번 가보자"라고 설득하세요.
 
 행동 유도: "우리 일요일 아침에 같이 출발하자. 내가 9시에 데리러 갈까?"
     `,
@@ -396,7 +386,7 @@ Honnêtement, c’est une très bonne opportunité pour progresser efficacement.
     마지막 이미지인 "어둠 속의 식사 (Un dîner dans le noir)" 광고에 대한 대답입니다. 이 문제는 독특한 경험을 원하는 친구를 설득하여 함께 식사하러 가자고 제안하는 Section B 유형입니다. 시각을 차단한 채 미각에 집중하는 이색적인 컨셉을 강조했습니다.
 
 🗣️ 대화 시작하기 (Introduction)
-"Salut ! J’ai trouvé une idée de sortie vraiment originale pour nous deux. Ça s’appelle 'Un dîner dans le noir'. C'est un concept incroyable où on mange dans l'obscurité totale. Tu es partant pour tenter l'expérience ?" (안녕! 우리 둘을 위한 정말 독특한 외출 아이디어를 찾았어. '어둠 속의 식사'라는 건데, 완전히 어두운 곳에서 밥을 먹는 놀라운 컨셉이야. 같이 도전해 볼래?)
+"Salut ! J'ai trouvé une idée de sortie vraiment originale pour nous deux. Ça s'appelle 'Un dîner dans le noir'. C'est un concept incroyable où on mange dans l'obscurité totale. Tu es partant pour tenter l'expérience ?" (안녕! 우리 둘을 위한 정말 독특한 외출 아이디어를 찾았어. '어둠 속의 식사'라는 건데, 완전히 어두운 곳에서 밥을 먹는 놀라운 컨셉이야. 같이 도전해 볼래?)
 
 💡 설득을 위한 주요 포인트 (Arguments)
 1. 오감을 자극하는 독특한 컨셉 강조
@@ -423,7 +413,7 @@ Honnêtement, c’est une très bonne opportunité pour progresser efficacement.
     이번 문제는 S.O.S Amitié라는 단체에서 **전화 상담 봉사자(Écoutants bénévoles)**를 모집하는 광고입니다. 이미 이전에 다뤘던 방문 봉사와는 달리, 이번에는 전화로 소외된 이들의 이야기를 들어주는 활동입니다. 친구에게 이 활동의 의미와 장점을 설명하며 설득하는 Section B 스크립트입니다.
 
 🗣️ 대화 시작하기 (Introduction)
-"Salut ! J’ai vu une annonce pour une association vraiment spéciale qui s’appelle S.O.S Amitié. Ils cherchent des écoutants bénévoles. Comme tu es quelqu'un de très attentif et que tu sais bien écouter les autres, j'ai pensé que ce serait parfait pour toi !" (안녕! 'S.O.S Amitié'라는 정말 특별한 단체의 광고를 봤어. '전화 상담 봉사자'를 찾고 있대. 너는 워낙 남의 말을 잘 들어주고 세심한 사람이니까, 이 일이 너한테 딱일 것 같아!)
+"Salut ! J'ai vu une annonce pour une association vraiment spéciale qui s'appelle S.O.S Amitié. Ils cherchent des écoutants bénévoles. Comme tu es quelqu'un de très attentif et que tu sais bien écouter les autres, j'ai pensé que ce serait parfait pour toi !" (안녕! 'S.O.S Amitié'라는 정말 특별한 단체의 광고를 봤어. '전화 상담 봉사자'를 찾고 있대. 너는 워낙 남의 말을 잘 들어주고 세심한 사람이니까, 이 일이 너한테 딱일 것 같아!)
 
 💡 설득을 위한 주요 포인트 (Arguments)
 1. 활동의 숭고한 의미 강조
@@ -505,16 +495,6 @@ Honnêtement, c’est une très bonne opportunité pour progresser efficacement.
 거절 대응: 친구가 "낚시 도구가 없어"라고 하면, "협회에 문의해서 빌릴 수 있는지 확인해 보자"라고 답하며 웹사이트 주소(www.associationpecheenmontagne.com)를 언급하세요.
 
 행동 유도: "Allez, n'hésite pas ! On va bien s'amuser. Je regarde les horaires sur leur site ?" (에이, 망설이지 마! 진짜 재밌을 거야. 내가 사이트에서 시간표 한번 볼까?)
-
-이제 요청하신 모든 이미지(총 13개)에 대한 분석과 모범 답안 정리가 끝났습니다!
-
-전체적인 복습 팁:
-
-Section A: 질문을 던질 때 "Est-ce que...", "Combien...", "Où..." 등 다양한 의문사를 사용했는지 확인하세요.
-
-Section B: 광고에 나온 핵심 키워드를 최소 3~4개는 대화에 포함시켜야 높은 점수를 받습니다.
-
-실제 시험에서 좋은 결과 있으시길 진심으로 응원합니다! 추가로 더 연습하고 싶은 부분이 있다면 언제든 말씀해 주세요. 조력자로서 함께하겠습니다.
     `,
     12: `
     마지막으로 올려주신 이미지는 고대 유적 발굴 현장(Chantiers de fouilles gallo-romains) 참여 광고네요. 언어를 배우고 싶어 하는 친구에게 역사도 배우고 프랑스 문화도 체험할 수 있는 이 특별한 기회를 제안하는 Section B 스크립트입니다.
@@ -542,26 +522,17 @@ Section B: 광고에 나온 핵심 키워드를 최소 3~4개는 대화에 포�
 실행 유도 (Call to action): "Est-ce que tu veux que j'appelle pour nous inscrire ? J'ai le numéro : 06 98 06 35 45." (우리가 등록할 수 있게 내가 전화해 볼까? 번호 여기 있어.)
 
 감정적 연결: "Imagine, on pourrait découvrir un trésor ensemble !" (상상해 봐, 우리가 같이 보물을 발견할 수도 있잖아!)
-
-지금까지 총 12개의 다양한 TEF Canada 말하기 예상 문제들을 살펴보았습니다.
-
-🌟 시험 직전 체크리스트:
-Section A (정보 요청): 공손하게(Vouvoyer) 10개 내외의 질문을 던지기.
-
-Section B (설득하기): 친구에게 하듯 친근하게(Tutoyer) 광고 속 정보를 근거로 들어 설득하기.
-
-반박 대응: 면접관이 "비싸다", "바쁘다", "관심 없다"고 할 때 당황하지 말고 "하지만 이런 장점도 있어"라고 되받아치기.
     `,
     13: ``,
     14: `
     마지막 이미지인 "Participez à un 5 à 7 (해피아워 모임 참여)" 광고에 대한 대답입니다. 이 문제는 이웃이나 친구에게 동네 커뮤니티 센터 행사에 함께 가자고 설득하는 Section B 유형입니다. B1 수준에 맞춰 친근하면서도 행사의 즐거운 요소들을 강조하는 흐름으로 구성했습니다.
 
 🗣️ 대화 시작하기 (Introduction)
-"Salut ! J’ai vu une affiche super sympa au centre communautaire du quartier. Ils organisent un '5 à 7' le premier vendredi du mois. Comme tu aimes bien rencontrer de nouvelles personnes, j'ai tout de suite pensé à toi. Tu es libre ?" (안녕! 우리 동네 커뮤니티 센터에서 정말 괜찮은 포스터를 봤어. 매달 첫 번째 금요일에 '5 à 7(해피아워)' 모임을 연대. 네가 새로운 사람 만나는 거 좋아하니까 바로 네 생각이 나더라고. 시간 돼?)
+"Salut ! J'ai vu une affiche super sympa au centre communautaire du quartier. Ils organisent un '5 à 7' le premier vendredi du mois. Comme tu aimes bien rencontrer de nouvelles personnes, j'ai tout de suite pensé à toi. Tu es libre ?" (안녕! 우리 동네 커뮤니티 센터에서 정말 괜찮은 포스터를 봤어. 매달 첫 번째 금요일에 '5 à 7(해피아워)' 모임을 연대. 네가 새로운 사람 만나는 거 좋아하니까 바로 네 생각이 나더라고. 시간 돼?)
 
 💡 설득을 위한 주요 포인트 (Arguments)
 1. 사교와 만남의 기회 강조
-"C’est l’occasion idéale pour faire connaissance avec les gens de notre quartier." (우리 동네 사람들과 안면을 익힐 수 있는 완벽한 기회야.)
+"C'est l'occasion idéale pour faire connaissance avec les gens de notre quartier." (우리 동네 사람들과 안면을 익힐 수 있는 완벽한 기회야.)
 
 "On peut y aller en famille, donc ce sera une ambiance très chaleureuse et conviviale." (가족 단위로 갈 수 있어서 분위기가 아주 따뜻하고 화기애애할 거야.)
 
@@ -573,7 +544,7 @@ Section B (설득하기): 친구에게 하듯 친근하게(Tutoyer) 광고 속 �
 3. 실용적인 준비 사항 (부담 없는 참여)
 "Chacun apporte de quoi manger, donc on pourra partager un bon repas ensemble." (각자 먹을 걸 가져오는 방식이라 다 같이 맛있는 음식을 나눠 먹을 수 있어.)
 
-"C’est de 17h à 19h, donc ça ne finit 안 늦게 끝나서 다음 날 일정에도 지장 없을 거야." (오후 5시부터 7시까지라 너무 늦지 않게 끝날 거야.)
+"C'est de 17h à 19h, donc ça ne finit 안 늦게 끝나서 다음 날 일정에도 지장 없을 거야." (오후 5시부터 7시까지라 너무 늦지 않게 끝날 거야.)
 
 📋 B1 합격 전략 (Section B)
 필수 정보 언급: "Inscription obligatoire (예약 필수)"라는 점을 언급하며 "지금 바로 819 846-7845로 전화해서 예약하자"라고 제안해 보세요.
@@ -592,7 +563,7 @@ Section B (설득하기): 친구에게 하듯 친근하게(Tutoyer) 광고 속 �
 1. 전 세계적인 규모와 경험
 "Tu peux partir sur les 5 continents ! C'est une chance incroyable de découvrir une nouvelle culture." (무려 5개 대륙으로 떠날 수 있어! 새로운 문화를 발견할 수 있는 엄청난 기회야.)
 
-"C’est un chantier international, donc tu seras avec des gens du monde entier. C'est parfait pour pratiquer les langues !" (국제 활동이라 전 세계 사람들과 함께하게 될 거야. 언어를 연습하기에 딱이지!)
+"C'est un chantier international, donc tu seras avec des gens du monde entier. C'est parfait pour pratiquer les langues !" (국제 활동이라 전 세계 사람들과 함께하게 될 거야. 언어를 연습하기에 딱이지!)
 
 2. 완벽한 지원과 안전
 "Ne t'inquiète pas pour l'organisation : le logement, la nourriture et les transports sont assurés par l'organisme." (준비 과정은 걱정 마: 숙소, 식사, 교통편까지 단체에서 다 보장해 준대.)
@@ -764,11 +735,11 @@ Section B (설득하기): 친구에게 하듯 친근하게(Tutoyer) 광고 속 �
     이번 문제는 와인 시음회 및 해산물 요리 저녁 식사(Dégustation de vin) 광고를 보고 친구를 설득하는 Section B 유형입니다. 셰프의 경력, 메뉴 구성, 저렴한 가격 등을 강조하여 친구가 거절할 수 없게 만드는 것이 포인트입니다.
 
 🗣️ 대화 시작하기 (Introduction)
-"Salut ! Dis, tu es libre le dimanche 13 avril au soir ? J'ai vu une annonce super dans le journal pour une soirée de dégustation au restaurant 'Côte d’Azur'. Ça te dirait de m'accompagner ?" (안녕! 있잖아, 4월 13일 일요일 저녁에 시간 돼? 신문에서 'Côte d’Azur' 레스토랑의 시음회 밤 광고를 봤는데 정말 괜찮더라고. 나랑 같이 갈래?)
+"Salut ! Dis, tu es libre le dimanche 13 avril au soir ? J'ai vu une annonce super dans le journal pour une soirée de dégustation au restaurant 'Côte d'Azur'. Ça te dirait de m'accompagner ?" (안녕! 있잖아, 4월 13일 일요일 저녁에 시간 돼? 신문에서 'Côte d'Azur' 레스토랑의 시음회 밤 광고를 봤는데 정말 괜찮더라고. 나랑 같이 갈래?)
 
 💡 설득을 위한 주요 포인트 (Arguments)
 1. 셰프의 화려한 경력 강조
-"Le chef, c’est François Renaud. C'est un ancien chef du Club Med !" (셰프가 프랑수아 르노인데, 무려 클럽메드 출신이래!)
+"Le chef, c'est François Renaud. C'est un ancien chef du Club Med !" (셰프가 프랑수아 르노인데, 무려 클럽메드 출신이래!)
 
 "C'est un restaurant 4 étoiles, donc la qualité est garantie." (4성급 레스토랑이라 퀄리티는 보장되어 있어.)
 
@@ -778,18 +749,18 @@ Section B (설득하기): 친구에게 하듯 친근하게(Tutoyer) 광고 속 �
 "Ce sont toutes des spécialités françaises de fruits de mer." (전부 프랑스식 해산물 전문 요리들이야.)
 
 3. 가성비와 위치의 편리함
-"C’est incroyable, tout ça pour seulement 20 € par personne, et en plus, le café est offert !" (믿기지 않겠지만 이 모든 게 인당 딱 20유로고, 커피도 무료로 준대!)
+"C'est incroyable, tout ça pour seulement 20 € par personne, et en plus, le café est offert !" (믿기지 않겠지만 이 모든 게 인당 딱 20유로고, 커피도 무료로 준대!)
 
 "Le restaurant est juste face au métro Kitai-Gorod, c'est très facile pour y aller." (식당이 키타이 고로드 지하철역 바로 앞이라 가기도 엄청 편해.)
 
 📋 B1 합격 전략 (Section B)
 구체적인 정보 활용: 광고에 나온 **"Dimanche 13 avril à 19 heures"**라는 시간을 정확히 언급하며 약속을 잡으세요.
 
-친구의 예상 반박 대응: 만약 친구가 "비쌀 것 같아"라고 한다면, **"C’est uniquement 20 euros"**라는 점을 들어 설득하세요.
+친구의 예상 반박 대응: 만약 친구가 "비쌀 것 같아"라고 한다면, **"C'est uniquement 20 euros"**라는 점을 들어 설득하세요.
 
 공감대 형성: "Je sais que tu adores les fruits de mer, c'est l'occasion idéale !" (너 해산물 좋아하잖아, 이건 진짜 완벽한 기회야!) 같은 개인적인 멘트를 섞으면 점수가 올라갑니다.
 
-마무리 멘트 예시: "Allez, on y va ! C’est une occasion rare de manger de la grande cuisine pour ce prix-là. On réserve ?" (제발 같이 가자! 이 가격에 이런 고급 요리를 먹을 기회는 흔치 않아. 예약할까?)
+마무리 멘트 예시: "Allez, on y va ! C'est une occasion rare de manger de la grande cuisine pour ce prix-là. On réserve ?" (제발 같이 가자! 이 가격에 이런 고급 요리를 먹을 기회는 흔치 않아. 예약할까?)
     `,
     22: `
     이번 문제는 자원봉사(Bénévolat) 모집 광고를 보고 친구를 설득하는 Section B 유형입니다. 광고의 핵심 키워드인 'S.O.S amitié', '소외된 사람들(personnes isolées)', '유연한 시간(horaires flexibles)' 등을 활용해 B1 수준의 설득 스크립트를 구성해 보았습니다.
@@ -837,9 +808,9 @@ Section B (설득하기): 친구에게 하듯 친근하게(Tutoyer) 광고 속 �
 2. 헌혈의 중요성 강조 (감정 호소)
 "L'annonce dit que la banque du sang est toujours à découvert. Ils ont vraiment besoin de nous." (광고 보니까 혈액 은행이 항상 부족하대. 우리의 도움이 정말 필요해.)
 
-"C’est un geste noble et on peut sauver une vie !" (이건 정말 숭고한 행동이고, 한 생명을 구할 수도 있어!)
+"C'est un geste noble et on peut sauver une vie !" (이건 정말 숭고한 행동이고, 한 생명을 구할 수도 있어!)
 
-"Demain, c’est peut-être nous qui aurons besoin d’aide." (내일은 어쩌면 우리가 도움이 필요한 사람이 될 수도 있잖아.)
+"Demain, c'est peut-être nous qui aurons besoin d'aide." (내일은 어쩌면 우리가 도움이 필요한 사람이 될 수도 있잖아.)
 
 3. 친구의 걱정 덜어주기 (회유)
 "Ne t'inquiète pas, ça ne prend pas beaucoup de temps." (걱정 마, 시간 별로 안 걸릴 거야.)
@@ -858,25 +829,25 @@ Section B (설득하기): 친구에게 하듯 친근하게(Tutoyer) 광고 속 �
     24: `
     1️⃣ 친구에게 일자리 지원 권유
 
-J’ai vu une offre d’emploi qui pourrait t’intéresser, car tu cherches du travail en ce moment.
-C’est un emploi accessible et les conditions sont plutôt intéressantes.
+J'ai vu une offre d'emploi qui pourrait t'intéresser, car tu cherches du travail en ce moment.
+C'est un emploi accessible et les conditions sont plutôt intéressantes.
 
-D’abord, les horaires sont flexibles, donc tu peux bien organiser ton temps. Par exemple, c’est pratique si tu as d’autres obligations.
-Ensuite, le salaire est correct, ce qui permet de gagner de l’argent rapidement.
-Enfin, ce travail permet d’avoir une expérience professionnelle utile pour l’avenir.
+D'abord, les horaires sont flexibles, donc tu peux bien organiser ton temps. Par exemple, c'est pratique si tu as d'autres obligations.
+Ensuite, le salaire est correct, ce qui permet de gagner de l'argent rapidement.
+Enfin, ce travail permet d'avoir une expérience professionnelle utile pour l'avenir.
 
-Même si ce n’est pas un emploi parfait, c’est une bonne opportunité pour commencer.
+Même si ce n'est pas un emploi parfait, c'est une bonne opportunité pour commencer.
 À ta place, je postulerais.
     `,
     25: `
     2️⃣ 스포츠 이벤트 참가 설득
 
-J’ai vu une annonce pour un événement sportif et je voulais t’en parler.
-C’est un événement ouvert à tous, même aux personnes qui ne sont pas très sportives.
+J'ai vu une annonce pour un événement sportif et je voulais t'en parler.
+C'est un événement ouvert à tous, même aux personnes qui ne sont pas très sportives.
 
-Tout d’abord, participer à cet événement est bon pour la santé. Par exemple, faire du sport aide à se sentir mieux physiquement.
-Ensuite, c’est une occasion de rencontrer des gens et de partager un bon moment.
-Enfin, l’ambiance est conviviale et motivante.
+Tout d'abord, participer à cet événement est bon pour la santé. Par exemple, faire du sport aide à se sentir mieux physiquement.
+Ensuite, c'est une occasion de rencontrer des gens et de partager un bon moment.
+Enfin, l'ambiance est conviviale et motivante.
 
 Même si tu as un peu peur de ne pas être à la hauteur, chacun participe à son rythme.
 Je pense vraiment que tu devrais essayer.
@@ -884,487 +855,67 @@ Je pense vraiment que tu devrais essayer.
     26: `
     3️⃣ 연말 아마존 여행 설득
 
-J’ai trouvé une publicité pour un voyage en Amazonie, et je pense que c’est une très bonne idée pour les fêtes de fin d’année.
-C’est un voyage original et différent des vacances habituelles.
+J'ai trouvé une publicité pour un voyage en Amazonie, et je pense que c'est une très bonne idée pour les fêtes de fin d'année.
+C'est un voyage original et différent des vacances habituelles.
 
-D’abord, on peut découvrir une nature incroyable, avec des paysages uniques.
-Ensuite, c’est une expérience culturelle enrichissante, car on rencontre les populations locales.
+D'abord, on peut découvrir une nature incroyable, avec des paysages uniques.
+Ensuite, c'est une expérience culturelle enrichissante, car on rencontre les populations locales.
 Enfin, ce voyage permet de changer complètement de rythme et de se déconnecter.
 
-C’est vrai que le voyage est long, mais tout est bien organisé.
-À mon avis, c’est une occasion unique à ne pas manquer.
+C'est vrai que le voyage est long, mais tout est bien organisé.
+À mon avis, c'est une occasion unique à ne pas manquer.
     `,
     27: `
     4️⃣ 봉사활동 참여 설득
 
-J’ai vu une annonce pour faire du bénévolat et j’ai pensé à toi.
-C’est une activité humaine et utile.
+J'ai vu une annonce pour faire du bénévolat et j'ai pensé à toi.
+C'est une activité humaine et utile.
 
-D’abord, le bénévolat permet d’aider des personnes qui en ont besoin. Par exemple, on peut apporter du soutien moral.
-Ensuite, c’est une expérience enrichissante sur le plan personnel.
+D'abord, le bénévolat permet d'aider des personnes qui en ont besoin. Par exemple, on peut apporter du soutien moral.
+Ensuite, c'est une expérience enrichissante sur le plan personnel.
 Enfin, cela peut aussi être valorisant pour le CV.
 
-Même si ce n’est pas payé, on gagne beaucoup sur le plan humain.
+Même si ce n'est pas payé, on gagne beaucoup sur le plan humain.
 Je pense que tu serais très bien dans ce rôle.
     `,
     28: `
     5️⃣ 주거 공유 프로그램 설득
 
-J’ai lu une annonce pour un programme de partage de logement, et je voulais t’en parler.
-C’est une solution intéressante pour trouver un logement plus facilement.
+J'ai lu une annonce pour un programme de partage de logement, et je voulais t'en parler.
+C'est une solution intéressante pour trouver un logement plus facilement.
 
-D’abord, le loyer est souvent moins cher, ce qui permet de faire des économies.
-Ensuite, on n’est pas seul, donc c’est plus rassurant.
+D'abord, le loyer est souvent moins cher, ce qui permet de faire des économies.
+Ensuite, on n'est pas seul, donc c'est plus rassurant.
 Enfin, cela permet de créer des liens sociaux.
 
-Bien sûr, il faut s’adapter à l’autre personne, mais en général l’expérience est positive.
-Je te conseille de t’inscrire à ce programme.
+Bien sûr, il faut s'adapter à l'autre personne, mais en général l'expérience est positive.
+Je te conseille de t'inscrire à ce programme.
     `,
     29: `
     6️⃣ 카풀(동승) 이용 설득
 
-J’ai vu une annonce pour le covoiturage et je pense que c’est une bonne solution de transport.
-C’est pratique et économique.
+J'ai vu une annonce pour le covoiturage et je pense que c'est une bonne solution de transport.
+C'est pratique et économique.
 
-D’abord, on partage les frais, donc on dépense moins d’argent.
-Ensuite, le covoiturage est meilleur pour l’environnement, car il y a moins de pollution.
-Enfin, c’est souvent plus agréable de voyager avec d’autres personnes.
+D'abord, on partage les frais, donc on dépense moins d'argent.
+Ensuite, le covoiturage est meilleur pour l'environnement, car il y a moins de pollution.
+Enfin, c'est souvent plus agréable de voyager avec d'autres personnes.
 
-Même si cela demande un peu d’organisation, les avantages sont nombreux.
+Même si cela demande un peu d'organisation, les avantages sont nombreux.
 À mon avis, tu devrais essayer le covoiturage.
     `,
     30: `
     7️⃣ 아이들 대상 무료 요리 수업 봉사 설득
 
-J’ai vu une annonce pour donner gratuitement des cours de cuisine à des enfants.
+J'ai vu une annonce pour donner gratuitement des cours de cuisine à des enfants.
 Comme tu aimes cuisiner, cette activité est faite pour toi.
 
-D’abord, tu peux partager ta passion avec les enfants.
-Ensuite, les enfants apprennent des choses utiles tout en s’amusant.
-Enfin, c’est une expérience très gratifiante sur le plan personnel.
+D'abord, tu peux partager ta passion avec les enfants.
+Ensuite, les enfants apprennent des choses utiles tout en s'amusant.
+Enfin, c'est une expérience très gratifiante sur le plan personnel.
 
-Même si ce n’est pas rémunéré, c’est une activité très enrichissante.
+Même si ce n'est pas rémunéré, c'est une activité très enrichissante.
 Je suis sûr(e) que tu ferais un excellent travail.
     `,
   },
 };
-
-const TEFCanada: React.FC<TEFCanadaProps> = ({ onBack }) => {
-  const [currentSection, setCurrentSection] = useState<'sectionA' | 'sectionB'>('sectionA');
-  const [currentQuestion, setCurrentQuestion] = useState<number>(0); // 0이면 Section 이미지, 1 이상이면 문제 이미지
-  const [userAnswer, setUserAnswer] = useState<string>('');
-  const [currentTranscript, setCurrentTranscript] = useState<string>('');
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [showResult, setShowResult] = useState<boolean>(false);
-  const [showSampleAnswer, setShowSampleAnswer] = useState<boolean>(false);
-  const [similarityScore, setSimilarityScore] = useState<number | null>(null);
-  const [geminiAnalysis, setGeminiAnalysis] = useState<any>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
-  const [textInputRef, setTextInputRef] = useState<HTMLTextAreaElement | null>(null);
-
-  const handleRecordingComplete = (transcript: string) => {
-    setUserAnswer(transcript);
-    setCurrentTranscript('');
-    setIsRecording(false);
-  };
-
-  const calculateSimilarity = async () => {
-    if (!userAnswer.trim()) return;
-    if (currentQuestion === 0) return; // 문제가 선택되지 않았으면 리턴
-    
-    setIsAnalyzing(true);
-    setGeminiAnalysis(null);
-    setShowResult(true);
-    
-    // 현재 문제의 모범 답안 가져오기
-    const sampleAnswer = sampleAnswers[currentSection]?.[currentQuestion] || '';
-    
-    if (!sampleAnswer || sampleAnswer.includes('작성되지 않았습니다') || sampleAnswer.includes('작성하세요')) {
-      setIsAnalyzing(false);
-      setSimilarityScore(0);
-      return;
-    }
-    
-    try {
-      // Gemini API 호출 (환경에 따라 자동 선택)
-      const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL;
-      const data = await analyzeWithGemini(
-        {
-          userAnswer,
-          sampleAnswer,
-          question: `${currentSection === 'sectionA' ? 'Section A' : 'Section B'} - Question ${currentQuestion}`,
-          analysisType: 'similarity'
-        },
-        lambdaUrl
-      );
-      
-      console.log('Gemini API 응답:', data); // 디버깅용
-      
-      if (data.success && data.analysis) {
-        // Gemini 분석 결과 처리
-        console.log('Gemini 분석 결과:', data.analysis); // 디버깅용
-        setGeminiAnalysis(data.analysis);
-        
-        // 유사도 점수 추출
-        if (data.analysis.similarityScore !== undefined) {
-          setSimilarityScore(data.analysis.similarityScore);
-        } else if (data.analysis.overallScore !== undefined) {
-          setSimilarityScore(data.analysis.overallScore);
-        } else {
-          // 점수가 없으면 기본값 설정
-          setSimilarityScore(0);
-        }
-      } else {
-        console.error('Gemini API 오류:', data.error);
-        setSimilarityScore(0);
-      }
-    } catch (error) {
-      console.error('유사도 계산 오류:', error);
-      setSimilarityScore(0);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const resetState = () => {
-    setUserAnswer('');
-    setCurrentTranscript('');
-    setShowResult(false);
-    setShowSampleAnswer(false);
-    setSimilarityScore(null);
-    setGeminiAnalysis(null);
-    setIsAnalyzing(false);
-  };
-
-  const getQuestionImagePath = () => {
-    return `/${currentSection === 'sectionA' ? 'Section A' : 'Section B'} - Question ${currentQuestion}.png`;
-  };
-
-  const getAvailableQuestions = () => {
-    if (currentSection === 'sectionA') {
-      // Section A: Question 1-11
-      return Array.from({ length: 11 }, (_, i) => i + 1);
-    } else {
-      // Section B: Question 1-30
-      return Array.from({ length: 30 }, (_, i) => i + 1);
-    }
-  };
-
-  // 프랑스어 악센트 문자 삽입
-  const insertAccent = (accent: string) => {
-    if (textInputRef) {
-      const start = textInputRef.selectionStart;
-      const end = textInputRef.selectionEnd;
-      const text = userAnswer;
-      const newText = text.substring(0, start) + accent + text.substring(end);
-      setUserAnswer(newText);
-      
-      // 커서 위치 조정
-      setTimeout(() => {
-        if (textInputRef) {
-          textInputRef.focus();
-          textInputRef.setSelectionRange(start + accent.length, start + accent.length);
-        }
-      }, 0);
-    } else {
-      // textarea가 없으면 그냥 추가
-      setUserAnswer(userAnswer + accent);
-    }
-  };
-
-  // 프랑스어 악센트 키보드 버튼들
-  const frenchAccents = [
-    { label: 'é', char: 'é', title: 'e with accent aigu' },
-    { label: 'è', char: 'è', title: 'e with accent grave' },
-    { label: 'ê', char: 'ê', title: 'e with circumflex' },
-    { label: 'ë', char: 'ë', title: 'e with diaeresis' },
-    { label: 'à', char: 'à', title: 'a with accent grave' },
-    { label: 'â', char: 'â', title: 'a with circumflex' },
-    { label: 'ç', char: 'ç', title: 'c with cedilla' },
-    { label: 'ô', char: 'ô', title: 'o with circumflex' },
-    { label: 'ù', char: 'ù', title: 'u with accent grave' },
-    { label: 'û', char: 'û', title: 'u with circumflex' },
-    { label: 'ï', char: 'ï', title: 'i with diaeresis' },
-    { label: 'î', char: 'î', title: 'i with circumflex' },
-    { label: 'É', char: 'É', title: 'E with accent aigu' },
-    { label: 'È', char: 'È', title: 'E with accent grave' },
-    { label: 'Ê', char: 'Ê', title: 'E with circumflex' },
-    { label: 'À', char: 'À', title: 'A with accent grave' },
-    { label: 'Ç', char: 'Ç', title: 'C with cedilla' },
-  ];
-
-  return (
-    <div className="tef-canada">
-      <header className="tef-header">
-        <button onClick={onBack} className="back-button">
-          ← 뒤로 가기
-        </button>
-        <h1>🇫🇷 TEF Canada</h1>
-      </header>
-      
-      <main className="tef-main">
-        {/* Subjonctif List 이미지 */}
-        <div className="subjonctif-display">
-          <div className="subjonctif-image-container">
-            <img 
-              src="/Subjonctif List.png"
-              alt="Subjonctif List"
-              className="subjonctif-image"
-            />
-          </div>
-        </div>
-
-        {/* Evaluation 이미지 */}
-        <div className="evaluation-display">
-          <div className="evaluation-image-container">
-            <img 
-              src="/evaluation.png"
-              alt="Evaluation"
-              className="evaluation-image"
-            />
-          </div>
-        </div>
-
-        <div className="section-selector">
-          <button 
-            onClick={() => {
-              setCurrentSection('sectionA');
-              setCurrentQuestion(0); // Section 이미지 표시
-              resetState();
-            }} 
-            className={`section-button ${currentSection === 'sectionA' ? 'active' : ''}`}
-          >
-            Section A
-          </button>
-          <button 
-            onClick={() => {
-              setCurrentSection('sectionB');
-              setCurrentQuestion(0); // Section 이미지 표시
-              resetState();
-            }} 
-            className={`section-button ${currentSection === 'sectionB' ? 'active' : ''}`}
-          >
-            Section B
-          </button>
-        </div>
-
-        {/* 문제 선택 버튼 */}
-        <div className="question-selector">
-          <h4>문제 선택:</h4>
-          <div className="question-buttons">
-            {getAvailableQuestions().map((questionNum) => (
-              <button
-                key={questionNum}
-                onClick={() => {
-                  setCurrentQuestion(questionNum);
-                  resetState();
-                }}
-                className={`question-button ${currentQuestion === questionNum ? 'active' : ''}`}
-              >
-                Question {questionNum}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Section 이미지 또는 문제 이미지 표시 */}
-        <div className="question-display">
-          <div className="question-image-container">
-            {currentQuestion === 0 ? (
-              // 문제가 선택되지 않았을 때 Section 이미지 표시
-              <img 
-                src={`/${currentSection === 'sectionA' ? 'Section A' : 'Section B'}.png`}
-                alt={`${currentSection === 'sectionA' ? 'Section A' : 'Section B'}`}
-                className="question-image"
-              />
-            ) : (
-              // 문제가 선택되었을 때 문제 이미지 표시
-              <img 
-                src={getQuestionImagePath()}
-                alt={`${currentSection === 'sectionA' ? 'Section A' : 'Section B'} Question ${currentQuestion}`}
-                className="question-image"
-              />
-            )}
-          </div>
-          
-          {/* 모범 답안 보기 버튼 (문제가 선택되었을 때만 표시) */}
-          {currentQuestion > 0 && (
-            <div className="sample-answer-section" style={{ marginTop: '20px', textAlign: 'center' }}>
-              <button 
-                onClick={() => setShowSampleAnswer(!showSampleAnswer)}
-                className="show-answer-button"
-                style={{
-                  background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '20px',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 15px rgba(40, 167, 69, 0.3)',
-                  marginBottom: '15px'
-                }}
-              >
-                {showSampleAnswer ? '📖 Réponse modèle (Masquer)' : '📖 Réponse modèle (Afficher)'}
-              </button>
-              {showSampleAnswer && (
-                <div className="sample-answer-content" style={{
-                  background: '#f8f9fa',
-                  padding: '20px',
-                  borderRadius: '10px',
-                  marginTop: '15px',
-                  borderLeft: '4px solid #28a745',
-                  textAlign: 'left',
-                  whiteSpace: 'pre-line'
-                }}>
-                  <p style={{ margin: 0, lineHeight: '1.7', color: '#333', fontSize: '1rem' }}>
-                    {sampleAnswers[currentSection]?.[currentQuestion] || "모범 답안이 아직 작성되지 않았습니다."}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        
-        <SpeechRecognition
-          isRecording={isRecording}
-          onStartRecording={() => {
-            setIsRecording(true);
-            setCurrentTranscript('');
-          }}
-          onStopRecording={() => setIsRecording(false)}
-          onRecordingComplete={handleRecordingComplete}
-          onTranscriptUpdate={setCurrentTranscript}
-          language="fr-CA"
-        />
-
-        {isRecording && (
-          <div className="user-answer">
-            <h3>🎤 Reconnaissance vocale en temps réel:</h3>
-            <p style={{ fontStyle: 'italic', color: '#666' }}>
-              {currentTranscript || 'Reconnaissance de la voix en cours...'}
-            </p>
-          </div>
-        )}
-
-        {/* 답변 입력 및 수정 영역 */}
-        {currentQuestion > 0 && (
-          <div className="answer-input-section" style={{
-            background: 'white',
-            borderRadius: '15px',
-            padding: '25px',
-            marginTop: '20px',
-            boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>
-              ✍️ Votre réponse (답변 입력/수정):
-            </h3>
-            
-            {/* 텍스트 입력 필드 */}
-            <textarea
-              ref={(el) => setTextInputRef(el)}
-              value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-              placeholder="음성 인식 결과가 여기에 표시되거나 직접 입력하세요..."
-              style={{
-                width: '100%',
-                minHeight: '120px',
-                padding: '15px',
-                border: '2px solid #e0e0e0',
-                borderRadius: '10px',
-                fontSize: '1rem',
-                fontFamily: 'inherit',
-                resize: 'vertical',
-                marginBottom: '15px'
-              }}
-            />
-
-            {/* 프랑스어 악센트 키보드 */}
-            <div style={{ marginBottom: '15px' }}>
-              <h4 style={{ marginBottom: '10px', fontSize: '0.9rem', color: '#666' }}>
-                🇫🇷 프랑스어 악센트:
-              </h4>
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '8px'
-              }}>
-                {frenchAccents.map((accent, index) => (
-                  <button
-                    key={index}
-                    onClick={() => insertAccent(accent.char)}
-                    title={accent.title}
-                    style={{
-                      padding: '8px 12px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 2px 5px rgba(102, 126, 234, 0.3)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 5px rgba(102, 126, 234, 0.3)';
-                    }}
-                  >
-                    {accent.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 분석 버튼 */}
-            {userAnswer.trim() && (
-              <button 
-                onClick={calculateSimilarity} 
-                className="compare-button"
-                disabled={isAnalyzing || currentQuestion === 0}
-                style={{
-                  width: '100%',
-                  padding: '12px 24px',
-                  background: isAnalyzing || currentQuestion === 0 
-                    ? '#ccc' 
-                    : 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  cursor: isAnalyzing || currentQuestion === 0 ? 'not-allowed' : 'pointer',
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
-                  transition: 'all 0.3s ease',
-                  boxShadow: isAnalyzing || currentQuestion === 0 
-                    ? 'none' 
-                    : '0 4px 15px rgba(40, 167, 69, 0.3)'
-                }}
-              >
-                {isAnalyzing ? '🤖 AI 분석 중...' : '📊 Analyser la similarité'}
-              </button>
-            )}
-          </div>
-        )}
-
-        {showResult && similarityScore !== null && currentQuestion > 0 && (
-          <ResultDisplay
-            similarityScore={similarityScore}
-            userAnswer={userAnswer}
-            sampleAnswer={sampleAnswers[currentSection]?.[currentQuestion] || ''}
-            geminiAnalysis={geminiAnalysis}
-            isAnalyzing={isAnalyzing}
-          />
-        )}
-      </main>
-    </div>
-  );
-};
-
-export default TEFCanada;

@@ -4,7 +4,8 @@ import QuestionCard from './components/QuestionCard';
 import SpeechRecognition from './components/SpeechRecognition';
 import ResultDisplay from './components/ResultDisplay';
 import LandingPage from './components/LandingPage';
-import TEFCanada from './components/TEFCanada';
+import TEFWriting from './components/TEFWriting';
+import TEFSpeaking from './components/TEFSpeaking';
 import { analyzeWithGemini } from './utils/geminiApi';
 
 interface Question {
@@ -1309,7 +1310,7 @@ const part2Questions: Part2Question[] = [
 ];
 
 function App() {
-  const [currentView, setCurrentView] = useState<'landing' | 'ielts' | 'tef'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'ielts' | 'tefSelection' | 'tefWriting' | 'tefSpeaking'>('landing');
   const [currentPart, setCurrentPart] = useState<'part1' | 'part2' | 'part3'>('part1');
   const [currentQuestion, setCurrentQuestion] = useState<Question>(sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)]);
   const [currentPart2Question, setCurrentPart2Question] = useState<Part2Question>(part2Questions[0]);
@@ -1428,14 +1429,96 @@ function App() {
     return (
       <LandingPage
         onSelectIELTS={() => setCurrentView('ielts')}
-        onSelectTEF={() => setCurrentView('tef')}
+        onSelectTEF={() => setCurrentView('tefSelection')}
       />
     );
   }
 
-  if (currentView === 'tef') {
+  if (currentView === 'tefSelection') {
     return (
-      <TEFCanada onBack={() => setCurrentView('landing')} />
+      <div className="App">
+        <header className="App-header">
+          <button 
+            onClick={() => setCurrentView('landing')}
+            className="back-button"
+            style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+          >
+            ← 뒤로 가기
+          </button>
+          <h1>🇫🇷 TEF Canada</h1>
+        </header>
+        <main className="App-main" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button 
+              onClick={() => setCurrentView('tefWriting')}
+              className="exam-button tef-button"
+              style={{ 
+                padding: '40px 60px', 
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                border: 'none',
+                borderRadius: '15px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                boxShadow: '0 5px 20px rgba(102, 126, 234, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 5px 20px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: '15px' }}>✍️</div>
+              <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>Expression Écrite</div>
+              <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Writing (라이팅)</div>
+            </button>
+            
+            <button 
+              onClick={() => setCurrentView('tefSpeaking')}
+              className="exam-button tef-button"
+              style={{ 
+                padding: '40px 60px', 
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                border: 'none',
+                borderRadius: '15px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                boxShadow: '0 5px 20px rgba(102, 126, 234, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 5px 20px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🎤</div>
+              <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>Expression Orale</div>
+              <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Speaking (스피킹)</div>
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (currentView === 'tefWriting') {
+    return (
+      <TEFWriting onBack={() => setCurrentView('tefSelection')} />
+    );
+  }
+
+  if (currentView === 'tefSpeaking') {
+    return (
+      <TEFSpeaking onBack={() => setCurrentView('tefSelection')} />
     );
   }
 
