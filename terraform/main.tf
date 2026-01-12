@@ -33,6 +33,10 @@ provider "aws" {
 # S3 버킷 (정적 웹사이트 호스팅)
 resource "aws_s3_bucket" "app" {
   bucket = var.bucket_name
+
+  lifecycle {
+    ignore_changes = [bucket]  # 기존 버킷이 있으면 무시
+  }
 }
 
 resource "aws_s3_bucket_website_configuration" "app" {
@@ -84,6 +88,10 @@ resource "aws_cloudfront_origin_access_control" "app" {
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # CloudFront 배포
@@ -177,6 +185,10 @@ resource "aws_s3_bucket_policy" "cloudfront" {
 # Lambda 함수용 IAM 역할
 resource "aws_iam_role" "lambda_role" {
   name = "${var.bucket_name}-lambda-role"
+
+  lifecycle {
+    ignore_changes = [name]  # 기존 역할이 있으면 무시
+  }
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
