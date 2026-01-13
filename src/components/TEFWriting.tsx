@@ -115,8 +115,8 @@ const TEFWriting: React.FC<TEFWritingProps> = ({ onBack }) => {
 
   // 허용된 문자만 입력 가능하도록 필터링 (이미지에 있는 프랑스어 특수 문자들 + 기본 문자)
   // 이미지 문자: ù, û, ü, ÿ, €, ,, ", ", «, », –, —, à, â, æ, ç, é, è, ê, ë, ï, î, ô, œ
-  const allowedCharsRegex = /^[a-zA-Z0-9\s\n\r\t.,!?;:()\[\]{}\-–—'"«»€àâæçéèêëïîôùûüÿœ]*$/;
-  const singleCharRegex = /^[a-zA-Z0-9\s.,!?;:()\[\]{}\-–—'"«»€àâæçéèêëïîôùûüÿœ]$/;
+  const allowedCharsRegex = /^[a-zA-Z0-9\s\n\r\t.,!?;:()[\]{}\-–—'"«»€àâæçéèêëïîôùûüÿœ]*$/;
+  const singleCharRegex = /^[a-zA-Z0-9\s.,!?;:()[\]{}\-–—'"«»€àâæçéèêëïîôùûüÿœ]$/;
   
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
