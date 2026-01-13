@@ -1348,7 +1348,7 @@ const TEFCanada: React.FC<TEFCanadaProps> = ({ onBack }) => {
                 }}
               >
                 {isAnalyzing ? '🤖 AI 분석 중...' : '📊 Analyser la similarité'}
-              </button>
+            </button>
             )}
           </div>
         )}

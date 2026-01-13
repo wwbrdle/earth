@@ -277,31 +277,31 @@ const TEFSpeaking: React.FC<TEFSpeakingProps> = ({ onBack }) => {
           }}>
             <h3>🎤 Votre réponse:</h3>
             <p>{userAnswer}</p>
-            <button 
-              onClick={calculateSimilarity} 
-              className="compare-button"
-              disabled={isAnalyzing || currentQuestion === 0}
-              style={{
-                width: '100%',
-                padding: '12px 24px',
-                background: isAnalyzing || currentQuestion === 0 
-                  ? '#ccc' 
-                  : 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '10px',
-                cursor: isAnalyzing || currentQuestion === 0 ? 'not-allowed' : 'pointer',
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                transition: 'all 0.3s ease',
-                boxShadow: isAnalyzing || currentQuestion === 0 
-                  ? 'none' 
+              <button 
+                onClick={calculateSimilarity} 
+                className="compare-button"
+                disabled={isAnalyzing || currentQuestion === 0}
+                style={{
+                  width: '100%',
+                  padding: '12px 24px',
+                  background: isAnalyzing || currentQuestion === 0 
+                    ? '#ccc' 
+                    : 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: isAnalyzing || currentQuestion === 0 ? 'not-allowed' : 'pointer',
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  transition: 'all 0.3s ease',
+                  boxShadow: isAnalyzing || currentQuestion === 0 
+                    ? 'none' 
                   : '0 4px 15px rgba(40, 167, 69, 0.3)',
                 marginTop: '15px'
-              }}
-            >
-              {isAnalyzing ? '🤖 AI 분석 중...' : '📊 Analyser la similarité'}
-            </button>
+                }}
+              >
+                {isAnalyzing ? '🤖 AI 분석 중...' : '📊 Analyser la similarité'}
+              </button>
           </div>
         )}
 

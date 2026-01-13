@@ -1400,10 +1400,10 @@ function App() {
           setSimilarityScore(data.analysis.overallScore);
         } else {
           // 점수를 찾을 수 없으면 기본 계산 사용
-          const userWords = userAnswer.toLowerCase().split(/\s+/);
-          const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
-          const commonWords = userWords.filter(word => sampleWords.includes(word));
-          const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
+    const userWords = userAnswer.toLowerCase().split(/\s+/);
+    const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+    const commonWords = userWords.filter(word => sampleWords.includes(word));
+    const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
           setSimilarityScore(Math.round(similarity));
         }
         
@@ -1418,8 +1418,8 @@ function App() {
       const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
       const commonWords = userWords.filter(word => sampleWords.includes(word));
       const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
-      setSimilarityScore(Math.round(similarity));
-      setShowResult(true);
+    setSimilarityScore(Math.round(similarity));
+    setShowResult(true);
     } finally {
       setIsAnalyzing(false);
     }

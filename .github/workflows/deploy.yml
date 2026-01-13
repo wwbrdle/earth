@@ -164,12 +164,12 @@ jobs:
         
     - name: Install dependencies
       run: npm ci
-      
+        
     - name: Build application
       env:
         REACT_APP_LAMBDA_FUNCTION_URL: ${{ needs.deploy-infrastructure.outputs.lambda_url }}
       run: npm run build
-      
+        
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -230,7 +230,7 @@ jobs:
         aws cloudfront create-invalidation \
           --distribution-id ${{ steps.terraform-output.outputs.distribution_id }} \
           --paths "/*"
-    
+        
     - name: Deployment summary
       run: |
         echo "✅ Deployment completed!"

@@ -158,15 +158,15 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
       )}
 
       {!geminiAnalysis && !isAnalyzing && (
-        <div className="tips-section">
-          <h4>💡 개선 팁</h4>
-          <ul>
-            <li>더 구체적인 예시를 들어보세요</li>
-            <li>다양한 어휘와 표현을 사용해보세요</li>
-            <li>연결어를 활용하여 답변을 더 자연스럽게 만들어보세요</li>
-            <li>충분한 설명과 근거를 제공해보세요</li>
-          </ul>
-        </div>
+      <div className="tips-section">
+        <h4>💡 개선 팁</h4>
+        <ul>
+          <li>더 구체적인 예시를 들어보세요</li>
+          <li>다양한 어휘와 표현을 사용해보세요</li>
+          <li>연결어를 활용하여 답변을 더 자연스럽게 만들어보세요</li>
+          <li>충분한 설명과 근거를 제공해보세요</li>
+        </ul>
+      </div>
       )}
     </div>
   );
