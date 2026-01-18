@@ -493,20 +493,8 @@ const task2Prompts: WritingPrompt[] = [
 ];
 
 const sampleAnswers: Record<string, string> = {
-  'task2-1': `Some people argue that public libraries have become unnecessary due to digital resources. I partly disagree with this view.
-
-On the one hand, online materials are more accessible than ever. E‑books, academic articles, and educational videos can be accessed instantly from home, which saves time and often money. For many users, digital platforms offer convenience that traditional libraries cannot match.
-
-On the other hand, libraries still serve important roles that go beyond providing books. They offer quiet study spaces, free internet access, and support from librarians, which is especially valuable for students and low‑income communities. Libraries also host community events and literacy programs that help foster social inclusion.
-
-In conclusion, while digital resources have reduced reliance on physical collections, public libraries remain relevant as community hubs and equalizers. Rather than being obsolete, they should continue to evolve alongside technology.`,
-  'task2-2': `Housing costs have risen sharply in many cities. This is mainly due to growing demand and limited supply, and a combination of policy and planning solutions is needed.
-
-One key cause is rapid urbanization. As more people move to cities for work, demand outpaces the construction of new homes. Additionally, strict zoning rules and lengthy approval processes can restrict development. Investment-driven buying can further inflate prices by reducing the number of homes available for residents.
-
-To address these issues, governments should increase housing supply by easing zoning restrictions and speeding up permits. Incentives for affordable housing projects can also encourage private developers to build lower‑cost units. In the longer term, improving transport links to suburban areas would distribute demand more evenly and reduce pressure on city centers.
-
-Overall, tackling expensive housing requires both expanding supply and managing demand through smart urban planning.`,
+  'task2-1': '모범 답안이 아직 작성되지 않았습니다.',
+  'task2-2': '모범 답안이 아직 작성되지 않았습니다.'
 };
 
 interface IELTSWritingProps {
@@ -667,13 +655,19 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
         guideText ? `Guide:\n${guideText}` : '',
         currentSection === 'task1' && effectiveImagePaths.length
           ? `Task: Refer to the attached image. (${effectiveImagePaths.join(', ')})`
+          : '',
+        currentSection === 'task2' && selectedPrompt.prompt
+          ? `Task: ${selectedPrompt.prompt}`
           : ''
       ].filter(Boolean).join('\n\n');
 
       const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL;
+      const effectiveSampleAnswer = sampleAnswer?.trim()
+        ? sampleAnswer
+        : '모범 답안이 아직 작성되지 않았습니다.';
       const requestPayload = {
         userAnswer,
-        sampleAnswer,
+        sampleAnswer: effectiveSampleAnswer,
         question: analysisQuestion,
         analysisType: 'ielts-writing' as const,
         images: imagePayloads.length ? imagePayloads : undefined
@@ -732,7 +726,7 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
       </header>
 
       <main className="App-main" style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <div style={{ background: 'white', borderRadius: '15px', padding: '25px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ background: 'white', borderRadius: '15px', padding: '25px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)', textAlign: 'left' }}>
           <h3 style={{ marginTop: 0, marginBottom: '10px', color: '#333' }}>📚 섹션 선택 (Section):</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '15px' }}>
             <button
@@ -854,6 +848,99 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
           )}
           {selectedPrompt.prompt && (
             <>
+              <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '18px', marginBottom: '12px', borderLeft: '4px solid #667eea', lineHeight: '1.7', color: '#333' }}>
+                <h4 style={{ margin: '0 0 8px 0' }}>1. 에세이의 기본 구조 이해</h4>
+                <p style={{ margin: '0 0 8px 0' }}>에세이는 반드시 서론, 본론, 결론의 구조를 갖춰야 합니다. 이는 점수에 직접적인 영향을 미칩니다.</p>
+                <ul style={{ margin: '0 0 8px 18px' }}>
+                  <li>서론: 보통 한 단락으로 구성합니다.</li>
+                  <li>본론: 두 개 또는 세 개의 단락으로 구성합니다.</li>
+                  <li>결론: 한 단락으로 마무리합니다.</li>
+                </ul>
+
+                <h4 style={{ margin: '0 0 8px 0' }}>2. 질문 유형 분류 (A, P, S 유형)</h4>
+                <p style={{ margin: '0 0 8px 0' }}>작성을 시작하기 전, 질문이 어떤 유형인지 파악해야 합니다. 유형에 따라 계획이 달라집니다.</p>
+                <ul style={{ margin: '0 0 8px 18px' }}>
+                  <li>A (Argument - 논쟁): 하나의 주장을 제시하고 찬반, 장단점을 탐구합니다. 보통 한쪽 편만 지지합니다.</li>
+                  <li>P (Point of view - 관점): 두 가지 상반된 관점(또는 하나)을 제시하고 이를 논의한 뒤 자신의 의견을 밝힙니다.</li>
+                  <li>S (Situation - 상황): 특정 상황의 원인을 분석하고, 미래를 예측하거나 해결책을 제안합니다.</li>
+                </ul>
+
+                <h4 style={{ margin: '0 0 8px 0' }}>3. 에세이 작성 3단계 (Baby Steps)</h4>
+                <p style={{ margin: '0 0 8px 0' }}><strong>[1단계] 질문 읽고 분류하기</strong><br />문제의 핵심을 파악하여 A, P, S 중 어떤 유형인지 결정합니다. 이 단계가 에세이 전체의 방향을 결정합니다.</p>
+                <p style={{ margin: '0 0 8px 0' }}><strong>[2단계] 아이디어 구상 및 브레인스토밍</strong></p>
+                <ul style={{ margin: '0 0 8px 18px' }}>
+                  <li>A 유형: 찬성 측과 반대 측 아이디어를 모두 생각합니다.</li>
+                  <li>P 유형: 제시된 각 관점에 대한 아이디어를 생각합니다.</li>
+                  <li>S 유형: 상황의 원인, 결과, 개선 방안을 구상합니다.</li>
+                </ul>
+                <p style={{ margin: '0 0 8px 0' }}><strong>정리:</strong> 생각나는 모든 아이디어를 적은 뒤, 어떤 아이디어를 본론 몇 번째 단락에 넣을지 그룹화합니다. 중요: 내가 동의하지 않는 쪽을 먼저 배치하고, 내가 동의하는 쪽을 나중에 배치하여 자연스럽게 결론으로 연결되도록 합니다.</p>
+                <p style={{ margin: '0 0 8px 0' }}><strong>[3단계] 본격적인 작성</strong></p>
+                <p style={{ margin: '0 0 6px 0' }}><strong>서론 작성:</strong> 문제를 그대로 베끼지 말고, 자신만의 단어로 바꾸어(Rephrasing) 주제를 소개합니다. 서론에서 바로 자신의 의견을 내기보다는 본론을 위해 아껴둡니다.</p>
+                <p style={{ margin: '0 0 6px 0' }}><strong>본론 작성:</strong></p>
+                <ul style={{ margin: '0 0 8px 18px' }}>
+                  <li>최소 2개 단락을 작성하며, 각 단락은 하나의 핵심 아이디어를 담아야 합니다.</li>
+                  <li>객관적으로 작성해야 하며, 개인적인 경험보다는 일반적인 사회 현상이나 사실 위주로 설명합니다.</li>
+                  <li>단락을 시작할 때 연결어(However, Therefore 등)를 사용하여 논리적 흐름을 만듭니다.</li>
+                </ul>
+                <p style={{ margin: '0 0 12px 0' }}><strong>결론 작성:</strong> 본문에서 언급한 내용을 요약합니다. 결론이 짧아지더라도 전체적인 에세이 구조를 유지하는 것이 중요합니다.</p>
+
+                <h4 style={{ margin: '0 0 8px 0' }}>4. 최종 점검 및 팁</h4>
+                <ul style={{ margin: '0 0 12px 18px' }}>
+                  <li>시간 관리: 40분 안에 250자 이상을 쓰는 것을 목표로 합니다. 처음에는 시간이 오래 걸리더라도 연습을 통해 시간을 단축해야 합니다.</li>
+                  <li>객관성 유지: 질문에서 직접적으로 묻지 않는 한, 개인적인 경험보다는 사회 전반의 시각에서 객관적으로 서술합니다.</li>
+                  <li>검토: 작성을 마친 후에는 반드시 처음부터 끝까지 다시 읽으며 문법이나 논리적 오류가 없는지 확인합니다.</li>
+                  <li>취약 주제 연습: 자신이 좋아하지 않거나 잘 모르는 주제를 골라 연습해 보세요. 이는 실제 시험에서 어떤 주제가 나와도 당황하지 않고 배경 지식과 어휘를 활용할 수 있게 해줍니다.</li>
+                </ul>
+
+                <h4 style={{ margin: '0 0 8px 0' }}>Helpful phrases</h4>
+                <p style={{ margin: '0 0 10px 0' }}>매일 영어를 읽고 쓰지 않는 사람들은 에세이에서 자신을 표현하는 데 어려움을 겪곤 합니다. 그래서 더 우아한 문장을 쓰는 데 도움이 되는 문구 목록을 아래에 첨부합니다.</p>
+
+                <p style={{ margin: '0 0 6px 0' }}><strong>Phrases to show two sides of an argument (주장의 양면을 보여주는 문구)</strong></p>
+                <ul style={{ margin: '0 0 10px 18px' }}>
+                  <li>"Some people prefer... Those who disagree point out that..." (어떤 이들은 ...을 선호한다... 반대하는 이들은 ...라고 지적한다)</li>
+                  <li>"We must acknowledge... Nevertheless, ..." (우리는 ...을 인정해야 한다... 그럼에도 불구하고, ...)</li>
+                  <li>"No one can deny... However, ..." (아무도 ...을 부정할 수 없다... 하지만, ...)</li>
+                  <li>"Many people hold the opinion... Others, however, disagree..." (많은 이들이 ...라는 의견을 가지고 있다... 하지만 다른 이들은 이에 동의하지 않는다...)</li>
+                  <li>"Although it is hard to compete with..., some people still prefer ..." (...와 경쟁하기 어렵지만, 일부 사람들은 여전히 ...을 선호한다)</li>
+                </ul>
+
+                <p style={{ margin: '0 0 6px 0' }}><strong>Phrases for adding a linked point (관련 내용을 덧붙이는 문구)</strong></p>
+                <ul style={{ margin: '0 0 10px 18px' }}>
+                  <li>"Not only..., but also..." (...뿐만 아니라 ...도)</li>
+                  <li>"Also" (또한)</li>
+                  <li>"Furthermore," (게다가)</li>
+                  <li>"In addition," (덧붙여서)</li>
+                  <li>"Moreover," (더욱이)</li>
+                </ul>
+
+                <p style={{ margin: '0 0 6px 0' }}><strong>Phrases to contrast with what was written before (앞선 내용과 대조하는 문구)</strong></p>
+                <ul style={{ margin: '0 0 10px 18px' }}>
+                  <li>"Although..." (...임에도 불구하고)</li>
+                  <li>"However," (하지만)</li>
+                  <li>"Nevertheless," (그럼에도 불구하고)</li>
+                  <li>"Even if..." (...일지라도)</li>
+                  <li>"In spite of" (...에도 불구하고)</li>
+                  <li>"On the other hand," (반면에)</li>
+                </ul>
+
+                <p style={{ margin: '0 0 6px 0' }}><strong>Phrases for examples (예시를 들 때의 문구)</strong></p>
+                <ul style={{ margin: '0 0 10px 18px' }}>
+                  <li>"For example," (예를 들어)</li>
+                  <li>"For instance," (예를 들어)</li>
+                  <li>"In particular," (특히)</li>
+                  <li>"..., such as" (...와 같은)</li>
+                  <li>"To illustrate ..." (설명하자면 ...)</li>
+                </ul>
+
+                <p style={{ margin: '0 0 6px 0' }}><strong>Phrases for results (결과를 나타내는 문구)</strong></p>
+                <ul style={{ margin: '0 0 10px 18px' }}>
+                  <li>"As a result" (결과적으로)</li>
+                  <li>"Therefore" (그러므로)</li>
+                  <li>"Thus" (따라서)</li>
+                  <li>"So" (그래서)</li>
+                  <li>"Eventually" (결국)</li>
+                </ul>
+              </div>
               <h3 style={{ marginTop: 0, marginBottom: '10px', color: '#333' }}>📝 Topic</h3>
               <p style={{ marginTop: 0, lineHeight: '1.6', color: '#333', whiteSpace: 'pre-line' }}>
                 {selectedPrompt.prompt}
