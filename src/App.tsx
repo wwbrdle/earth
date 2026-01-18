@@ -6,6 +6,7 @@ import ResultDisplay from './components/ResultDisplay';
 import LandingPage from './components/LandingPage';
 import TEFWriting from './components/TEFWriting';
 import TEFSpeaking from './components/TEFSpeaking';
+import IELTSWriting from './components/IELTSWriting';
 import { analyzeWithGemini } from './utils/geminiApi';
 
 interface Question {
@@ -1310,7 +1311,9 @@ const part2Questions: Part2Question[] = [
 ];
 
 function App() {
-  const [currentView, setCurrentView] = useState<'landing' | 'ielts' | 'tefSelection' | 'tefWriting' | 'tefSpeaking'>('landing');
+  const [currentView, setCurrentView] = useState<
+    'landing' | 'ieltsSelection' | 'ieltsSpeaking' | 'ieltsWriting' | 'tefSelection' | 'tefWriting' | 'tefSpeaking'
+  >('landing');
   const [currentPart, setCurrentPart] = useState<'part1' | 'part2' | 'part3'>('part1');
   const [currentQuestion, setCurrentQuestion] = useState<Question>(sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)]);
   const [currentPart2Question, setCurrentPart2Question] = useState<Part2Question>(part2Questions[0]);
@@ -1428,9 +1431,85 @@ function App() {
   if (currentView === 'landing') {
     return (
       <LandingPage
-        onSelectIELTS={() => setCurrentView('ielts')}
+        onSelectIELTS={() => setCurrentView('ieltsSelection')}
         onSelectTEF={() => setCurrentView('tefSelection')}
       />
+    );
+  }
+
+  if (currentView === 'ieltsSelection') {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <button 
+            onClick={() => setCurrentView('landing')}
+            className="back-button"
+            style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+          >
+            ← 뒤로 가기
+          </button>
+          <h1>🇬🇧 IELTS</h1>
+        </header>
+        <main className="App-main" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button 
+              onClick={() => setCurrentView('ieltsWriting')}
+              className="exam-button tef-button"
+              style={{ 
+                padding: '40px 60px', 
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                border: 'none',
+                borderRadius: '15px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                boxShadow: '0 5px 20px rgba(102, 126, 234, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 5px 20px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: '15px' }}>✍️</div>
+              <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>Writing</div>
+              <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>라이팅</div>
+            </button>
+            
+            <button 
+              onClick={() => setCurrentView('ieltsSpeaking')}
+              className="exam-button tef-button"
+              style={{ 
+                padding: '40px 60px', 
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                border: 'none',
+                borderRadius: '15px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                boxShadow: '0 5px 20px rgba(102, 126, 234, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 5px 20px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🎤</div>
+              <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>Speaking</div>
+              <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>스피킹</div>
+            </button>
+          </div>
+        </main>
+      </div>
     );
   }
 
@@ -1510,6 +1589,7 @@ function App() {
     );
   }
 
+  
   if (currentView === 'tefWriting') {
     return (
       <TEFWriting onBack={() => setCurrentView('tefSelection')} />
@@ -1522,217 +1602,232 @@ function App() {
     );
   }
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <button 
-            onClick={() => setCurrentView('landing')}
-            className="back-button"
-            style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-          >
-            ← 뒤로 가기
-          </button>
-          <h1>🎤 IELTS 스피킹 연습</h1>
-        </div>
-      </header>
-      
-      <main className="App-main">
-        <div className="part-selector">
-          <button 
-            onClick={() => {
-              setCurrentPart('part1');
-              setUserAnswer('');
-              setCurrentTranscript('');
-              setSimilarityScore(null);
-              setShowResult(false);
-            }} 
-            className={`part-button ${currentPart === 'part1' ? 'active' : ''}`}
-          >
-            Part 1
-          </button>
-          <button 
-            onClick={() => {
-              setCurrentPart('part2');
-              setUserAnswer('');
-              setCurrentTranscript('');
-              setSimilarityScore(null);
-              setShowResult(false);
-            }} 
-            className={`part-button ${currentPart === 'part2' ? 'active' : ''}`}
-          >
-            Part 2
-          </button>
-          <button 
-            onClick={() => {
-              setCurrentPart('part3');
-              setUserAnswer('');
-              setCurrentTranscript('');
-              setSimilarityScore(null);
-              setShowResult(false);
-            }} 
-            className={`part-button ${currentPart === 'part3' ? 'active' : ''}`}
-          >
-            Part 3
-          </button>
-        </div>
+  if (currentView === 'ieltsWriting') {
+    return (
+      <IELTSWriting onBack={() => setCurrentView('ieltsSelection')} />
+    );
+  }
 
-        <div className="question-controls">
-          <button onClick={getRandomQuestion} className="random-button">
-            🎲 랜덤 문제 선택
-          </button>
-          
-          {currentPart === 'part1' && (
-            <div className="topic-selector">
-              <h4>카테고리별 선택:</h4>
-              <div className="topic-buttons">
-                {Array.from(new Set(sampleQuestions.map(q => q.category))).map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => {
-                      const categoryQuestions = sampleQuestions.filter(q => q.category === category);
-                      const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
-                      setCurrentQuestion(randomQuestion);
-                      setUserAnswer('');
-                      setCurrentTranscript('');
-                      setSimilarityScore(null);
-                      setShowResult(false);
-                    }}
-                    className={`topic-button ${currentQuestion.category === category ? 'active' : ''}`}
-                  >
-                    {category.replace('Part 1 - ', '')}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {currentPart === 'part2' && (
-            <div className="topic-selector">
-              <h4>주제별 선택:</h4>
-              <div className="topic-buttons">
-                {part2Questions.map((question) => (
-                  <button
-                    key={question.id}
-                    onClick={() => {
-                      setCurrentPart2Question(question);
-                      setUserAnswer('');
-                      setCurrentTranscript('');
-                      setSimilarityScore(null);
-                      setShowResult(false);
-                    }}
-                    className={`topic-button ${currentPart2Question.id === question.id ? 'active' : ''}`}
-                  >
-                    {question.topic}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {currentPart === 'part3' && (
-            <div className="topic-selector">
-              <h4>주제별 선택:</h4>
-              <div className="topic-buttons">
-                {part2Questions.map((question) => (
-                  <button
-                    key={question.id}
-                    onClick={() => {
-                      const randomPart3Index = Math.floor(Math.random() * question.part3Questions.length);
-                      const randomPart3Question = question.part3Questions[randomPart3Index];
-                      setCurrentPart3Question(randomPart3Question);
-                      setUserAnswer('');
-                      setCurrentTranscript('');
-                      setSimilarityScore(null);
-                      setShowResult(false);
-                    }}
-                    className={`topic-button`}
-                  >
-                    {question.topic}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {currentPart === 'part1' ? (
-          <QuestionCard question={currentQuestion} />
-        ) : currentPart === 'part2' ? (
-          <div className="part2-question">
-            <h2>{currentPart2Question.topic}</h2>
-            <h3>{currentPart2Question.mainQuestion}</h3>
-            <div className="sub-questions">
-              <p>You should say:</p>
-              <ul>
-                {currentPart2Question.subQuestions.map((subQ, index) => (
-                  <li key={index}>{subQ}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ) : (
-          <div className="part3-question">
-            <h2>Part 3 - Discussion Question</h2>
-            <h3>{currentPart3Question.question}</h3>
-            <details className="sample-answer">
-              <summary>Sample Answer</summary>
-              <p>{currentPart3Question.sampleAnswer}</p>
-            </details>
-          </div>
-        )}
-        
-        <SpeechRecognition
-          isRecording={isRecording}
-          onStartRecording={() => {
-            setIsRecording(true);
-            setCurrentTranscript('');
-          }}
-          onStopRecording={() => setIsRecording(false)}
-          onRecordingComplete={handleRecordingComplete}
-          onTranscriptUpdate={setCurrentTranscript}
-        />
-
-        {isRecording && (
-          <div className="user-answer">
-            <h3>🎤 실시간 음성 인식:</h3>
-            <p style={{ fontStyle: 'italic', color: '#666' }}>
-              {currentTranscript || '음성을 인식하고 있습니다...'}
-            </p>
-          </div>
-        )}
-
-                {userAnswer && !isRecording && (
-          <div className="user-answer">
-            <h3>🎤 당신의 답변:</h3>
-            <p>{userAnswer}</p>
+  if (currentView === 'ieltsSpeaking') {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <button 
-              onClick={calculateSimilarity} 
-              className="compare-button"
-              disabled={isAnalyzing}
+              onClick={() => setCurrentView('ieltsSelection')}
+              className="back-button"
+              style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
             >
-              {isAnalyzing ? '🤖 AI 분석 중...' : '📊 유사도 분석하기'}
+              ← 뒤로 가기
+            </button>
+            <h1>🎤 IELTS 스피킹 연습</h1>
+          </div>
+        </header>
+        
+        <main className="App-main">
+          <div className="part-selector">
+            <button 
+              onClick={() => {
+                setCurrentPart('part1');
+                setUserAnswer('');
+                setCurrentTranscript('');
+                setSimilarityScore(null);
+                setShowResult(false);
+              }} 
+              className={`part-button ${currentPart === 'part1' ? 'active' : ''}`}
+            >
+              Part 1
+            </button>
+            <button 
+              onClick={() => {
+                setCurrentPart('part2');
+                setUserAnswer('');
+                setCurrentTranscript('');
+                setSimilarityScore(null);
+                setShowResult(false);
+              }} 
+              className={`part-button ${currentPart === 'part2' ? 'active' : ''}`}
+            >
+              Part 2
+            </button>
+            <button 
+              onClick={() => {
+                setCurrentPart('part3');
+                setUserAnswer('');
+                setCurrentTranscript('');
+                setSimilarityScore(null);
+                setShowResult(false);
+              }} 
+              className={`part-button ${currentPart === 'part3' ? 'active' : ''}`}
+            >
+              Part 3
             </button>
           </div>
-        )}
 
-        {showResult && similarityScore !== null && (
-          <ResultDisplay
-            similarityScore={similarityScore}
-            userAnswer={userAnswer}
-            sampleAnswer={
-              currentPart === 'part1' 
-                ? currentQuestion.sampleAnswer 
-                : currentPart === 'part2'
-                ? currentPart2Question.sampleAnswer
-                : currentPart3Question.sampleAnswer
-            }
-            geminiAnalysis={geminiAnalysis}
-            isAnalyzing={isAnalyzing}
+          <div className="question-controls">
+            <button onClick={getRandomQuestion} className="random-button">
+              🎲 랜덤 문제 선택
+            </button>
+            
+            {currentPart === 'part1' && (
+              <div className="topic-selector">
+                <h4>카테고리별 선택:</h4>
+                <div className="topic-buttons">
+                  {Array.from(new Set(sampleQuestions.map(q => q.category))).map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        const categoryQuestions = sampleQuestions.filter(q => q.category === category);
+                        const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
+                        setCurrentQuestion(randomQuestion);
+                        setUserAnswer('');
+                        setCurrentTranscript('');
+                        setSimilarityScore(null);
+                        setShowResult(false);
+                      }}
+                      className={`topic-button ${currentQuestion.category === category ? 'active' : ''}`}
+                    >
+                      {category.replace('Part 1 - ', '')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {currentPart === 'part2' && (
+              <div className="topic-selector">
+                <h4>주제별 선택:</h4>
+                <div className="topic-buttons">
+                  {part2Questions.map((question) => (
+                    <button
+                      key={question.id}
+                      onClick={() => {
+                        setCurrentPart2Question(question);
+                        setUserAnswer('');
+                        setCurrentTranscript('');
+                        setSimilarityScore(null);
+                        setShowResult(false);
+                      }}
+                      className={`topic-button ${currentPart2Question.id === question.id ? 'active' : ''}`}
+                    >
+                      {question.topic}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {currentPart === 'part3' && (
+              <div className="topic-selector">
+                <h4>주제별 선택:</h4>
+                <div className="topic-buttons">
+                  {part2Questions.map((question) => (
+                    <button
+                      key={question.id}
+                      onClick={() => {
+                        const randomPart3Index = Math.floor(Math.random() * question.part3Questions.length);
+                        const randomPart3Question = question.part3Questions[randomPart3Index];
+                        setCurrentPart3Question(randomPart3Question);
+                        setUserAnswer('');
+                        setCurrentTranscript('');
+                        setSimilarityScore(null);
+                        setShowResult(false);
+                      }}
+                      className={`topic-button`}
+                    >
+                      {question.topic}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {currentPart === 'part1' ? (
+            <QuestionCard question={currentQuestion} />
+          ) : currentPart === 'part2' ? (
+            <div className="part2-question">
+              <h2>{currentPart2Question.topic}</h2>
+              <h3>{currentPart2Question.mainQuestion}</h3>
+              <div className="sub-questions">
+                <p>You should say:</p>
+                <ul>
+                  {currentPart2Question.subQuestions.map((subQ, index) => (
+                    <li key={index}>{subQ}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <div className="part3-question">
+              <h2>Part 3 - Discussion Question</h2>
+              <h3>{currentPart3Question.question}</h3>
+              <details className="sample-answer">
+                <summary>Sample Answer</summary>
+                <p>{currentPart3Question.sampleAnswer}</p>
+              </details>
+            </div>
+          )}
+          
+          <SpeechRecognition
+            isRecording={isRecording}
+            onStartRecording={() => {
+              setIsRecording(true);
+              setCurrentTranscript('');
+            }}
+            onStopRecording={() => setIsRecording(false)}
+            onRecordingComplete={handleRecordingComplete}
+            onTranscriptUpdate={setCurrentTranscript}
           />
-        )}
-      </main>
-    </div>
+
+          {isRecording && (
+            <div className="user-answer">
+              <h3>🎤 실시간 음성 인식:</h3>
+              <p style={{ fontStyle: 'italic', color: '#666' }}>
+                {currentTranscript || '음성을 인식하고 있습니다...'}
+              </p>
+            </div>
+          )}
+
+          {userAnswer && !isRecording && (
+            <div className="user-answer">
+              <h3>🎤 당신의 답변:</h3>
+              <p>{userAnswer}</p>
+              <button 
+                onClick={calculateSimilarity} 
+                className="compare-button"
+                disabled={isAnalyzing}
+              >
+                {isAnalyzing ? '🤖 AI 분석 중...' : '📊 유사도 분석하기'}
+              </button>
+            </div>
+          )}
+
+          {showResult && similarityScore !== null && (
+            <ResultDisplay
+              similarityScore={similarityScore}
+              userAnswer={userAnswer}
+              sampleAnswer={
+                currentPart === 'part1' 
+                  ? currentQuestion.sampleAnswer 
+                  : currentPart === 'part2'
+                  ? currentPart2Question.sampleAnswer
+                  : currentPart3Question.sampleAnswer
+              }
+              geminiAnalysis={geminiAnalysis}
+              isAnalyzing={isAnalyzing}
+            />
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <LandingPage
+      onSelectIELTS={() => setCurrentView('ieltsSelection')}
+      onSelectTEF={() => setCurrentView('tefSelection')}
+    />
   );
 }
 

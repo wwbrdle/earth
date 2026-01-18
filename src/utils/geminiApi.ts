@@ -13,7 +13,11 @@ interface GeminiAnalysisRequest {
   userAnswer: string;
   sampleAnswer: string;
   question?: string;
-  analysisType?: 'similarity' | 'grammar' | 'improvement';
+  analysisType?: 'similarity' | 'grammar' | 'improvement' | 'ielts-writing';
+  image?: {
+    data: string;
+    mimeType: string;
+  };
 }
 
 interface GeminiAnalysisResponse {
@@ -21,6 +25,7 @@ interface GeminiAnalysisResponse {
   analysis?: any;
   analysisType?: string;
   error?: string;
+  rawText?: string;
 }
 
 /**
@@ -34,6 +39,17 @@ async function callGeminiDirectly(request: GeminiAnalysisRequest): Promise<Gemin
   }
 
   const prompt = generatePrompt(request);
+  const parts: Array<{ text?: string; inline_data?: { mime_type: string; data: string } }> = [
+    { text: prompt }
+  ];
+  if (request.image?.data) {
+    parts.push({
+      inline_data: {
+        mime_type: request.image.mimeType,
+        data: request.image.data
+      }
+    });
+  }
 
   const response = await fetch(
     `${GEMINI_API_BASE_URL}/${GEMINI_API_VERSION}/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
@@ -44,9 +60,7 @@ async function callGeminiDirectly(request: GeminiAnalysisRequest): Promise<Gemin
       },
       body: JSON.stringify({
         contents: [{
-          parts: [{
-            text: prompt
-          }]
+          parts
         }]
       })
     }
@@ -70,14 +84,16 @@ async function callGeminiDirectly(request: GeminiAnalysisRequest): Promise<Gemin
     return {
       success: true,
       analysis: parsed,
-      analysisType: request.analysisType || 'similarity'
+      analysisType: request.analysisType || 'similarity',
+      rawText: text
     };
   } catch (e) {
     // JSON이 아니면 텍스트 그대로 반환
     return {
       success: true,
       analysis: { text },
-      analysisType: request.analysisType || 'similarity'
+      analysisType: request.analysisType || 'similarity',
+      rawText: text
     };
   }
 }
@@ -111,6 +127,43 @@ function generatePrompt(request: GeminiAnalysisRequest): string {
   const { userAnswer, sampleAnswer, question, analysisType = 'similarity' } = request;
 
   switch (analysisType) {
+    case 'ielts-writing':
+      return `You are an IELTS Academic Writing examiner. Evaluate ONLY Writing. Do NOT mention Speaking.
+
+Task Info:
+${question ? `${question}\n` : ''}
+Sample Answer:
+${sampleAnswer}
+
+Student Answer:
+${userAnswer}
+
+Rules:
+1) Respond ONLY with valid JSON (no markdown).
+2) All text must be in Korean (한국어).
+3) Use IELTS Writing criteria.
+4) If the answer is extremely short (e.g., "hello"), state it does not address the writing task and score accordingly.
+
+JSON:
+{
+  "overallScore": <0-100>,
+  "bandScore": <0-9>,
+  "bandBreakdown": {
+    "taskResponse": <0-9>,
+    "coherenceCohesion": <0-9>,
+    "lexicalResource": <0-9>,
+    "grammar": <0-9>
+  },
+  "guideAdherence": {
+    "score": <0-100>,
+    "summary": "<Korean>",
+    "issues": ["<Korean>", "<Korean>"]
+  },
+  "strengths": ["<Korean>", "<Korean>"],
+  "improvements": ["<Korean>", "<Korean>"],
+  "suggestions": ["<Korean>", "<Korean>"],
+  "feedback": "<Korean. Do not mention speaking.>"
+}`;
     case 'similarity':
       // TEF Canada Writing인지 확인 (question에 "TEF" 또는 "Expression Écrite" 또는 "Fait Diver" 또는 "Letters"가 포함되어 있는지)
       const isTEFCanada = question && (
@@ -211,6 +264,10 @@ Remember: Respond ONLY with valid JSON in Korean, nothing else.`;
   }
 }
 
+export function buildGeminiPrompt(request: GeminiAnalysisRequest): string {
+  return generatePrompt(request);
+}
+
 /**
  * Gemini API 호출 (환경에 따라 자동 선택)
  */
@@ -218,19 +275,14 @@ export async function analyzeWithGemini(
   request: GeminiAnalysisRequest,
   lambdaUrl?: string
 ): Promise<GeminiAnalysisResponse> {
-  // 개발 환경: .env의 API 키가 있으면 직접 호출
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const hasApiKey = !!process.env.REACT_APP_GEMINI_API_KEY;
   const hasLambdaUrl = !!lambdaUrl || !!process.env.REACT_APP_LAMBDA_FUNCTION_URL;
 
-  if (isDevelopment && hasApiKey) {
-    // 개발 환경에서 .env의 REACT_APP_GEMINI_API_KEY 사용
-    return await callGeminiDirectly(request);
-  } else if (hasLambdaUrl) {
-    // 프로덕션: Lambda 함수 사용
+  if (hasLambdaUrl) {
+    // 모든 환경에서 Lambda 함수 우선 사용
     const url = lambdaUrl || process.env.REACT_APP_LAMBDA_FUNCTION_URL || '';
     return await callGeminiViaLambda(url, request);
   } else {
+    // Lambda가 없으면 직접 호출로 폴백
     throw new Error('Neither REACT_APP_GEMINI_API_KEY nor REACT_APP_LAMBDA_FUNCTION_URL is set');
   }
 }
