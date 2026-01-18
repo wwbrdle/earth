@@ -301,7 +301,7 @@ const TEFSpeaking: React.FC<TEFSpeakingProps> = ({ onBack }) => {
                 }}
               >
                 {isAnalyzing ? '🤖 AI 분석 중...' : '📊 Analyser la similarité'}
-              </button>
+            </button>
           </div>
         )}
 

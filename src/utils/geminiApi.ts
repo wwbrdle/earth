@@ -14,10 +14,10 @@ interface GeminiAnalysisRequest {
   sampleAnswer: string;
   question?: string;
   analysisType?: 'similarity' | 'grammar' | 'improvement' | 'ielts-writing';
-  image?: {
+  images?: Array<{
     data: string;
     mimeType: string;
-  };
+  }>;
 }
 
 interface GeminiAnalysisResponse {
@@ -42,11 +42,15 @@ async function callGeminiDirectly(request: GeminiAnalysisRequest): Promise<Gemin
   const parts: Array<{ text?: string; inline_data?: { mime_type: string; data: string } }> = [
     { text: prompt }
   ];
-  if (request.image?.data) {
-    parts.push({
-      inline_data: {
-        mime_type: request.image.mimeType,
-        data: request.image.data
+  if (request.images?.length) {
+    request.images.forEach((image) => {
+      if (image?.data) {
+        parts.push({
+          inline_data: {
+            mime_type: image.mimeType,
+            data: image.data
+          }
+        });
       }
     });
   }
