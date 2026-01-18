@@ -448,12 +448,47 @@ const task2Prompts: WritingPrompt[] = [
   {
     id: 1,
     prompt:
-      'Some people believe that public libraries are no longer necessary because of digital resources. To what extent do you agree or disagree?'
+      'Topic 1 (Hint: Argument)\nYou should spend about 40 minutes on this task.\n\nSome people believe that excessive use of modern technologies, such as computers and smartphones, is negatively affecting the reading and writing skills of our young people. To what extent do you agree or disagree?\n\nYou should write at least 250 words.'
   },
   {
     id: 2,
     prompt:
-      'In many cities, housing has become increasingly expensive. What are the main causes of this problem, and what solutions can you suggest?'
+      'Topic 2 (Hint: Argument)\nYou should spend about 40 minutes on this task.\n\nSome people say that the education system is the only critical factor in the development of a country. Do you agree or disagree with this statement?\n\nYou should write at least 250 words.'
+  },
+  {
+    id: 3,
+    prompt:
+      'Topic 3 (Hint: Point of view)\nYou should spend about 40 minutes on this task.\n\nDieting can change a person\'s life for the better or ruin one\'s health completely. What is your opinion?\n\nYou should write at least 250 words.'
+  },
+  {
+    id: 4,
+    prompt:
+      'Topic 4 (Hint: Argument)\nYou should spend about 40 minutes on this task.\n\nEducation in financial management should be a mandatory component of the school program. To what extent do you agree or disagree with this statement?\n\nYou should write at least 250 words.'
+  },
+  {
+    id: 5,
+    prompt:
+      'Topic 5 (Hint: Argument)\nYou should spend about 40 minutes on this task.\n\nThe best way to reduce the number of traffic accidents is to raise the age limit for younger drivers and to lower the age limit for elderly ones. Do you agree or disagree?\n\nYou should write at least 250 words.'
+  },
+  {
+    id: 6,
+    prompt:
+      'Topic 6 (Hint: Situation)\nYou should spend about 40 minutes on this task.\n\nObesity was once considered a disease of adults; however, it is becoming increasingly common among children. Why do you think this is happening? What can be done to help children stay healthy?\n\nYou should write at least 250 words.'
+  },
+  {
+    id: 7,
+    prompt:
+      'Topic 7 (Hint: Point of view)\nYou should spend about 40 minutes on this task.\n\nSome people today believe that it is acceptable to use physical force to discipline children, but others feel it is completely unacceptable. Discuss both views and give your opinion.\n\nYou should write at least 250 words.'
+  },
+  {
+    id: 8,
+    prompt:
+      'Topic 8 (Hint: Situation)\nYou should spend about 40 minutes on this task.\n\nNowadays children are spending much more time watching TV compared to the past. Why do you think this happens? Is this a positive or a negative change?\n\nYou should write at least 250 words.'
+  },
+  {
+    id: 9,
+    prompt:
+      'Topic 9 (Hint: Point of view)\nYou should spend about 40 minutes on this task.\n\nSome people believe that the government should take care of older people and provide financial support after they retire. Others say individuals should save during their working years to fund their own retirement. What is your opinion?\n\nYou should write at least 250 words.'
   }
 ];
 
@@ -811,7 +846,7 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
                       color: selectedTask2Id === item.id ? 'white' : '#333'
                     }}
                   >
-                    Task 2 #{item.id}
+                    {item.id === 1 ? 'Topic 1' : item.id === 2 ? 'Topic 2' : item.id === 3 ? 'Topic 3' : item.id === 4 ? 'Topic 4' : item.id === 5 ? 'Topic 5' : item.id === 6 ? 'Topic 6' : item.id === 7 ? 'Topic 7' : item.id === 8 ? 'Topic 8' : item.id === 9 ? 'Topic 9' : `Task 2 #${item.id}`}
                   </button>
                 ))}
               </div>
@@ -819,7 +854,7 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
           )}
           {selectedPrompt.prompt && (
             <>
-              <h3 style={{ marginTop: 0, marginBottom: '10px', color: '#333' }}>📝 문제 (Prompt)</h3>
+              <h3 style={{ marginTop: 0, marginBottom: '10px', color: '#333' }}>📝 Topic</h3>
               <p style={{ marginTop: 0, lineHeight: '1.6', color: '#333', whiteSpace: 'pre-line' }}>
                 {selectedPrompt.prompt}
               </p>
