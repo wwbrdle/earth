@@ -1,13 +1,7 @@
 /**
  * Gemini API 호출 유틸리티
- * 개발 환경: .env의 GEMINI_API_KEY 사용
- * 프로덕션: Lambda 함수 사용
+ * 모든 환경에서 Lambda 함수 사용
  */
-
-const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com';
-// v1 API에서 사용 가능한 모델: gemini-2.5-flash (빠름), gemini-2.5-pro (강력함)
-const GEMINI_MODEL = 'gemini-2.5-flash'; // 빠르고 효율적인 모델
-const GEMINI_API_VERSION = 'v1'; // v1 API 사용
 
 interface GeminiAnalysisRequest {
   userAnswer: string;
@@ -26,80 +20,6 @@ interface GeminiAnalysisResponse {
   analysisType?: string;
   error?: string;
   rawText?: string;
-}
-
-/**
- * 개발 환경에서 Gemini API 직접 호출
- */
-async function callGeminiDirectly(request: GeminiAnalysisRequest): Promise<GeminiAnalysisResponse> {
-  const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error('REACT_APP_GEMINI_API_KEY is not set in .env file');
-  }
-
-  const prompt = generatePrompt(request);
-  const parts: Array<{ text?: string; inline_data?: { mime_type: string; data: string } }> = [
-    { text: prompt }
-  ];
-  if (request.images?.length) {
-    request.images.forEach((image) => {
-      if (image?.data) {
-        parts.push({
-          inline_data: {
-            mime_type: image.mimeType,
-            data: image.data
-          }
-        });
-      }
-    });
-  }
-
-  const response = await fetch(
-    `${GEMINI_API_BASE_URL}/${GEMINI_API_VERSION}/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts
-        }]
-      })
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to call Gemini API');
-  }
-
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  
-  if (!text) {
-    throw new Error('No text in Gemini response');
-  }
-
-  // JSON 응답인 경우 파싱 시도
-  try {
-    const parsed = JSON.parse(text);
-    return {
-      success: true,
-      analysis: parsed,
-      analysisType: request.analysisType || 'similarity',
-      rawText: text
-    };
-  } catch (e) {
-    // JSON이 아니면 텍스트 그대로 반환
-    return {
-      success: true,
-      analysis: { text },
-      analysisType: request.analysisType || 'similarity',
-      rawText: text
-    };
-  }
 }
 
 /**

@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import ResultDisplay from './ResultDisplay';
 import { analyzeWithGemini, buildGeminiPrompt } from '../utils/geminiApi';
 
 type WritingSection = 'task1' | 'task2';
@@ -506,9 +505,6 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
   const [selectedTask1Id, setSelectedTask1Id] = useState<number>(task1Topics[0].id);
   const [selectedTask2Id, setSelectedTask2Id] = useState<number>(task2Prompts[0].id);
   const [userAnswer, setUserAnswer] = useState<string>('');
-  const [showResult, setShowResult] = useState<boolean>(false);
-  const [similarityScore, setSimilarityScore] = useState<number | null>(null);
-  const [geminiAnalysis, setGeminiAnalysis] = useState<any>(null);
   const [rawGeminiResponse, setRawGeminiResponse] = useState<string>('');
   const [rawGeminiPrompt, setRawGeminiPrompt] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
@@ -620,10 +616,8 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
     if (!userAnswer.trim()) return;
 
     setIsAnalyzing(true);
-    setGeminiAnalysis(null);
     setRawGeminiResponse('');
     setRawGeminiPrompt('');
-    setShowResult(true);
 
     try {
       const task1Topic = task1Topics.find((item) => item.id === selectedTask1Id) || task1Topics[0];
@@ -676,35 +670,17 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
       const data = await analyzeWithGemini(requestPayload, lambdaUrl);
 
       if (data.success && data.analysis) {
-        setGeminiAnalysis(data.analysis);
         const rawText =
           data.rawText ||
           data.analysis?.text ||
           JSON.stringify(data.analysis, null, 2);
         setRawGeminiResponse(rawText || '');
-
-        if (data.analysis.similarityScore !== undefined) {
-          setSimilarityScore(data.analysis.similarityScore);
-        } else if (data.analysis.overallScore !== undefined) {
-          setSimilarityScore(data.analysis.overallScore);
-        } else {
-          const userWords = userAnswer.toLowerCase().split(/\s+/);
-          const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
-          const commonWords = userWords.filter(word => sampleWords.includes(word));
-          const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
-          setSimilarityScore(Math.round(similarity));
-        }
       } else {
         throw new Error(data.error || 'Analysis failed');
       }
     } catch (error) {
       console.error('Error analyzing with Gemini:', error);
       setRawGeminiResponse(JSON.stringify({ error: String(error) }, null, 2));
-      const userWords = userAnswer.toLowerCase().split(/\s+/);
-      const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
-      const commonWords = userWords.filter(word => sampleWords.includes(word));
-      const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
-      setSimilarityScore(Math.round(similarity));
     } finally {
       setIsAnalyzing(false);
     }
@@ -733,9 +709,6 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
               onClick={() => {
                 setCurrentSection('task1');
                 setUserAnswer('');
-                setShowResult(false);
-                setSimilarityScore(null);
-                setGeminiAnalysis(null);
                 setRawGeminiResponse('');
                 setRawGeminiPrompt('');
                 setTask1PracticeMode((prev) => ({ ...prev, 1: 'sample', 2: 'sample', 3: 'sample', 4: 'sample', 5: 'sample', 6: 'sample', 7: 'sample' }));
@@ -757,9 +730,6 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
               onClick={() => {
                 setCurrentSection('task2');
                 setUserAnswer('');
-                setShowResult(false);
-                setSimilarityScore(null);
-                setGeminiAnalysis(null);
                 setRawGeminiResponse('');
                 setRawGeminiPrompt('');
                 setTask1PracticeMode((prev) => ({ ...prev, 1: 'sample', 2: 'sample', 3: 'sample', 4: 'sample', 5: 'sample', 6: 'sample', 7: 'sample' }));
@@ -789,9 +759,6 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
                     onClick={() => {
                       setSelectedTask1Id(item.id);
                       setUserAnswer('');
-                      setShowResult(false);
-                      setSimilarityScore(null);
-                      setGeminiAnalysis(null);
                     setRawGeminiResponse('');
                     setRawGeminiPrompt('');
                     setTask1PracticeMode((prev) => ({ ...prev, [item.id]: 'sample' }));
@@ -822,9 +789,6 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
                     onClick={() => {
                       setSelectedTask2Id(item.id);
                       setUserAnswer('');
-                      setShowResult(false);
-                      setSimilarityScore(null);
-                      setGeminiAnalysis(null);
                     setRawGeminiResponse('');
                     setRawGeminiPrompt('');
                     setTask1PracticeMode((prev) => ({ ...prev, 1: 'sample', 2: 'sample', 3: 'sample', 4: 'sample', 5: 'sample', 6: 'sample', 7: 'sample' }));
@@ -1021,7 +985,7 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
                 <img
                   key={`${path}-${index}`}
                   src={path}
-                  alt={`Task image ${index + 1}`}
+                  alt={`Task ${index + 1}`}
                   style={{ width: '100%', borderRadius: '10px', border: '1px solid #e0e0e0' }}
                 />
               ))}
@@ -1088,9 +1052,6 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
               <button
                 onClick={() => {
                   setUserAnswer('');
-                  setShowResult(false);
-                  setSimilarityScore(null);
-                  setGeminiAnalysis(null);
                   setRawGeminiResponse('');
                   setRawGeminiPrompt('');
                 }}
