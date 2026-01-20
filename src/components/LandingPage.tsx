@@ -4,6 +4,7 @@ import './LandingPage.css';
 interface LandingPageProps {
   onSelectIELTS: () => void;
   onSelectTEF: () => void;
+  onSelectRandomQuestion: () => void;
 }
 
 interface ModelInfo {
@@ -19,7 +20,11 @@ interface ModelsData {
   [key: string]: ModelInfo[] | undefined;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onSelectIELTS, onSelectTEF }) => {
+const LandingPage: React.FC<LandingPageProps> = ({
+  onSelectIELTS,
+  onSelectTEF,
+  onSelectRandomQuestion
+}) => {
   const [models, setModels] = useState<ModelsData>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -139,6 +144,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectIELTS, onSelectTEF })
             <div className="exam-icon">🇫🇷</div>
             <div className="exam-title">TEF Canada</div>
             <div className="exam-description">Test d'évaluation de français</div>
+          </button>
+        </div>
+
+        <div className="exam-buttons random-speaking-row">
+          <button
+            onClick={onSelectRandomQuestion}
+            className="exam-button random-question-button"
+          >
+            <div className="exam-icon">🎲</div>
+            <div className="exam-title">랜덤 문제</div>
+            <div className="exam-description">영/불어 스피킹·라이팅 랜덤</div>
           </button>
         </div>
 

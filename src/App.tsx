@@ -6,8 +6,10 @@ import ResultDisplay from './components/ResultDisplay';
 import LandingPage from './components/LandingPage';
 import TEFWriting from './components/TEFWriting';
 import TEFSpeaking from './components/TEFSpeaking';
-import IELTSWriting from './components/IELTSWriting';
+import IELTSWriting, { task1Topics as ieltsTask1Topics, task2Prompts as ieltsTask2Prompts, sampleAnswers as ieltsSampleAnswers } from './components/IELTSWriting';
 import { analyzeWithGemini } from './utils/geminiApi';
+import { sampleAnswers as tefSampleAnswers } from './components/TEFSampleAnswers';
+import { lettersTopics, lettersSampleAnswers, faitDiverTopics, faitDiverSampleAnswers } from './components/TEFWritingTopics';
 
 interface Question {
   id: number;
@@ -32,30 +34,414 @@ interface Part3Question {
   sampleAnswer: string;
 }
 
+type RandomSpeakingQuestion =
+  | { kind: 'ielts-part1'; question: string; category: string; sampleAnswer: string }
+  | { kind: 'ielts-part2'; topic: string; mainQuestion: string; subQuestions: string[]; category: string; sampleAnswer: string; part3Questions: Part3Question[] }
+  | { kind: 'ielts-part3'; question: string; category: string; sampleAnswer: string }
+  | { kind: 'tef'; section: 'A' | 'B'; questionNumber: number; imagePath: string; sampleAnswer: string };
+
+type RandomWritingQuestion =
+  | { kind: 'ielts-task1'; title: string; guidanceForScreen?: React.ReactNode; imagePaths?: string[]; sampleAnswer: string }
+  | { kind: 'ielts-task2'; prompt: string; sampleAnswer: string }
+  | { kind: 'tef-letters'; prompt: string; sampleAnswer: string }
+  | { kind: 'tef-fait'; prompt: string; sampleAnswer: string };
+
+type RandomQuestion = RandomSpeakingQuestion | RandomWritingQuestion;
+
+interface RandomSpeakingSectionProps {
+  onBack: () => void;
+  isFrench: boolean;
+  question: RandomSpeakingQuestion;
+  onNext: () => void;
+  showSampleAnswer: boolean;
+  setShowSampleAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+  userAnswer: string;
+  transcript: string;
+  isRecording: boolean;
+  setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
+  setTranscript: React.Dispatch<React.SetStateAction<string>>;
+  onRecordingComplete: (transcript: string) => void;
+  onAnalyze: () => void;
+  isAnalyzing: boolean;
+  showResult: boolean;
+  similarityScore: number | null;
+  geminiAnalysis: any;
+}
+
+const RandomSpeakingSection: React.FC<RandomSpeakingSectionProps> = ({
+  onBack,
+  isFrench,
+  question,
+  onNext,
+  showSampleAnswer,
+  setShowSampleAnswer,
+  userAnswer,
+  transcript,
+  isRecording,
+  setIsRecording,
+  setTranscript,
+  onRecordingComplete,
+  onAnalyze,
+  isAnalyzing,
+  showResult,
+  similarityScore,
+  geminiAnalysis
+}) => (
+  <div className="App">
+    <header className="App-header">
+      <button
+        onClick={onBack}
+        className="back-button"
+        style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+      >
+        ← 뒤로 가기
+      </button>
+      <h1>🎲 랜덤 문제</h1>
+    </header>
+    <main className="App-main" style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ background: 'white', borderRadius: '15px', padding: '25px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ fontWeight: 700, color: '#333' }}>
+            {isFrench ? '🇫🇷 TEF Canada - Expression Orale' : '🇬🇧 IELTS - Speaking'}
+          </div>
+          <button
+            onClick={onNext}
+            style={{
+              padding: '8px 14px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              fontWeight: 600
+            }}
+          >
+            다른 문제
+          </button>
+        </div>
+
+        <div className="question-card">
+          <div className="question-section">
+            <h3>
+              📝 질문 (
+              {question.kind === 'tef'
+                ? `Section ${question.section} - Question ${question.questionNumber}`
+                : question.category}
+              )
+            </h3>
+            <div className="question-text" style={{ textAlign: 'left' }}>
+              {question.kind === 'tef' ? (
+                <img
+                  src={question.imagePath}
+                  alt={`TEF question ${question.questionNumber}`}
+                  style={{ width: '100%', borderRadius: '10px', border: '1px solid #e0e0e0' }}
+                />
+              ) : question.kind === 'ielts-part2' ? (
+                <>
+                  <div style={{ fontWeight: 700, marginBottom: '8px' }}>{question.topic}</div>
+                  <div style={{ marginBottom: '8px' }}>{question.mainQuestion}</div>
+                  <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                    {question.subQuestions.map((subQuestion, index) => (
+                      <li key={`${question.topic}-${index}`}>{subQuestion}</li>
+                    ))}
+                  </ul>
+                  {question.part3Questions.length > 0 && (
+                    <div style={{ marginTop: '12px' }}>
+                      <details className="sample-answer">
+                        <summary>Part 3 Questions</summary>
+                        <div style={{ marginTop: '10px' }}>
+                          {question.part3Questions.map((part3, index) => (
+                            <div key={`${question.topic}-part3-${part3.id}-${index}`} style={{ marginBottom: '12px' }}>
+                              <div style={{ fontWeight: 600, marginBottom: '4px' }}>{part3.question}</div>
+                              <div style={{ whiteSpace: 'pre-line', color: '#333' }}>{part3.sampleAnswer}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div>{question.question}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="sample-answer-section">
+            <button
+              onClick={() => setShowSampleAnswer((prev) => !prev)}
+              className="show-answer-button"
+            >
+              {showSampleAnswer ? '📖 모범 답안 숨기기' : '📖 모범 답안 보기'}
+            </button>
+            {showSampleAnswer && (
+              <div className="sample-answer-content">
+                <p className="sample-answer-text" style={{ whiteSpace: 'pre-line' }}>
+                  {question.sampleAnswer || '모범 답안이 아직 작성되지 않았습니다.'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <SpeechRecognition
+          isRecording={isRecording}
+          onStartRecording={() => {
+            setIsRecording(true);
+            setTranscript('');
+          }}
+          onStopRecording={() => setIsRecording(false)}
+          onRecordingComplete={onRecordingComplete}
+          onTranscriptUpdate={setTranscript}
+        />
+
+        {isRecording && (
+          <div className="user-answer">
+            <h3>🎤 실시간 음성 인식:</h3>
+            <p style={{ fontStyle: 'italic', color: '#666' }}>
+              {transcript || '음성을 인식하고 있습니다...'}
+            </p>
+          </div>
+        )}
+
+        {userAnswer && !isRecording && (
+          <div className="user-answer">
+            <h3>🎤 당신의 답변:</h3>
+            <p>{userAnswer}</p>
+            <button
+              onClick={onAnalyze}
+              className="compare-button"
+              disabled={isAnalyzing}
+            >
+              {isAnalyzing ? '🤖 AI 분석 중...' : '📊 유사도 분석하기'}
+            </button>
+          </div>
+        )}
+
+        {showResult && similarityScore !== null && (
+          <ResultDisplay
+            similarityScore={similarityScore}
+            userAnswer={userAnswer}
+            sampleAnswer={question.sampleAnswer || ''}
+            geminiAnalysis={geminiAnalysis}
+            isAnalyzing={isAnalyzing}
+          />
+        )}
+      </div>
+    </main>
+  </div>
+);
+
+interface RandomWritingSectionProps {
+  onBack: () => void;
+  isIelts: boolean;
+  question: RandomWritingQuestion;
+  onNext: () => void;
+  showSampleAnswer: boolean;
+  setShowSampleAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+  answer: string;
+  setAnswer: React.Dispatch<React.SetStateAction<string>>;
+  wordCount: number;
+  onAnalyze: () => void;
+  isAnalyzing: boolean;
+  showResult: boolean;
+  similarityScore: number | null;
+  geminiAnalysis: any;
+}
+
+const RandomWritingSection: React.FC<RandomWritingSectionProps> = ({
+  onBack,
+  isIelts,
+  question,
+  onNext,
+  showSampleAnswer,
+  setShowSampleAnswer,
+  answer,
+  setAnswer,
+  wordCount,
+  onAnalyze,
+  isAnalyzing,
+  showResult,
+  similarityScore,
+  geminiAnalysis
+}) => (
+  <div className="App">
+    <header className="App-header">
+      <button
+        onClick={onBack}
+        className="back-button"
+        style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+      >
+        ← 뒤로 가기
+      </button>
+      <h1>🎲 랜덤 문제</h1>
+    </header>
+    <main className="App-main" style={{ maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ background: 'white', borderRadius: '15px', padding: '25px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)', textAlign: 'left' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ fontWeight: 700, color: '#333' }}>
+            {isIelts ? '🇬🇧 IELTS - Writing' : '🇫🇷 TEF Canada - Expression Écrite'}
+          </div>
+          <button
+            onClick={onNext}
+            style={{
+              padding: '8px 14px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              fontWeight: 600
+            }}
+          >
+            다른 문제
+          </button>
+        </div>
+
+        <h3 style={{ marginTop: '15px', marginBottom: '10px', color: '#333' }}>
+          📝 문제 (
+          {question.kind === 'ielts-task1'
+            ? 'IELTS Task 1'
+            : question.kind === 'ielts-task2'
+            ? 'IELTS Task 2'
+            : question.kind === 'tef-letters'
+            ? 'TEF Letters'
+            : 'TEF Fait Diver'}
+          )
+        </h3>
+
+        {question.kind === 'ielts-task1' ? (
+          <>
+            {question.guidanceForScreen && (
+              <div style={{ marginTop: '10px', background: '#f8f9fa', padding: '15px', borderRadius: '10px', borderLeft: '4px solid #667eea' }}>
+                <div style={{ lineHeight: '1.7', color: '#333' }}>
+                  {question.guidanceForScreen}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <p style={{ marginTop: 0, lineHeight: '1.6', color: '#333', whiteSpace: 'pre-line' }}>
+            {question.prompt}
+          </p>
+        )}
+      </div>
+
+      {question.kind === 'ielts-task1' && (question.imagePaths || []).length > 0 && (
+        <div style={{ background: 'white', borderRadius: '15px', padding: '25px', marginTop: '20px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '10px', color: '#333' }}>🖼️ Sample task</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {(question.imagePaths || []).map((path, index) => (
+              <img
+                key={`${path}-${index}`}
+                src={path}
+                alt={`Task ${index + 1}`}
+                style={{ width: '100%', borderRadius: '10px', border: '1px solid #e0e0e0' }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ background: 'white', borderRadius: '15px', padding: '25px', marginTop: '20px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)' }}>
+        <h3 style={{ marginTop: 0, marginBottom: '10px', color: '#333' }}>✍️ Your Answer</h3>
+        <textarea
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder="여기에 답안을 작성하세요..."
+          style={{
+            width: '100%',
+            minHeight: '220px',
+            padding: '15px',
+            border: '2px solid #e0e0e0',
+            borderRadius: '10px',
+            fontSize: '1rem',
+            fontFamily: 'inherit',
+            resize: 'vertical'
+          }}
+        />
+        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <span style={{ color: '#666' }}>단어 수: {wordCount}</span>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setShowSampleAnswer((prev) => !prev)}
+              style={{
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                background: '#eef2ff',
+                fontWeight: 600
+              }}
+            >
+              {showSampleAnswer ? '모범 답안 숨기기' : '모범 답안 보기'}
+            </button>
+            <button
+              onClick={onAnalyze}
+              disabled={isAnalyzing || !answer.trim()}
+              style={{
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: isAnalyzing || !answer.trim() ? 'not-allowed' : 'pointer',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                fontWeight: 600,
+                opacity: isAnalyzing || !answer.trim() ? 0.6 : 1
+              }}
+            >
+              {isAnalyzing ? '🤖 AI 분석 중...' : '📊 AI 분석하기'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {showSampleAnswer && (
+        <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '20px', marginTop: '15px', borderLeft: '4px solid #28a745' }}>
+          <h4 style={{ marginTop: 0 }}>📖 모범 답안</h4>
+          <p style={{ margin: 0, lineHeight: '1.7', whiteSpace: 'pre-line', color: '#333' }}>
+            {question.sampleAnswer || '모범 답안이 아직 작성되지 않았습니다.'}
+          </p>
+        </div>
+      )}
+
+      {showResult && similarityScore !== null && (
+        <ResultDisplay
+          similarityScore={similarityScore}
+          userAnswer={answer}
+          sampleAnswer={question.sampleAnswer || ''}
+          geminiAnalysis={geminiAnalysis}
+          isAnalyzing={isAnalyzing}
+        />
+      )}
+    </main>
+  </div>
+);
+
 const sampleQuestions: Question[] = [
   // Your Country
   {
     id: 1,
     question: "Which part of your country do most people live in?",
-    sampleAnswer: "Well, I think most people in my country live in and around Seoul. As you might expect, Seoul is the busiest city in Korea and a lot of people live there. But I think more people live on the outskirts of Seoul and commute in because the rent is cheaper and the air quality is a bit better than in the city.",
+    sampleAnswer: "As you might expect, Seoul is the busiest city in Korea and a lot of people live there. But I think more people live on the outskirts of Seoul and commute in because the rent is cheaper and the air is a bit better than in the city.",
     category: "Part 1 - Your Country"
   },
   {
     id: 2,
     question: "Tell me about the main industries there.",
-    sampleAnswer: "Well, I think the main industries in Seoul are technology and electronics. The city is home to major companies like Samsung, LG, and Hyundai, which create thousands of jobs. Apart from that, hospitality is also a big industry, with coffee shops and bars on almost every corner.",
+    sampleAnswer: "In and around Seoul has offices from the biggest companies in Korea like Samsung, LG and Hyundai so they create lots of jobs. Therefore, I think the main industries are to do with technology and electronics. Hospitality is also a big industry here with cafes and bars on every corner.",
     category: "Part 1 - Your Country"
   },
   {
     id: 3,
     question: "How easy is it to travel around your country?",
-    sampleAnswer: "Actually, I think it's quite easy to travel around Korea. Trains and buses are frequent and affordable, which makes public transport really convenient. There's also a high-speed train that connects major cities, although it's a bit more expensive. On top of that, the roads are excellent, so driving is also a great option if you want more flexibility.",
+    sampleAnswer: "It's so easy to travel around Korea, trains and buses are frequent and cheap. There is also a high speed train that travels through the country although this is a bit more expensive. The roads are great so driving is also a good option if you want to explore yourself.",
     category: "Part 1 - Your Country"
   },
   {
     id: 4,
     question: "Has your country changed much since you were a child?",
-    sampleAnswer: "Yes, I think it has changed massively since I was a child. It has become much more modern and internationally aware. These days, you can easily find food from all over the world and see lots of foreigners living and working in Korea. Technology has also developed rapidly—maybe even too much sometimes!",
+    sampleAnswer: "I think it has changed massively. It has become much more modern and internationally aware. These days it's possible to find food from all over the world and see lots of foreign people working in Korea. Also technology has developed rapidly, maybe too much so.",
     category: "Part 1 - Your Country"
   },
   
@@ -63,25 +449,25 @@ const sampleQuestions: Question[] = [
   {
     id: 5,
     question: "Do you live in a house or a flat?",
-    sampleAnswer: "I live in a basement flat, and it's a cozy space with everything I need. It has a washing machine, a dryer, and good ventilation, which makes it really comfortable to live in.",
+    sampleAnswer: "I live in a 10-storey flat which is located in Seoul. It's very convenient to live there as there are lots of facilities available.",
     category: "Part 1 - Your Home"
   },
   {
     id: 6,
     question: "What are the differences between the place you live now and where you lived before?",
-    sampleAnswer: "Well, I think the biggest difference is privacy. Before, I lived in a shared house and rented a single room, which meant I had to share the kitchen and bathroom with others. That wasn't always convenient. Now, I have my own space, which is larger and much more comfortable, and I really enjoy that.",
+    sampleAnswer: "When I was a child, I used to live in a house in countryside but now I live in an apartment. As there are many convenient facilities in my flat, I think it's better to live there.",
     category: "Part 1 - Your Home"
   },
   {
     id: 7,
     question: "Did you like the place you lived in as a child?",
-    sampleAnswer: "Yes, I really liked it because I grew up on the 12th floor of a condo, and many of my friends lived in the same complex. We used to play soccer, baseball, and video games together almost every day, which made my childhood really fun and memorable.",
+    sampleAnswer: "Yes, very much. I liked the house that I lived in my childhood as it was located in countryside and I used to raise lots of pets including dogs, rabbits, and some chickens.",
     category: "Part 1 - Your Home"
   },
   {
     id: 8,
     question: "Which part of your home do you like best?",
-    sampleAnswer: "I'd say my favorite part is the living area because it feels spacious and comfortable. I also love the fact that I have a washing machine and dryer, which is super convenient. Plus, the ventilation system keeps the place fresh, especially after cooking.",
+    sampleAnswer: "I like living room the best as all my family members gather round in the evening and we can chat together about the day.",
     category: "Part 1 - Your Home"
   },
   {
@@ -95,19 +481,19 @@ const sampleQuestions: Question[] = [
   {
     id: 10,
     question: "How do you usually spend your weekends?",
-    sampleAnswer: "Well, these days I usually spend my weekends exploring Montreal because I've only been here for a few months. I especially enjoy visiting cozy coffee shops with a nice atmosphere. For example, I love sitting in a café, organizing my upcoming schedule, or working on side projects because it helps me stay focused and productive.",
+    sampleAnswer: "I'm quite an active person so I'm always out on weekends. I usually play sports with my friends or go for lunch or a beer and just have a chat to catch up with each other.",
     category: "Part 1 - Weekends"
   },
   {
     id: 11,
     question: "Which is your favourite part of the weekend?",
-    sampleAnswer: "I'd say my favorite part is Saturday morning because it feels like the start of a relaxing and enjoyable weekend. I know I still have plenty of time ahead to do fun things and also relax on Sunday before going back to work.",
+    sampleAnswer: "I love when I wake up on Saturday morning because it's just the start of a fun day. I know that I'm going to have fun and then still have Sunday to relax before I go back to work.",
     category: "Part 1 - Weekends"
   },
   {
     id: 12,
     question: "Do you think your weekends are long enough?",
-    sampleAnswer: "Actually, I think weekends are long enough, but they always feel short. Sometimes when I get a long weekend, I feel it can even be a bit too long. Of course, it's nice to have Monday off once in a while, but in general, two days are enough for me to rest and recharge.",
+    sampleAnswer: "Well, I always say the weekend is too short and that it goes so fast but when I have a long weekend sometimes I think it's actually too long. Every now and then it's nice to have Monday as a holiday but for me weekends are long enough.",
     category: "Part 1 - Weekends"
   },
   {
@@ -121,37 +507,37 @@ const sampleQuestions: Question[] = [
   {
     id: 14,
     question: "How often do you use public transport?",
-    sampleAnswer: "I usually take the bus every day because I need it to commute to and from work. It normally takes around an hour and a half, so I spend quite a bit of time on public transport.",
+    sampleAnswer: "I take a bus every day. I have to take it to go to work or to go home. It normally takes around an hour and half.",
     category: "Part 1 - Transportation"
   },
   {
     id: 15,
     question: "When was the last time you travelled by public transport?",
-    sampleAnswer: "Actually, it was this morning because I take the bus every day to go to work. It's often crowded, so I can't say I enjoy it, but it's still the most practical option for me.",
+    sampleAnswer: "Actually it's this morning. I always travel by bus every morning to go to work. It's often crowded so I don't really like travelling by bus.",
     category: "Part 1 - Transportation"
   },
   {
     id: 16,
     question: "Do you prefer to use a private car or public transport?",
-    sampleAnswer: "Well, it depends on the situation, but generally I prefer public transport because it's punctual and much cheaper than owning a car. However, for long-distance travel, using a private car can be more convenient.",
+    sampleAnswer: "Well, it depends on the situations. Sometimes it's more convenient to use a private car like when travelling in distance. But on a daily basis, I prefer to use public transport as it's punctual and cheaper.",
     category: "Part 1 - Transportation"
   },
   {
     id: 17,
     question: "What form of transport would you recommend visitors to your hometown use?",
-    sampleAnswer: "I'd definitely recommend visitors to use the Metro because it's fast, punctual, and very convenient for getting around. In Montreal, the Metro connects key areas like downtown and Old Montreal efficiently. It's also a great way to avoid traffic and explore the city comfortably.",
+    sampleAnswer: "I'd definitely recommend visitors to take underground (subway) as it's prompt, quick, and convenient to move around. Also all the announcements are also made in English as well as in Korean, so they can figure out what station they are on easily.",
     category: "Part 1 - Transportation"
   },
   {
     id: 18,
     question: "Do you think people will drive more in the future?",
-    sampleAnswer: "That's an interesting question. I think people will probably drive more in the future because many households are already buying more than one car for convenience. Unless public transport becomes more attractive, this trend is likely to continue.",
+    sampleAnswer: "(Answer 1) As today's trend, people tend to drive more and buy more than one car in a household. And for their convenience, I think they will use cars more.\n\n(Answer 2) I don't quite think so. People in modern society know the seriousness of environmental problems so in order to reduce pollution, maybe less number of people will drive cars.",
     category: "Part 1 - Transportation"
   },
   {
     id: 19,
     question: "Is driving to work popular in your country?",
-    sampleAnswer: "Yes, it's very popular in Korea, mainly because public transport can take longer and follow fixed routes, which isn't always convenient. So a lot of people prefer the flexibility of driving to work.",
+    sampleAnswer: "Yes, it is. As public transports normally take longer time and only go by their routine, some people prefer to drive to work in Korea.",
     category: "Part 1 - Transportation"
   },
   
@@ -159,7 +545,7 @@ const sampleQuestions: Question[] = [
   {
     id: 20,
     question: "How often do you watch television?",
-    sampleAnswer: "I usually watch TV almost every day, but only for about an hour. Some days I don't have time, and that's fine because I don't really need TV in my life. However, when I do watch, I enjoy it as a way to relax for a short while.",
+    sampleAnswer: "I watch TV most days, not for very long, maybe about an hour. Some days I don't have time and that's fine, I don't need television in my life but I do enjoy it for short periods of time.",
     category: "Part 1 - Television"
   },
   {
@@ -171,7 +557,7 @@ const sampleQuestions: Question[] = [
   {
     id: 22,
     question: "Do you enjoy the advertisements on television?",
-    sampleAnswer: "Honestly, I definitely don't because advertisements are the most annoying part of watching TV. Just when I'm enjoying a good program, there's a five-minute break with ads. It makes me lose focus, and I often end up switching the channel.",
+    sampleAnswer: "I definitely do not. They are the most annoying part of television, just when I'm watching an interesting program there's a 5-minute break with ads. It makes me lose focus and I usually switch the channel.",
     category: "Part 1 - Television"
   },
   {
@@ -185,7 +571,7 @@ const sampleQuestions: Question[] = [
   {
     id: 24,
     question: "Which newspapers and magazines do you read?",
-    sampleAnswer: "Well, these days I don't really read newspapers because I usually get news online. However, I do enjoy reading Sports Illustrated because I'm really into sports, especially baseball. It provides exciting coverage of games and players, which keeps me engaged. I particularly love reading about stats and player highlights, as they deepen my passion for the game.",
+    sampleAnswer: "I prefer to read the Korea Times which is a daily newspaper in Korea. I like this paper because they always give strong opinions on government issues.",
     category: "Part 1 - Newspapers"
   },
   {
@@ -211,7 +597,7 @@ const sampleQuestions: Question[] = [
   {
     id: 28,
     question: "What kinds of music do you like?",
-    sampleAnswer: "I'd say I usually enjoy band music and K-pop because they're energetic and uplifting. Listening to them really motivates me, especially when I need a boost of energy during the day.",
+    sampleAnswer: "I like most kinds, like R&B, pop, even classical music. I listen to music whenever I have spare time.",
     category: "Part 1 - Music"
   },
   {
@@ -223,7 +609,7 @@ const sampleQuestions: Question[] = [
   {
     id: 30,
     question: "Do you feel that going to a concert is better than listening to a CD, or watching a concert on TV?",
-    sampleAnswer: "Yes, I definitely think going to a concert is far better because the energy and interaction you experience there can't be matched by recordings or TV broadcasts. The excitement of the crowd and the live music create an unforgettable atmosphere.",
+    sampleAnswer: "It depends, I prefer going to a concert when the concert is held in a small theatre, but if it's held in a big halls or stadium, I think listening to a CD or watching a concert on TV is better.",
     category: "Part 1 - Music"
   },
   {
@@ -243,13 +629,13 @@ const sampleQuestions: Question[] = [
   {
     id: 41,
     question: "Which instrument do you like listening to most? and why?",
-    sampleAnswer: "I'd say I enjoy listening to the guitar the most because I love band music. The sound of the guitar is so versatile, and it adds a lot of energy to songs. I even tried to learn it when I was a university student, but I gave up because it was quite challenging.",
+    sampleAnswer: "I like listening to the flute the most, the sound of it always puts a smile on my face for some reason. I think it's because my mother used to play the flute when I was young so I'm used to hearing it.",
     category: "Part 1 - Musical Instrument"
   },
   {
     id: 42,
     question: "Have you ever learned to play a musical instrument?",
-    sampleAnswer: "Yes, I have. I remember learning to play the flute when I was in elementary school. It was my first real experience with music, and I really enjoyed performing with my classmates during school events.",
+    sampleAnswer: "I have, like most children in Korea I learned to play the piano when I was an elementary school student. I went to a private academy after school for about two years.",
     category: "Part 1 - Musical Instrument"
   },
   {
@@ -269,13 +655,13 @@ const sampleQuestions: Question[] = [
   {
     id: 45,
     question: "What sort of food do you like eating most?",
-    sampleAnswer: "I'd say I prefer getting take-out food from restaurants because I don't really enjoy cooking. Since I live alone, I often end up wasting ingredients when I buy them for cooking, so take-out is much more convenient for me.",
+    sampleAnswer: "Well, I can't get enough of Italian food like pasta, lasagne or pizza. I love the rich sauces and variety of flavours.",
     category: "Part 1 - Food"
   },
   {
     id: 46,
     question: "Who normally does the cooking in your house?",
-    sampleAnswer: "As I live alone, I usually do the cooking myself. However, I only make very simple dishes, like grilling meat or preparing quick meals, because I'm not very skilled at cooking.",
+    sampleAnswer: "Like a lot of families in Korea my mother does the cooking. My father has always worked and my mother has always taken care of household jobs, she's a great cook and enjoys cooking for us.",
     category: "Part 1 - Food"
   },
   {
@@ -287,7 +673,7 @@ const sampleQuestions: Question[] = [
   {
     id: 48,
     question: "In general, do you prefer eating out or eating at home? why?",
-    sampleAnswer: "I usually prefer eating at home because it's more relaxing and comfortable. I enjoy having a meal while watching TV, as it helps me unwind after a long day. Plus, home-cooked food is generally healthier and more affordable than eating out.",
+    sampleAnswer: "I much prefer eating out, in Korea it's relatively cheap to eat out and there are so many options on every corner. It might be a bit more expensive but with the time I save I think it's well worth it.",
     category: "Part 1 - Food"
   },
   {
@@ -299,7 +685,7 @@ const sampleQuestions: Question[] = [
   {
     id: 50,
     question: "Tell me about a traditional Korean dish.",
-    sampleAnswer: "A typical Korean meal usually consists of rice, soup, and several side dishes, known as banchan. These side dishes often include seasoned vegetables, meat, and sometimes fish. This combination is very common in Korean households and represents the balance of flavors and nutrition in our cuisine.",
+    sampleAnswer: "I think the most traditional dish is Kimchi soup. It's a spicy soup with fermented cabbage, meat and vegetables all mixed together served with rice. The combination of flavours is great.",
     category: "Part 1 - Food"
   },
   
@@ -829,6 +1215,60 @@ const sampleQuestions: Question[] = [
     question: "What do you normally do in the evening?",
     sampleAnswer: "In the evening, I usually stay at home and watch Netflix. It helps me relax after a long day, and I find it quite enjoyable. Another reason I like doing this is that Netflix offers subtitles in different languages, so I often watch shows with English subtitles. That way, I can both enjoy the story and improve my language skills at the same time.",
     category: "Part 1 - Others"
+  },
+  {
+    id: 142,
+    question: "What are you studying at the moment?",
+    sampleAnswer: "I'm studying Business Administration at University. It's a broad subject that covers everything from marketing to accounting, which I find really useful for my future career.",
+    category: "Part 1 - Study"
+  },
+  {
+    id: 143,
+    question: "Why did you choose that subject?",
+    sampleAnswer: "I've always been interested in how businesses operate and grow. Also, my father is a businessman, and seeing him work inspired me to follow in his footsteps and learn the ropes of running a company.",
+    category: "Part 1 - Study"
+  },
+  {
+    id: 144,
+    question: "Do you enjoy your subject?",
+    sampleAnswer: "Yes, I do. Although some modules like statistics can be quite challenging and dry, I really enjoy the practical side of things, like analyzing case studies of successful startups.",
+    category: "Part 1 - Study"
+  },
+  {
+    id: 145,
+    question: "What do you hope to do in the future when you finish?",
+    sampleAnswer: "After I graduate, I'm planning to work for a multinational corporation to gain some experience. Eventually, my long-term goal is to start my own small business in the hospitality industry.",
+    category: "Part 1 - Study"
+  },
+  {
+    id: 146,
+    question: "How often do you buy gifts for other people?",
+    sampleAnswer: "I don't buy gifts very often, usually only for special occasions like birthdays, Christmas, or anniversaries. I prefer to put a lot of thought into one good gift rather than buying lots of small things.",
+    category: "Part 1 - Gifts"
+  },
+  {
+    id: 147,
+    question: "Do you like giving gifts?",
+    sampleAnswer: "I love giving gifts! It's such a great feeling to see someone's face light up when they open something they really wanted. I think it’s a wonderful way to show people that you care about them.",
+    category: "Part 1 - Gifts"
+  },
+  {
+    id: 148,
+    question: "What was the last gift you received?",
+    sampleAnswer: "The last gift I got was a new watch from my parents for my graduation. It’s a classic silver design and I wear it every day. It's very sentimental to me.",
+    category: "Part 1 - Gifts"
+  },
+  {
+    id: 149,
+    question: "When was the last time you gave a gift to someone?",
+    sampleAnswer: "It was just last week. It was my best friend's birthday, so I bought her a voucher for a spa day because she’s been feeling quite stressed with work lately. She was really happy with it.",
+    category: "Part 1 - Gifts"
+  },
+  {
+    id: 150,
+    question: "Is it difficult to choose a gift for someone?",
+    sampleAnswer: "It can be, especially if you don't know the person very well. But if it's for a close friend or family member, I usually have a good idea of what they like. I think the trick is to listen to them throughout the year for any hints!",
+    category: "Part 1 - Gifts"
   }
 ];
 
@@ -1307,17 +1747,457 @@ const part2Questions: Part2Question[] = [
         sampleAnswer: "No, not at all. I am very sensitive at noise and can't sleep at all if there's any noise around. When I'm really tired or need good sleep, I sometimes use earplugs to sleep deeply."
       }
     ]
+  },
+  {
+    id: 13,
+    topic: "Traveling",
+    mainQuestion: "Describe a short holiday (vacation) that was special for you",
+    subQuestions: [
+      "Where you went",
+      "Who you went with",
+      "What you did",
+      "And explain why you think it was special for you"
+    ],
+    sampleAnswer: `Last September, I went to Osaka for 3 days with my family. Actually I had planned for this holiday for whole year, so I was really excited before I go there. I looked up on the internet and found some tourist attractions, restaurants, and shopping areas. The minute after I got out from the airplane, I was very surprised because the airport was really crowded although it was out of the season.
+
+For those 3 days, we visited lots of places including Kyoto which is located near to Osaka. Well, to be honest, it wasn't like my expectation but it was still good because everything looked so new to me, and Japanese food was amazing. The best place for me was Dotonbori, which is a famous shopping street in Osaka, and I could buy some souvenirs for my friends there and we spent loads of hours on shopping.
+
+The trip was special for me as it was the first time to visit Japan. I've always dreamed of visiting Japan when I was staying in England as my Japanese friends told me good things about the country. Actually it was hard to communicate because most of Japanese people couldn't speak English, but most of them were really kind. Also it was good to spend time with my family. Since I lived in different country for a long time, it was really difficult to travel with them, and it turned out to be great. And I experienced something special on this trip. I bought a scarf in a department store, and I realised I lost it after a while, then when I revisited the department store and asked one of staffs, they found it somewhere in there then left it in lost property centre. It was really unforgettable experience because I didn't expect to find it, but the staffs were so kind, and I still remember it as a special experience. If I have another chance, I'll definitely revisit Japan.`,
+    category: "Part 2 - Traveling",
+    part3Questions: [
+      {
+        id: 1,
+        question: "Do people in your country like to travel away from home when they have a holiday?",
+        sampleAnswer: "It seems like people tend to spend their holiday somewhere else, not their home. In Korea, travelling abroad is getting more and more popular nowadays, and it's still popular to travel around within the country, but definitely away from home."
+      },
+      {
+        id: 2,
+        question: "Do young people generally prefer to spend holidays with their family, or with their friends?",
+        sampleAnswer: "Young generations nowadays prefer to go on holidays with their friends more, I believe. From my surroundings, I saw lots of young ones who spend their holidays with friends and they actually like going on a holiday with someone who have the same interests."
+      },
+      {
+        id: 3,
+        question: "Can you think of any advantages in having short holidays?",
+        sampleAnswer: "It's a good way to chill out from busy life for a while without worrying too much about coming back after the holiday. Mini-breaks make people relaxed even for a short while and they can get rid of their stress. Also people can have some anticipation on their short breaks and it will lead to greater productivity at work."
+      },
+      {
+        id: 4,
+        question: "Which do you prefer, several short holidays or just a few long holidays (vacations) during the year?",
+        sampleAnswer: "I prefer to have a few long holidays as I can't really do or travel in short breaks. I like travelling and whenever I travel, I tend to spend at least a week in a certain destination to see the most, so I'd rather have some long holidays, not short ones."
+      },
+      {
+        id: 5,
+        question: "Can you explain how people benefit from having a holiday from work or study?",
+        sampleAnswer: "Well, obviously they can relax for a bit, and make themselves refreshed by having a holiday. Also it can be one of motivations they can have. People could work harder and will probably set short goals in order to have holidays."
+      }
+    ]
+  },
+  {
+    id: 14,
+    topic: "Traveling",
+    mainQuestion: "Describe a long journey you had by car",
+    subQuestions: [
+      "Where you went",
+      "How long it took you",
+      "Who you went with",
+      "And explain how you felt about this trip."
+    ],
+    sampleAnswer: `Well, I can remember when I was in England. I was travelling to one of the towns in Cotswold from London, but I forgot the name of the town. It was a lovely town with some old British cottages, and I think it took around 5 hours by a coach. I found the journey itself really boring. I travelled with my mother, and although we brought some snacks to eat, it felt really long.
+
+The trip was great actually. We had wonderful time in that town, enjoyed lovely view of British countryside. Also local people there were very kind throughout the trip. My mother and I managed to look around everywhere in town, and we loved the time we spent on that day. Also I was quite surprised as it was very convenient and comfortable to travel by a coach. At that time, I only took a coach to go to the airport or to go somewhere near London so it was actually my first time to take a long journey. However, the problem was on the way back to London. There was a baby on the coach, and the baby cried for whole 5 hours. It was driving me crazy, and we ended up having a headache. As the trip itself was gorgeous, I would like to visit there again if I have another chance.`,
+    category: "Part 2 - Traveling",
+    part3Questions: [
+      {
+        id: 1,
+        question: "Do people in your country like to travel away from home when they have a holiday?",
+        sampleAnswer: "It seems like people tend to spend their holiday somewhere else, not their home. In Korea, travelling abroad is getting more and more popular nowadays, and it's still popular to travel around within the country, but definitely away from home."
+      },
+      {
+        id: 2,
+        question: "Do young people generally prefer to spend holidays with their family, or with their friends?",
+        sampleAnswer: "Young generations nowadays prefer to go on holidays with their friends more, I believe. From my surroundings, I saw lots of young ones who spend their holidays with friends and they actually like going on a holiday with someone who have the same interests."
+      },
+      {
+        id: 3,
+        question: "Can you think of any advantages in having short holidays?",
+        sampleAnswer: "It's a good way to chill out from busy life for a while without worrying too much about coming back after the holiday. Mini-breaks make people relaxed even for a short while and they can get rid of their stress. Also people can have some anticipation on their short breaks and it will lead to greater productivity at work."
+      },
+      {
+        id: 4,
+        question: "Which do you prefer, several short holidays or just a few long holidays (vacations) during the year?",
+        sampleAnswer: "I prefer to have a few long holidays as I can't really do or travel in short breaks. I like travelling and whenever I travel, I tend to spend at least a week in a certain destination to see the most, so I'd rather have some long holidays, not short ones."
+      },
+      {
+        id: 5,
+        question: "Can you explain how people benefit from having a holiday from work or study?",
+        sampleAnswer: "Well, obviously they can relax for a bit, and make themselves refreshed by having a holiday. Also it can be one of motivations they can have. People could work harder and will probably set short goals in order to have holidays."
+      }
+    ]
+  },
+  {
+    id: 15,
+    topic: "Housing",
+    mainQuestion: "Describe a house or apartment you would like to live in.",
+    subQuestions: [
+      "Where this house or apartment would be",
+      "What it would look like",
+      "When you would like to live there",
+      "And explain why you would like to live in such a place."
+    ],
+    sampleAnswer: `I don't really have clear image of the house I would like to live in, but I want to live in a house in an unspoilt countryside. I don't mind of living in any countries. I've been living in a city for a long time, and don't want to carry on living there. And I had really good experience of living in a countryside when I was a child. My dream house doesn't need to be huge, only thing I want to have is a garden. Of course there will be some rooms, bathroom and kitchen, but I've always dreamed of having a house with a garden so that I can grow some vegetables, raise some pets, and so on. Hopefully, I would like it to happen in next 10 years. I have to work hard to make it happen. I'd like to live in this house because I'm quite tired of living in a city now. Since I graduated my secondary school, I always lived in the heart of city, or suburbs. So city-life is not new to me anymore. I think it's good time to move into countryside in next 10 years. Also I really want to keep a lot of pets. It has been my dream for years, but as I've been living in apartments, it never happened. So if I have a chance, I'll definitely live in a house, possibly in countryside.`,
+    category: "Part 2 - Housing",
+    part3Questions: [
+      {
+        id: 1,
+        question: "What type of home do most people in your country live in?",
+        sampleAnswer: "Most Korean live in a flat or an apartment. I think more people move into the cities because of their jobs or works, then most accommodations in cities are apartments. If it's countryside, people normally live in houses."
+      },
+      {
+        id: 2,
+        question: "What do you think are the differences between living in a house, compared to living in an apartment?",
+        sampleAnswer: "Probably sharing facilities with neighbours would be a major difference. For example, there are gyms, parks, and some shops in modern apartments in Korea, so all the residents have to share all those facilities. But people who live in their own house don't need to worry about such things. In most Korean apartments, there are security guards for residents so they can be ensured with their own safety. But people living in a house can't have such services. Also I'd say keeping a pet would be another difference. Normally, residents are not allowed keep pets in the apartments, but people who live in houses can keep them as many as they like."
+      },
+      {
+        id: 3,
+        question: "Do people in your country prefer to rent their homes, or buy them?",
+        sampleAnswer: "As the cost of renting becomes more expensive in Korea, it seems like people tend to buy houses rather than renting them. But it actually depends on individual's circumstances."
+      },
+      {
+        id: 4,
+        question: "Should the government take responsibility for providing homes for disadvantaged (poor) people?",
+        sampleAnswer: "(Answer 1) I think government should not provide homes for poor people for free, I don't mean they have to pay some money for the house, but they need to do something to earn. Maybe government can provide some job opportunities or houses with less expensive rent.\n\n(Answer 2) Of course, they should. It's their responsibility to provide housing to everyone in their nation. People deserve to have their basic rights; eating, clothing, and housing, and especially when it comes to poor people, they definitely need to be provided with a house from the government."
+      },
+      {
+        id: 5,
+        question: "Do people in your country prefer to live in cities, or in rural environment?",
+        sampleAnswer: "People in Korea seem like they prefer to live in urban areas, apparently there are lack of young people in most of countryside as they move out to work in big cities like Seoul, since there are more job opportunities. On the other hand, people tend to live in rural areas when they get older to spend rest of their lives in calm and peaceful environment."
+      },
+      {
+        id: 6,
+        question: "What are the differences between living in the countryside compared to living in a city?",
+        sampleAnswer: "Maybe in countryside, there are less jobs and less shops. Also most of rural areas are more nature friendly; less air pollution and some unspoilt areas like mountains, dense forests, and so on. Cities are convenient to live in, but severe pollutions occur which can affect people's health."
+      }
+    ]
+  },
+  {
+    id: 16,
+    topic: "Pollution",
+    mainQuestion: "Describe a place you visited that has been affected by pollution",
+    subQuestions: [
+      "Where it is",
+      "When you visited this place",
+      "What kinds of pollution you saw there",
+      "And explain how this place was affected"
+    ],
+    sampleAnswer: `Well, I'd have to talk about Seoul. I was out of Korea for few years to study, then I got back to Korea 3 years ago. It wasn't like the same place that I experienced before. It was totally surprising, but of course in negative way.
+
+Actually, the minute after I got out of the Incheon airport, I couldn't stop coughing. It was extremely hard to breathe. Not long after that, I went to see my friend in Seoul, the place was even worse.
+
+The first thing that I was surprised at was the noise. Drivers were beeping their horns, hordes of people around me were making noises, and there were tones of yellow dusts so I could barely see what is ahead of me. And I started coughing again because of that. Seriously, I thought it was disgusting then I avoided going there for a while.
+
+I knew the noise pollution was serious in Seoul, but I felt it got worse. Everywhere I went was so crowded with people and was extremely noisy. I was feeling dizzy with hearing all these car horns and noises from people. Also the air wasn't fresh as it used to be in the past. The colour of the sky was actually yellow with all dusts, and the city itself looked very dark and grey. It looked like a doomed city and ironic for me as people looked very happy. I'm sure all these pollution would affect people, especially residents of Seoul.`,
+    category: "Part 2 - Pollution",
+    part3Questions: [
+      {
+        id: 1,
+        question: "What kinds of pollution are serious in your country?",
+        sampleAnswer: "Well, definitely noise pollution and air pollution are the most serious ones. Those are getting more and more severe nowadays, especially in major cities. People are getting more stressed by noise pollution caused by lots of different sources like neighbours, cars, and pets and so on, and also air pollution is so bad particularly in Seoul. There are tons of micro dusts in the atmosphere, and in spring, people suffer from yellow dusts which come from Chinese desert."
+      },
+      {
+        id: 2,
+        question: "What can individuals do to protect our environment?",
+        sampleAnswer: "I'm sure individuals can start with small things like taking public transports instead of their own cars to reduce air pollution, and use their cars when really necessary. And turning off electricity when people leave their houses or workplaces in order to save energy. Also participating in environmental campaigns would be helpful as those ones involve picking litters in public places and other activities related to the environment."
+      },
+      {
+        id: 3,
+        question: "Do you think individuals should be responsible for pollutions?",
+        sampleAnswer: "Of course, definitely. This is our duty to save the environment in order to survive. People should pay more attention on the methods which helps saving energy or the environment. It's not a big deal to think about the method. People should start taking some actions in order to tackle the pollution."
+      },
+      {
+        id: 4,
+        question: "Why is there a need to involve government in environmental protection?",
+        sampleAnswer: "It's because there is a limitation for individuals when they try to do something to save the environment. I believe the government can do things in larger scale so more people can be involved. The government can promote and start some compulsory environmental campaigns such as making people to take the public transports to go to work compulsively so that they can participate in saving the Earth eventually."
+      }
+    ]
+  },
+  {
+    id: 17,
+    topic: "Water",
+    mainQuestion: "Describe a place with a lot of water (such as a river, a lake or the ocean) that you enjoyed visiting.",
+    subQuestions: [
+      "Where this place was",
+      "What people were doing at this place",
+      "Why you went there",
+      "And explain why you liked this place."
+    ],
+    sampleAnswer: `A place came up on my mind is Hastings, in England. It's a city located in East Sussex, and when I visited there, I was travelling Sussex area such as Rye, Dover, and ended up my trip in Hastings.
+
+When I visited there, it was around May or June. So the weather was quite hot and sunny. I was walking alongside of the sea, and saw lots of people swimming, riding skateboards, sitting at the beach, and drinking beer.
+
+After I finished my final project at University, I wanted to travel but didn't know where to go. So I unfolded map of England, and randomly picked East Sussex area to travel. I wanted to go somewhere quiet at that time, and the sea was another reason which made me want to go.
+
+Actually, Hastings was very interesting place. I didn't expect anything but some of the areas looked like Greece, and some looked like British countryside. It was busy at some areas, but most places were very quiet. First thing I liked about Hastings was the blue sea. Before Hastings, I visited Brighton but the water was actually brown, but the sea in Hastings was so clear, blue, and it was shining. It was amazing to see such place in England. Also I could relax a lot with fantastic scenery. I was quite fed up with all my works, but by staying in Hastings, I could relieve all my stress. I walked a lot, went into the sea, saw lots of lively people, and lovely views of city. If I have another chance, I would definitely revisit this place.`,
+    category: "Part 2 - Water",
+    part3Questions: [
+      {
+        id: 1,
+        question: "Are holidays to places with lots of water very popular in your country?",
+        sampleAnswer: "Yes, a lot of people tend to go somewhere there is lots of water. In Korea, especially in summer, all beaches or riverside are very popular holiday destinations."
+      },
+      {
+        id: 2,
+        question: "What activities do (or can) people do on (or, in) the water?",
+        sampleAnswer: "Most people go swimming, and also enjoy water sports such as wakeboarding, water-skiing, scuba diving, and so on. Some people also enjoy fishing if they go to the ocean."
+      },
+      {
+        id: 3,
+        question: "Can you explain why people enjoy spending leisure time at a beach or river?",
+        sampleAnswer: "I personally think it's because we don't see such places like beach or river in our daily life. Well, we see the river which flows in the city, but because of heavy workload or busy daily routine, people don't really have much time to go and relax. Also some people particularly enjoy water sports so they want to go somewhere there's lots of water."
+      },
+      {
+        id: 4,
+        question: "In what ways do people use water?",
+        sampleAnswer: "Mostly on daily life, like taking shower, washing their laundry, and of course, drinking. Also water is used by waterpower generation, building dams, or maybe some people live on businesses related to water like fishermen."
+      },
+      {
+        id: 5,
+        question: "Do you think the way people in your country today use water has changed, compared to the past?",
+        sampleAnswer: "Not much really. I think people in the past lived near water so they used it directly but only difference is as residential areas has developed, people at present use the tap water for their various needs."
+      },
+      {
+        id: 6,
+        question: "In your opinion, should the personal use of water be controlled?",
+        sampleAnswer: "In some ways, yes. People in modern society waste a lot of water by letting the tap opened. There are lots of countries where suffer from water shortage. So in order to prevent water shortage, people need to take some actions or the government should control the use of water."
+      }
+    ]
+  },
+  {
+    id: 18,
+    topic: "Clothes",
+    mainQuestion: "Describe an item of clothing that someone gave you",
+    subQuestions: [
+      "What the clothing was",
+      "Who gave it to you",
+      "When it was given to you",
+      "And explain why this person gave you this clothing."
+    ],
+    sampleAnswer: `I'd like to talk about a cardigan that my mother gave me. I think it was my last birthday. She bought it from a department store. Actually, I didn't expect to receive any presents from my parents at that time, but she surprisingly gave me a small paper bag. When I opened it, there was a navy-colored cardigan.
+
+It was a very basic but lovely cardigan. As I didn't have many clothes which are suitable for the change of seasons, she bought me one. At that time, I had many shirts or t-shirts but didn't have any clothes to wear on top of them. I was very happy when I received it, not only because it was exactly what I needed, but also because I could feel how much my mother cares about me.
+
+Since then, I've been wearing it very often. It's very easy to match with any other clothes, and it's also very comfortable. Whenever I wear it, I think of my mother and I feel very warm and happy. I think it's one of the best presents I've ever received.`,
+    category: "Part 2 - Clothes",
+    part3Questions: [
+      {
+        id: 1,
+        question: "What kinds of clothes do people in your country like to wear?",
+        sampleAnswer: "It depends on the age groups. Generally, young people in Korea like to wear trendy and stylish clothes. They are very sensitive to fashion. On the other hand, older people prefer comfortable and practical clothes. But overall, casual clothes like jeans and t-shirts are popular among all ages."
+      },
+      {
+        id: 2,
+        question: "Does the climate affect the clothes people wear?",
+        sampleAnswer: "Definitely. Korea has four distinct seasons, so people's clothing changes accordingly. In summer, people wear light and thin clothes to stay cool. In winter, they wear thick coats, padded jackets, and mufflers to protect themselves from the cold."
+      },
+      {
+        id: 3,
+        question: "Do you think that the clothes people wear can reflect their personality?",
+        sampleAnswer: "Yes, I think so. For example, people who wear bright and colorful clothes might be outgoing and energetic. On the contrary, people who prefer simple and dark-colored clothes might be more calm and reserved. So, I believe that clothing can be a way of expressing oneself."
+      }
+    ]
+  },
+  {
+    id: 19,
+    topic: "Patience",
+    mainQuestion: "Describe a time when you were patient",
+    subQuestions: [
+      "When it was",
+      "Where it was",
+      "What you were waiting for",
+      "And explain why you had to be patient."
+    ],
+    sampleAnswer: `I'd like to talk about a time when I had to wait for a long time at a famous restaurant. It was last year, during the weekend. I went to a well-known Italian restaurant in Seoul with my friends. We had heard that the food there was amazing, so we decided to give it a try.
+
+When we arrived, there was a huge queue of people waiting outside. We were told that the waiting time would be at least an hour. At first, we were a bit frustrated and considered going to another place. However, we really wanted to try their signature pasta, so we decided to wait.
+
+While waiting, we talked about various topics and time went by. It actually took about an hour and a half to finally get a table. Although it was a long wait, I tried to be patient because I knew it would be worth it. Eventually, when we tasted the food, it was indeed delicious, and we were all satisfied. That experience taught me that sometimes being patient can lead to a great reward.`,
+    category: "Part 2 - Patience",
+    part3Questions: [
+      {
+        id: 1,
+        question: "What do you think \"patience\" is?",
+        sampleAnswer: "In my opinion, patience is the ability to stay calm and not get angry or upset when dealing with problems or waiting for something. It's an important quality to have in our daily lives, as it helps us to make better decisions and maintain good relationships with others."
+      },
+      {
+        id: 2,
+        question: "Do you think people are less patient now than they were in the past?",
+        sampleAnswer: "Yes, I think so. With the development of technology, everything has become much faster. We can get information instantly through the internet, and we can order things with just a few clicks. As a result, people have become used to getting what they want immediately, and they tend to lose patience more easily when things take time."
+      }
+    ]
+  },
+  {
+    id: 20,
+    topic: "Health & Advertisements",
+    mainQuestion: "Describe a health-related advertisement you remember",
+    subQuestions: [
+      "What it was about",
+      "Where you saw it",
+      "Who it was for",
+      "And explain why you remember it."
+    ],
+    sampleAnswer: "",
+    category: "Part 2 - Health & Advertisements",
+    part3Questions: [
+      {
+        id: 1,
+        question: "How can people improve their health?",
+        sampleAnswer: "There are several ways to improve health. First and foremost, regular exercise is essential. People should try to engage in some form of physical activity, like walking, running, or swimming. Secondly, a balanced diet is crucial. Eating plenty of fruits, vegetables, and proteins while avoiding junk food can make a big difference. Lastly, getting enough sleep and managing stress are also very important for overall well-being."
+      },
+      {
+        id: 2,
+        question: "Do you think the government should be responsible for people's health?",
+        sampleAnswer: "I think the government should play a role in promoting public health. For example, they can provide public sports facilities, run health awareness campaigns, and regulate the food industry to ensure food safety. However, ultimately, individuals are responsible for their own lifestyle choices and health."
+      },
+      {
+        id: 3,
+        question: "What are the different types of advertising?",
+        sampleAnswer: "There are many types of advertising, such as television commercials, radio ads, billboards, and advertisements in newspapers or magazines. Nowadays, online advertising on social media and websites has become extremely popular and influential."
+      },
+      {
+        id: 4,
+        question: "Do you think there are too many advertisements in our daily lives?",
+        sampleAnswer: "Yes, absolutely. We are bombarded with advertisements everywhere we go—on the streets, on TV, and especially on the internet. Sometimes it can be quite overwhelming and annoying, as they interrupt what we are doing."
+      },
+      {
+        id: 5,
+        question: "How do advertisements influence people's consumption habits?",
+        sampleAnswer: "Advertisements are designed to persuade people to buy products or services. They often use attractive images or famous celebrities to create a positive image of a brand. As a result, people may feel a desire to buy things they don't necessarily need, simply because they saw them in an ad."
+      }
+    ]
+  },
+  {
+    id: 21,
+    topic: "Gifts",
+    mainQuestion: "Describe a gift that you gave to someone",
+    subQuestions: [
+      "What the gift was",
+      "Who you gave it to",
+      "Why you chose that gift",
+      "And explain how you felt about giving it."
+    ],
+    sampleAnswer: `I'd like to talk about a gift I gave to my younger sister last year. It was a high-end digital camera. She had just started a course in photography at her college and was using her smartphone for all her assignments, so I thought it was the perfect time to get her some professional equipment.
+
+I spent a lot of time researching different models online because I wanted to find something that was user-friendly but still had all the advanced features a student would need. I eventually chose a compact mirrorless camera because it's lightweight and easy for her to carry around campus.
+
+When I gave it to her on her birthday, she was absolutely speechless. She didn't expect such an expensive gift. Seeing her so excited made me feel really proud and happy. It was great to know that I could support her passion and help her with her studies. Now, she uses it all the time and her photos have improved significantly, which makes me feel like it was money well spent.`,
+    category: "Part 2 - Gifts",
+    part3Questions: []
   }
 ];
 
+const randomSpeakingPool: RandomSpeakingQuestion[] = [
+  ...sampleQuestions.map((question) => ({
+    kind: 'ielts-part1' as const,
+    question: question.question,
+    category: question.category,
+    sampleAnswer: question.sampleAnswer
+  })),
+  ...part2Questions.map((question) => ({
+    kind: 'ielts-part2' as const,
+    topic: question.topic,
+    mainQuestion: question.mainQuestion,
+    subQuestions: question.subQuestions,
+    category: question.category,
+    sampleAnswer: question.sampleAnswer,
+    part3Questions: question.part3Questions
+  })),
+  ...part2Questions.flatMap((question) =>
+    question.part3Questions.map((part3Question) => ({
+      kind: 'ielts-part3' as const,
+      question: part3Question.question,
+      category: question.category.startsWith('Part 2 - ')
+        ? question.category.replace('Part 2 - ', 'Part 3 - ')
+        : question.category,
+      sampleAnswer: part3Question.sampleAnswer
+    }))
+  ),
+  ...Array.from({ length: 11 }, (_, index) => ({
+    kind: 'tef' as const,
+    section: 'A' as const,
+    questionNumber: index + 1,
+    imagePath: `/Section A - Question ${index + 1}.png`,
+    sampleAnswer: tefSampleAnswers.sectionA?.[index + 1] || ''
+  })),
+  ...Array.from({ length: 30 }, (_, index) => ({
+    kind: 'tef' as const,
+    section: 'B' as const,
+    questionNumber: index + 1,
+    imagePath: `/Section B - Question ${index + 1}.png`,
+    sampleAnswer: tefSampleAnswers.sectionB?.[index + 1] || ''
+  }))
+];
+
+const randomWritingPool: RandomWritingQuestion[] = [
+  ...ieltsTask1Topics.map((topic) => ({
+    kind: 'ielts-task1' as const,
+    title: topic.title,
+    guidanceForScreen: topic.guidanceForScreen,
+    imagePaths: topic.imagePaths,
+    sampleAnswer: topic.sampleAnswer || ''
+  })),
+  ...ieltsTask2Prompts.map((prompt) => ({
+    kind: 'ielts-task2' as const,
+    prompt: prompt.prompt,
+    sampleAnswer: ieltsSampleAnswers[`task2-${prompt.id}`] || ''
+  })),
+  ...lettersTopics.map((prompt, index) => ({
+    kind: 'tef-letters' as const,
+    prompt,
+    sampleAnswer: lettersSampleAnswers[index + 1] || ''
+  })),
+  ...faitDiverTopics.map((prompt, index) => ({
+    kind: 'tef-fait' as const,
+    prompt,
+    sampleAnswer: faitDiverSampleAnswers[index + 1] || ''
+  }))
+];
+
+const randomQuestionPool: RandomQuestion[] = [
+  ...randomSpeakingPool,
+  ...randomWritingPool
+];
+
+const getRandomMixedQuestion = () =>
+  randomQuestionPool[Math.floor(Math.random() * randomQuestionPool.length)];
+
+const isSpeakingQuestion = (question: RandomQuestion): question is RandomSpeakingQuestion =>
+  question.kind === 'tef' ||
+  question.kind === 'ielts-part1' ||
+  question.kind === 'ielts-part2' ||
+  question.kind === 'ielts-part3';
+
 function App() {
   const [currentView, setCurrentView] = useState<
-    'landing' | 'ieltsSelection' | 'ieltsSpeaking' | 'ieltsWriting' | 'tefSelection' | 'tefWriting' | 'tefSpeaking'
+    'landing' | 'ieltsSelection' | 'ieltsSpeaking' | 'ieltsWriting' | 'tefSelection' | 'tefWriting' | 'tefSpeaking' | 'randomQuestion'
   >('landing');
   const [currentPart, setCurrentPart] = useState<'part1' | 'part2' | 'part3'>('part1');
   const [currentQuestion, setCurrentQuestion] = useState<Question>(sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)]);
   const [currentPart2Question, setCurrentPart2Question] = useState<Part2Question>(part2Questions[0]);
   const [currentPart3Question, setCurrentPart3Question] = useState<Part3Question>(part2Questions[0].part3Questions[0]);
+  const [randomQuestion, setRandomQuestion] = useState<RandomQuestion>(() => getRandomMixedQuestion());
+  const [randomUserAnswer, setRandomUserAnswer] = useState<string>('');
+  const [randomTranscript, setRandomTranscript] = useState<string>('');
+  const [randomIsRecording, setRandomIsRecording] = useState<boolean>(false);
+  const [randomSimilarityScore, setRandomSimilarityScore] = useState<number | null>(null);
+  const [randomShowResult, setRandomShowResult] = useState<boolean>(false);
+  const [randomGeminiAnalysis, setRandomGeminiAnalysis] = useState<any>(null);
+  const [randomIsAnalyzing, setRandomIsAnalyzing] = useState<boolean>(false);
+  const [randomShowSampleAnswer, setRandomShowSampleAnswer] = useState<boolean>(false);
+  const [randomWritingAnswer, setRandomWritingAnswer] = useState<string>('');
+  const [randomWritingSimilarityScore, setRandomWritingSimilarityScore] = useState<number | null>(null);
+  const [randomWritingShowResult, setRandomWritingShowResult] = useState<boolean>(false);
+  const [randomWritingGeminiAnalysis, setRandomWritingGeminiAnalysis] = useState<any>(null);
+  const [randomWritingIsAnalyzing, setRandomWritingIsAnalyzing] = useState<boolean>(false);
+  const [randomWritingShowSampleAnswer, setRandomWritingShowSampleAnswer] = useState<boolean>(false);
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [currentTranscript, setCurrentTranscript] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -1428,11 +2308,234 @@ function App() {
     }
   };
 
+  const calculateRandomSpeakingSimilarity = async () => {
+    if (!isSpeakingQuestion(randomQuestion)) return;
+    if (!randomUserAnswer.trim()) return;
+
+    setRandomIsAnalyzing(true);
+    setRandomGeminiAnalysis(null);
+
+    const speakingQuestion = randomQuestion;
+    const sampleAnswer = speakingQuestion.sampleAnswer || '';
+    const question =
+      speakingQuestion.kind === 'tef'
+        ? `Section ${speakingQuestion.section} - Question ${speakingQuestion.questionNumber}`
+        : speakingQuestion.kind === 'ielts-part2'
+        ? speakingQuestion.mainQuestion
+        : speakingQuestion.question;
+
+    try {
+      const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL;
+      const data = await analyzeWithGemini(
+        {
+          userAnswer: randomUserAnswer,
+          sampleAnswer,
+          question,
+          analysisType: 'similarity'
+        },
+        lambdaUrl
+      );
+
+      if (data.success && data.analysis) {
+        setRandomGeminiAnalysis(data.analysis);
+
+        if (data.analysis.similarityScore !== undefined) {
+          setRandomSimilarityScore(data.analysis.similarityScore);
+        } else if (data.analysis.overallScore !== undefined) {
+          setRandomSimilarityScore(data.analysis.overallScore);
+        } else {
+          const userWords = randomUserAnswer.toLowerCase().split(/\s+/);
+          const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+          const commonWords = userWords.filter(word => sampleWords.includes(word));
+          const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
+          setRandomSimilarityScore(Math.round(similarity));
+        }
+      } else {
+        throw new Error(data.error || 'Analysis failed');
+      }
+
+      setRandomShowResult(true);
+    } catch (error) {
+      console.error('Error analyzing with Gemini:', error);
+      const userWords = randomUserAnswer.toLowerCase().split(/\s+/);
+      const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+      const commonWords = userWords.filter(word => sampleWords.includes(word));
+      const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
+      setRandomSimilarityScore(Math.round(similarity));
+      setRandomShowResult(true);
+    } finally {
+      setRandomIsAnalyzing(false);
+    }
+  };
+
+  const calculateRandomWritingSimilarity = async () => {
+    if (isSpeakingQuestion(randomQuestion)) return;
+    if (!randomWritingAnswer.trim()) return;
+
+    setRandomWritingIsAnalyzing(true);
+    setRandomWritingGeminiAnalysis(null);
+
+    const writingQuestion = randomQuestion;
+    const sampleAnswer = writingQuestion.sampleAnswer || '';
+    const isIeltsTask1 = writingQuestion.kind === 'ielts-task1';
+    const isIeltsTask2 = writingQuestion.kind === 'ielts-task2';
+
+    const questionText = isIeltsTask1
+      ? `IELTS Academic Writing Task 1\nTask: Refer to the attached image. (${(writingQuestion.imagePaths || []).join(', ')})`
+      : isIeltsTask2
+      ? `IELTS Academic Writing Task 2\nTask: ${writingQuestion.prompt}`
+      : writingQuestion.prompt;
+
+    const imagePayloads: Array<{ data: string; mimeType: string }> = [];
+    if (isIeltsTask1 && writingQuestion.imagePaths?.length) {
+      try {
+        for (const imagePath of writingQuestion.imagePaths) {
+          const response = await fetch(imagePath);
+          const blob = await response.blob();
+          const data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(String(reader.result || '').split(',')[1] || '');
+            reader.onerror = () => reject(new Error('Failed to read image'));
+            reader.readAsDataURL(blob);
+          });
+          if (data) {
+            imagePayloads.push({ data, mimeType: blob.type || 'image/png' });
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to load writing image for Gemini:', error);
+      }
+    }
+
+    try {
+      const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL;
+      const data = await analyzeWithGemini(
+        {
+          userAnswer: randomWritingAnswer,
+          sampleAnswer: sampleAnswer?.trim() ? sampleAnswer : '모범 답안이 아직 작성되지 않았습니다.',
+          question: questionText,
+          analysisType: isIeltsTask1 || isIeltsTask2 ? 'ielts-writing' : 'similarity',
+          images: imagePayloads.length ? imagePayloads : undefined
+        },
+        lambdaUrl
+      );
+
+      if (data.success && data.analysis) {
+        setRandomWritingGeminiAnalysis(data.analysis);
+
+        if (data.analysis.similarityScore !== undefined) {
+          setRandomWritingSimilarityScore(data.analysis.similarityScore);
+        } else if (data.analysis.overallScore !== undefined) {
+          setRandomWritingSimilarityScore(data.analysis.overallScore);
+        } else {
+          const userWords = randomWritingAnswer.toLowerCase().split(/\s+/);
+          const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+          const commonWords = userWords.filter(word => sampleWords.includes(word));
+          const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
+          setRandomWritingSimilarityScore(Math.round(similarity));
+        }
+      } else {
+        throw new Error(data.error || 'Analysis failed');
+      }
+
+      setRandomWritingShowResult(true);
+    } catch (error) {
+      console.error('Error analyzing writing with Gemini:', error);
+      const userWords = randomWritingAnswer.toLowerCase().split(/\s+/);
+      const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+      const commonWords = userWords.filter(word => sampleWords.includes(word));
+      const similarity = (commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100;
+      setRandomWritingSimilarityScore(Math.round(similarity));
+      setRandomWritingShowResult(true);
+    } finally {
+      setRandomWritingIsAnalyzing(false);
+    }
+  };
+
+  const refreshRandomQuestion = () => {
+    setRandomQuestion(getRandomMixedQuestion());
+    setRandomUserAnswer('');
+    setRandomTranscript('');
+    setRandomIsRecording(false);
+    setRandomSimilarityScore(null);
+    setRandomShowResult(false);
+    setRandomGeminiAnalysis(null);
+    setRandomIsAnalyzing(false);
+    setRandomShowSampleAnswer(false);
+    setRandomWritingAnswer('');
+    setRandomWritingSimilarityScore(null);
+    setRandomWritingShowResult(false);
+    setRandomWritingGeminiAnalysis(null);
+    setRandomWritingIsAnalyzing(false);
+    setRandomWritingShowSampleAnswer(false);
+  };
+
   if (currentView === 'landing') {
     return (
       <LandingPage
         onSelectIELTS={() => setCurrentView('ieltsSelection')}
         onSelectTEF={() => setCurrentView('tefSelection')}
+        onSelectRandomQuestion={() => {
+          refreshRandomQuestion();
+          setCurrentView('randomQuestion');
+        }}
+      />
+    );
+  }
+ 
+  if (currentView === 'randomQuestion') {
+    if (isSpeakingQuestion(randomQuestion)) {
+      const isFrench = randomQuestion.kind === 'tef';
+      return (
+        <RandomSpeakingSection
+          onBack={() => setCurrentView('landing')}
+          isFrench={isFrench}
+          question={randomQuestion}
+          onNext={refreshRandomQuestion}
+          showSampleAnswer={randomShowSampleAnswer}
+          setShowSampleAnswer={setRandomShowSampleAnswer}
+          userAnswer={randomUserAnswer}
+          transcript={randomTranscript}
+          isRecording={randomIsRecording}
+          setIsRecording={setRandomIsRecording}
+          setTranscript={setRandomTranscript}
+          onRecordingComplete={(transcript) => {
+            setRandomUserAnswer(transcript);
+            setRandomTranscript('');
+            setRandomIsRecording(false);
+          }}
+          onAnalyze={calculateRandomSpeakingSimilarity}
+          isAnalyzing={randomIsAnalyzing}
+          showResult={randomShowResult}
+          similarityScore={randomSimilarityScore}
+          geminiAnalysis={randomGeminiAnalysis}
+        />
+      );
+    }
+  }
+ 
+  if (currentView === 'randomQuestion' && !isSpeakingQuestion(randomQuestion)) {
+    const isIelts = randomQuestion.kind === 'ielts-task1' || randomQuestion.kind === 'ielts-task2';
+    const wordCount = randomWritingAnswer.trim()
+      ? randomWritingAnswer.trim().split(/\s+/).length
+      : 0;
+
+    return (
+      <RandomWritingSection
+        onBack={() => setCurrentView('landing')}
+        isIelts={isIelts}
+        question={randomQuestion}
+        onNext={refreshRandomQuestion}
+        showSampleAnswer={randomWritingShowSampleAnswer}
+        setShowSampleAnswer={setRandomWritingShowSampleAnswer}
+        answer={randomWritingAnswer}
+        setAnswer={setRandomWritingAnswer}
+        wordCount={wordCount}
+        onAnalyze={calculateRandomWritingSimilarity}
+        isAnalyzing={randomWritingIsAnalyzing}
+        showResult={randomWritingShowResult}
+        similarityScore={randomWritingSimilarityScore}
+        geminiAnalysis={randomWritingGeminiAnalysis}
       />
     );
   }
@@ -1589,7 +2692,7 @@ function App() {
     );
   }
 
-  
+
   if (currentView === 'tefWriting') {
     return (
       <TEFWriting onBack={() => setCurrentView('tefSelection')} />
@@ -1609,217 +2712,221 @@ function App() {
   }
 
   if (currentView === 'ieltsSpeaking') {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <button 
+  return (
+    <div className="App">
+      <header className="App-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <button 
               onClick={() => setCurrentView('ieltsSelection')}
-              className="back-button"
-              style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-            >
-              ← 뒤로 가기
-            </button>
-            <h1>🎤 IELTS 스피킹 연습</h1>
-          </div>
-        </header>
-        
-        <main className="App-main">
-          <div className="part-selector">
-            <button 
-              onClick={() => {
-                setCurrentPart('part1');
-                setUserAnswer('');
-                setCurrentTranscript('');
-                setSimilarityScore(null);
-                setShowResult(false);
-              }} 
-              className={`part-button ${currentPart === 'part1' ? 'active' : ''}`}
-            >
-              Part 1
-            </button>
-            <button 
-              onClick={() => {
-                setCurrentPart('part2');
-                setUserAnswer('');
-                setCurrentTranscript('');
-                setSimilarityScore(null);
-                setShowResult(false);
-              }} 
-              className={`part-button ${currentPart === 'part2' ? 'active' : ''}`}
-            >
-              Part 2
-            </button>
-            <button 
-              onClick={() => {
-                setCurrentPart('part3');
-                setUserAnswer('');
-                setCurrentTranscript('');
-                setSimilarityScore(null);
-                setShowResult(false);
-              }} 
-              className={`part-button ${currentPart === 'part3' ? 'active' : ''}`}
-            >
-              Part 3
-            </button>
-          </div>
+            className="back-button"
+            style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+          >
+            ← 뒤로 가기
+          </button>
+          <h1>🎤 IELTS 스피킹 연습</h1>
+        </div>
+      </header>
+      
+      <main className="App-main">
+        <div className="part-selector">
+          <button 
+            onClick={() => {
+              setCurrentPart('part1');
+              setUserAnswer('');
+              setCurrentTranscript('');
+              setSimilarityScore(null);
+              setShowResult(false);
+            }} 
+            className={`part-button ${currentPart === 'part1' ? 'active' : ''}`}
+          >
+            Part 1
+          </button>
+          <button 
+            onClick={() => {
+              setCurrentPart('part2');
+              setUserAnswer('');
+              setCurrentTranscript('');
+              setSimilarityScore(null);
+              setShowResult(false);
+            }} 
+            className={`part-button ${currentPart === 'part2' ? 'active' : ''}`}
+          >
+            Part 2
+          </button>
+          <button 
+            onClick={() => {
+              setCurrentPart('part3');
+              setUserAnswer('');
+              setCurrentTranscript('');
+              setSimilarityScore(null);
+              setShowResult(false);
+            }} 
+            className={`part-button ${currentPart === 'part3' ? 'active' : ''}`}
+          >
+            Part 3
+          </button>
+        </div>
 
-          <div className="question-controls">
-            <button onClick={getRandomQuestion} className="random-button">
-              🎲 랜덤 문제 선택
-            </button>
-            
-            {currentPart === 'part1' && (
-              <div className="topic-selector">
-                <h4>카테고리별 선택:</h4>
-                <div className="topic-buttons">
-                  {Array.from(new Set(sampleQuestions.map(q => q.category))).map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => {
-                        const categoryQuestions = sampleQuestions.filter(q => q.category === category);
-                        const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
-                        setCurrentQuestion(randomQuestion);
-                        setUserAnswer('');
-                        setCurrentTranscript('');
-                        setSimilarityScore(null);
-                        setShowResult(false);
-                      }}
-                      className={`topic-button ${currentQuestion.category === category ? 'active' : ''}`}
-                    >
-                      {category.replace('Part 1 - ', '')}
-                    </button>
-                  ))}
-                </div>
+        <div className="question-controls">
+          <button onClick={getRandomQuestion} className="random-button">
+            🎲 랜덤 문제 선택
+          </button>
+          
+          {currentPart === 'part1' && (
+            <div className="topic-selector">
+              <h4>카테고리별 선택:</h4>
+              <div className="topic-buttons">
+                {Array.from(new Set(sampleQuestions.map(q => q.category))).map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      const categoryQuestions = sampleQuestions.filter(q => q.category === category);
+                      const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
+                      setCurrentQuestion(randomQuestion);
+                      setUserAnswer('');
+                      setCurrentTranscript('');
+                      setSimilarityScore(null);
+                      setShowResult(false);
+                    }}
+                    className={`topic-button ${currentQuestion.category === category ? 'active' : ''}`}
+                  >
+                    {category.replace('Part 1 - ', '')}
+                  </button>
+                ))}
               </div>
-            )}
-            
-            {currentPart === 'part2' && (
-              <div className="topic-selector">
-                <h4>주제별 선택:</h4>
-                <div className="topic-buttons">
-                  {part2Questions.map((question) => (
-                    <button
-                      key={question.id}
-                      onClick={() => {
-                        setCurrentPart2Question(question);
-                        setUserAnswer('');
-                        setCurrentTranscript('');
-                        setSimilarityScore(null);
-                        setShowResult(false);
-                      }}
-                      className={`topic-button ${currentPart2Question.id === question.id ? 'active' : ''}`}
-                    >
-                      {question.topic}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {currentPart === 'part3' && (
-              <div className="topic-selector">
-                <h4>주제별 선택:</h4>
-                <div className="topic-buttons">
-                  {part2Questions.map((question) => (
-                    <button
-                      key={question.id}
-                      onClick={() => {
-                        const randomPart3Index = Math.floor(Math.random() * question.part3Questions.length);
-                        const randomPart3Question = question.part3Questions[randomPart3Index];
-                        setCurrentPart3Question(randomPart3Question);
-                        setUserAnswer('');
-                        setCurrentTranscript('');
-                        setSimilarityScore(null);
-                        setShowResult(false);
-                      }}
-                      className={`topic-button`}
-                    >
-                      {question.topic}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {currentPart === 'part1' ? (
-            <QuestionCard question={currentQuestion} />
-          ) : currentPart === 'part2' ? (
-            <div className="part2-question">
-              <h2>{currentPart2Question.topic}</h2>
-              <h3>{currentPart2Question.mainQuestion}</h3>
-              <div className="sub-questions">
-                <p>You should say:</p>
-                <ul>
-                  {currentPart2Question.subQuestions.map((subQ, index) => (
-                    <li key={index}>{subQ}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ) : (
-            <div className="part3-question">
-              <h2>Part 3 - Discussion Question</h2>
-              <h3>{currentPart3Question.question}</h3>
-              <details className="sample-answer">
-                <summary>Sample Answer</summary>
-                <p>{currentPart3Question.sampleAnswer}</p>
-              </details>
             </div>
           )}
           
-          <SpeechRecognition
-            isRecording={isRecording}
-            onStartRecording={() => {
-              setIsRecording(true);
-              setCurrentTranscript('');
-            }}
-            onStopRecording={() => setIsRecording(false)}
-            onRecordingComplete={handleRecordingComplete}
-            onTranscriptUpdate={setCurrentTranscript}
+          {currentPart === 'part2' && (
+            <div className="topic-selector">
+              <h4>주제별 선택:</h4>
+              <div className="topic-buttons">
+                {part2Questions.map((question) => (
+                  <button
+                    key={question.id}
+                    onClick={() => {
+                      setCurrentPart2Question(question);
+                      setUserAnswer('');
+                      setCurrentTranscript('');
+                      setSimilarityScore(null);
+                      setShowResult(false);
+                    }}
+                    className={`topic-button ${currentPart2Question.id === question.id ? 'active' : ''}`}
+                  >
+                    {question.topic}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {currentPart === 'part3' && (
+            <div className="topic-selector">
+              <h4>주제별 선택:</h4>
+              <div className="topic-buttons">
+                {part2Questions.map((question) => (
+                  <button
+                    key={question.id}
+                    onClick={() => {
+                      const randomPart3Index = Math.floor(Math.random() * question.part3Questions.length);
+                      const randomPart3Question = question.part3Questions[randomPart3Index];
+                      setCurrentPart3Question(randomPart3Question);
+                      setUserAnswer('');
+                      setCurrentTranscript('');
+                      setSimilarityScore(null);
+                      setShowResult(false);
+                    }}
+                    className={`topic-button`}
+                  >
+                    {question.topic}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {currentPart === 'part1' ? (
+          <QuestionCard question={currentQuestion} />
+        ) : currentPart === 'part2' ? (
+          <div className="part2-question">
+            <h2>{currentPart2Question.topic}</h2>
+            <h3>{currentPart2Question.mainQuestion}</h3>
+            <div className="sub-questions">
+              <p>You should say:</p>
+              <ul>
+                {currentPart2Question.subQuestions.map((subQ, index) => (
+                  <li key={index}>{subQ}</li>
+                ))}
+              </ul>
+            </div>
+              <details className="sample-answer">
+                <summary>Sample Answer</summary>
+                <p>{currentPart2Question.sampleAnswer}</p>
+              </details>
+          </div>
+        ) : (
+          <div className="part3-question">
+            <h2>Part 3 - Discussion Question</h2>
+            <h3>{currentPart3Question.question}</h3>
+            <details className="sample-answer">
+              <summary>Sample Answer</summary>
+              <p>{currentPart3Question.sampleAnswer}</p>
+            </details>
+          </div>
+        )}
+        
+        <SpeechRecognition
+          isRecording={isRecording}
+          onStartRecording={() => {
+            setIsRecording(true);
+            setCurrentTranscript('');
+          }}
+          onStopRecording={() => setIsRecording(false)}
+          onRecordingComplete={handleRecordingComplete}
+          onTranscriptUpdate={setCurrentTranscript}
+        />
+
+        {isRecording && (
+          <div className="user-answer">
+            <h3>🎤 실시간 음성 인식:</h3>
+            <p style={{ fontStyle: 'italic', color: '#666' }}>
+              {currentTranscript || '음성을 인식하고 있습니다...'}
+            </p>
+          </div>
+        )}
+
+                {userAnswer && !isRecording && (
+          <div className="user-answer">
+            <h3>🎤 당신의 답변:</h3>
+            <p>{userAnswer}</p>
+            <button 
+              onClick={calculateSimilarity} 
+              className="compare-button"
+              disabled={isAnalyzing}
+            >
+              {isAnalyzing ? '🤖 AI 분석 중...' : '📊 유사도 분석하기'}
+            </button>
+          </div>
+        )}
+
+        {showResult && similarityScore !== null && (
+          <ResultDisplay
+            similarityScore={similarityScore}
+            userAnswer={userAnswer}
+            sampleAnswer={
+              currentPart === 'part1' 
+                ? currentQuestion.sampleAnswer 
+                : currentPart === 'part2'
+                ? currentPart2Question.sampleAnswer
+                : currentPart3Question.sampleAnswer
+            }
+            geminiAnalysis={geminiAnalysis}
+            isAnalyzing={isAnalyzing}
           />
-
-          {isRecording && (
-            <div className="user-answer">
-              <h3>🎤 실시간 음성 인식:</h3>
-              <p style={{ fontStyle: 'italic', color: '#666' }}>
-                {currentTranscript || '음성을 인식하고 있습니다...'}
-              </p>
-            </div>
-          )}
-
-          {userAnswer && !isRecording && (
-            <div className="user-answer">
-              <h3>🎤 당신의 답변:</h3>
-              <p>{userAnswer}</p>
-              <button 
-                onClick={calculateSimilarity} 
-                className="compare-button"
-                disabled={isAnalyzing}
-              >
-                {isAnalyzing ? '🤖 AI 분석 중...' : '📊 유사도 분석하기'}
-              </button>
-            </div>
-          )}
-
-          {showResult && similarityScore !== null && (
-            <ResultDisplay
-              similarityScore={similarityScore}
-              userAnswer={userAnswer}
-              sampleAnswer={
-                currentPart === 'part1' 
-                  ? currentQuestion.sampleAnswer 
-                  : currentPart === 'part2'
-                  ? currentPart2Question.sampleAnswer
-                  : currentPart3Question.sampleAnswer
-              }
-              geminiAnalysis={geminiAnalysis}
-              isAnalyzing={isAnalyzing}
-            />
-          )}
-        </main>
-      </div>
+        )}
+      </main>
+    </div>
     );
   }
 
@@ -1827,6 +2934,10 @@ function App() {
     <LandingPage
       onSelectIELTS={() => setCurrentView('ieltsSelection')}
       onSelectTEF={() => setCurrentView('tefSelection')}
+      onSelectRandomQuestion={() => {
+        refreshRandomQuestion();
+        setCurrentView('randomQuestion');
+      }}
     />
   );
 }

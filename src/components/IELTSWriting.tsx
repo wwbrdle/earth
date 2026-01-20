@@ -17,7 +17,7 @@ interface Task1Topic {
   imagePaths?: string[];
 }
 
-const task1Topics: Task1Topic[] = [
+export const task1Topics: Task1Topic[] = [
   {
     id: 1,
     title: 'Single line graph',
@@ -443,7 +443,7 @@ type SelectedPrompt = {
   prompt?: string;
 };
 
-const task2Prompts: WritingPrompt[] = [
+export const task2Prompts: WritingPrompt[] = [
   {
     id: 1,
     prompt:
@@ -491,7 +491,7 @@ const task2Prompts: WritingPrompt[] = [
   }
 ];
 
-const sampleAnswers: Record<string, string> = {
+export const sampleAnswers: Record<string, string> = {
   'task2-1': '모범 답안이 아직 작성되지 않았습니다.',
   'task2-2': '모범 답안이 아직 작성되지 않았습니다.'
 };

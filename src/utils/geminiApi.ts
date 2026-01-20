@@ -86,6 +86,7 @@ JSON:
   "strengths": ["<Korean>", "<Korean>"],
   "improvements": ["<Korean>", "<Korean>"],
   "suggestions": ["<Korean>", "<Korean>"],
+  "recommendedVocabulary": ["<Korean or English vocab/idiom>", "<Korean or English vocab/idiom>"],
   "feedback": "<Korean. Do not mention speaking.>"
 }`;
     case 'similarity':
@@ -125,7 +126,8 @@ Required JSON structure:
   "keyDifferences": ["<difference1 in Korean>", "<difference2 in Korean>", ...],
   "strengths": ["<strength1 in Korean>", "<strength2 in Korean>", ...],
   "improvements": ["<improvement1 in Korean>", "<improvement2 in Korean>", ...],
-  "suggestions": ["<suggestion1 in Korean>", "<suggestion2 in Korean>", ...]
+  "suggestions": ["<suggestion1 in Korean>", "<suggestion2 in Korean>", ...],
+  "recommendedVocabulary": ["<Korean or English vocab/idiom>", "<Korean or English vocab/idiom>", ...]
 }
 
 Provide:
@@ -134,6 +136,7 @@ Provide:
 3. Strengths: List 2-3 strengths of the student's answer (in Korean)
 4. Improvements: List 3-5 areas where the student can improve (in Korean)
 5. Suggestions: List 3-5 specific, actionable suggestions (in Korean)
+6. Recommended vocabulary/idioms the student should use (in Korean or English)
 
 Remember: Respond ONLY with valid JSON in Korean, nothing else.`;
 

@@ -21,6 +21,8 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
 
   const [isSupported, setIsSupported] = useState<boolean>(false);
   const recognitionRef = useRef<any>(null);
+  const finalTranscriptRef = useRef<string>('');
+  const stopRequestedRef = useRef<boolean>(false);
 
   useEffect(() => {
     // Web Speech API 지원 확인
@@ -47,11 +49,9 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
         
         // 실시간으로 전체 transcript를 부모 컴포넌트로 전달
         onTranscriptUpdate(finalTranscript + interimTranscript);
-        
-        // 최종 결과가 있을 때만 onRecordingComplete 호출
-        if (finalTranscript) {
-          onRecordingComplete(finalTranscript);
-        }
+
+        // 최신 최종 결과를 저장 (중지 시 전달)
+        finalTranscriptRef.current = finalTranscript;
       };
 
       recognitionRef.current.onerror = (event: any) => {
@@ -63,11 +63,23 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
           alert(errorMessage);
         }
       };
+
+      recognitionRef.current.onend = () => {
+        if (!stopRequestedRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (error) {
+            console.warn('Failed to restart speech recognition:', error);
+          }
+        }
+      };
     }
   }, [onRecordingComplete, onTranscriptUpdate, language]);
 
   const handleStartRecording = () => {
     if (recognitionRef.current) {
+      stopRequestedRef.current = false;
+      finalTranscriptRef.current = '';
       recognitionRef.current.start();
       onStartRecording();
     }
@@ -75,6 +87,11 @@ const SpeechRecognition: React.FC<SpeechRecognitionProps> = ({
 
   const handleStopRecording = () => {
     if (recognitionRef.current) {
+      stopRequestedRef.current = true;
+      const finalTranscript = finalTranscriptRef.current.trim();
+      if (finalTranscript) {
+        onRecordingComplete(finalTranscript);
+      }
       recognitionRef.current.stop();
       onStopRecording();
     }

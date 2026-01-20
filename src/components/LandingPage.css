@@ -36,6 +36,10 @@
   flex-wrap: wrap;
 }
 
+.random-speaking-row {
+  margin-top: 20px;
+}
+
 .exam-button {
   flex: 1;
   min-width: 250px;
@@ -62,6 +66,11 @@
 .tef-button:hover {
   border-color: #f093fb;
   background: linear-gradient(135deg, #f093fb15 0%, #f5576c15 100%);
+}
+
+.random-question-button:hover {
+  border-color: #4facfe;
+  background: linear-gradient(135deg, #4facfe15 0%, #00f2fe15 100%);
 }
 
 .exam-icon {
