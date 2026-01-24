@@ -176,9 +176,13 @@ const RandomSpeakingSection: React.FC<RandomSpeakingSectionProps> = ({
             </button>
             {showSampleAnswer && (
               <div className="sample-answer-content">
-                <p className="sample-answer-text" style={{ whiteSpace: 'pre-line' }}>
-                  {question.sampleAnswer || '모범 답안이 아직 작성되지 않았습니다.'}
-                </p>
+                <p 
+                  className="sample-answer-text" 
+                  style={{ whiteSpace: 'pre-line' }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: question.sampleAnswer || '모범 답안이 아직 작성되지 않았습니다.' 
+                  }}
+                />
               </div>
             )}
           </div>
@@ -399,9 +403,12 @@ const RandomWritingSection: React.FC<RandomWritingSectionProps> = ({
       {showSampleAnswer && (
         <div style={{ background: '#f8f9fa', borderRadius: '12px', padding: '20px', marginTop: '15px', borderLeft: '4px solid #28a745' }}>
           <h4 style={{ marginTop: 0 }}>📖 모범 답안</h4>
-          <p style={{ margin: 0, lineHeight: '1.7', whiteSpace: 'pre-line', color: '#333' }}>
-            {question.sampleAnswer || '모범 답안이 아직 작성되지 않았습니다.'}
-          </p>
+          <p 
+            style={{ margin: 0, lineHeight: '1.7', whiteSpace: 'pre-line', color: '#333' }}
+            dangerouslySetInnerHTML={{ 
+              __html: question.sampleAnswer || '모범 답안이 아직 작성되지 않았습니다.' 
+            }}
+          />
         </div>
       )}
 
@@ -449,7 +456,7 @@ const sampleQuestions: Question[] = [
   {
     id: 5,
     question: "Do you live in a house or a flat?",
-    sampleAnswer: "I live in a 10-storey flat which is located in Seoul. It's very convenient to live there as there are lots of facilities available.",
+    sampleAnswer: "Currently, I'm residing in a flat that features three bedrooms, a <strong>common bathroom</strong>, a kitchen, and a spacious living room. My bedroom is the <strong>master bedroom</strong>, so it comes with an <strong>attached bathroom</strong>. One great thing is the <strong>laundry room</strong> in the basement equipped with washers and dryers. With a convenience store located just a stone's throw away, the location is incredibly functional and convenient.",
     category: "Part 1 - Your Home"
   },
   {
@@ -2044,7 +2051,15 @@ While waiting, we talked about various topics and time went by. It actually took
       "Who it was for",
       "And explain why you remember it."
     ],
-    sampleAnswer: "",
+    sampleAnswer: `I’d like to talk about a health-related advertisement that I saw recently, which was for a <strong>dermatology clinic</strong>.
+
+I first came across this ad on a <strong>billboard in a subway station</strong> while I was commuting to work. Since the station is usually crowded and people are often in a rush, it’s quite rare for an advertisement to truly grab someone’s attention, but this one definitely did.
+
+The advertisement was primarily targeting <strong>adult women</strong> who are interested in skincare and aesthetic treatments. It featured a strikingly beautiful woman, but as I looked closer, I noticed she had quite <strong>troubled skin</strong> with some visible blemishes.
+
+The reason this ad stuck in my mind is because of its clever <strong>visual impact</strong>. At first, I thought to myself, 'She would be absolutely perfect if she just had clearer skin.' As I read the fine print, I realized it was a clever promotion for a local dermatology clinic. The contrast between her features and her skin condition was so sharp that it made the message very persuasive.
+
+Even now, I can still clearly remember the name of the clinic, which proves how effective the marketing was. I think it was a <strong>brilliantly designed ad</strong> because it didn't just show a flawless model; instead, it made me sympathize with the 'skin concerns' and then offered a solution.`,
     category: "Part 2 - Health & Advertisements",
     part3Questions: [
       {

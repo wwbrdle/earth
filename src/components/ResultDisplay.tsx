@@ -79,7 +79,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
         
         <div className="comparison-item">
           <h4>📖 모범 답안</h4>
-          <p>{sampleAnswer}</p>
+          <p dangerouslySetInnerHTML={{ __html: sampleAnswer }} />
         </div>
       </div>
 

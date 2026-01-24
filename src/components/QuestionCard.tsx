@@ -31,7 +31,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         </button>
         {showSampleAnswer && (
           <div className="sample-answer-content">
-            <p className="sample-answer-text">{question.sampleAnswer}</p>
+            <p 
+              className="sample-answer-text"
+              dangerouslySetInnerHTML={{ __html: question.sampleAnswer }}
+            />
           </div>
         )}
       </div>
