@@ -56,6 +56,89 @@ GitHub 저장소 → Settings → Secrets and variables → Actions → New repo
 - `AWS_ACCESS_KEY_ID`: AWS IAM 사용자의 액세스 키 ID
 - `AWS_SECRET_ACCESS_KEY`: AWS IAM 사용자의 시크릿 액세스 키
 
+## 🆕 새 AWS 계정에 배포하기
+
+새로 만든 AWS 계정에 처음 배포할 때는 아래 순서대로 진행하세요.
+
+### 1. Terraform State용 S3 버킷 만들기
+
+이 프로젝트는 Terraform state를 S3에 저장합니다. **새 계정에는 이 버킷이 없으므로** 먼저 생성해야 합니다.
+
+```bash
+# 새 계정으로 AWS CLI 설정
+aws configure
+# 새 계정의 Access Key ID, Secret Access Key, 리전(예: ap-northeast-2) 입력
+
+# State 저장용 버킷 생성 (이름은 전역에서 고유해야 함)
+# 이미 다른 계정에서 쓰는 이름이면 예: earth-app-tfstate-내계정이름
+aws s3 mb s3://earth-app-terraform-state --region ap-northeast-2
+
+# State 파일 삭제 방지를 위해 버전 관리 활성화 (권장)
+aws s3api put-bucket-versioning \
+  --bucket earth-app-terraform-state \
+  --versioning-configuration Status=Enabled
+```
+
+**다른 state 버킷 이름 사용하기** (예: `earth-app-tfstate-newaccount`):
+
+1. 해당 이름으로 S3 버킷을 먼저 생성한 뒤
+2. `terraform init` 시 백엔드 설정을 넘깁니다:
+   ```bash
+   cd terraform
+   echo 'bucket = "earth-app-tfstate-newaccount"' > backend.tfvars
+   terraform init -backend-config=backend.tfvars
+   ```
+   또는 `main.tf`의 `backend "s3"` 블록에서 `bucket` 값을 직접 수정해도 됩니다.
+
+### 2. IAM 사용자 및 권한 (GitHub Actions용)
+
+- AWS 콘솔 → **IAM** → **사용자** → **사용자 추가**
+- 권한: `AmazonS3FullAccess`, `CloudFrontFullAccess`, `LambdaFullAccess`, `IAMFullAccess`, `SSMFullAccess`
+- **액세스 키** 생성 후 Access Key ID / Secret Access Key를 안전하게 보관
+
+### 3. Terraform 변수 설정
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+```
+
+`terraform.tfvars` 수정:
+
+- **bucket_name**: S3 버킷 이름은 **전 세계에서 고유**해야 합니다. 새 계정용으로 예: `earth-app-prod-새계정이름` 같이 바꾸세요.
+- **gemini_api_key**: Google Gemini API 키 (그대로 사용해도 됨)
+- **aws_region**: 원하는 리전 (예: `ap-northeast-2`)
+
+### 4. GitHub Secrets 설정
+
+저장소 **Settings** → **Secrets and variables** → **Actions**에서:
+
+- `AWS_ACCESS_KEY_ID`: 위에서 만든 IAM 사용자의 Access Key ID
+- `AWS_SECRET_ACCESS_KEY`: 해당 Secret Access Key
+
+### 5. 배포 실행
+
+**방법 A – 수동 (Terraform + 빌드)**
+
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+# 이후 DEPLOYMENT.md의 "방법 2: 수동 배포" 중 Lambda 패키징 및 프론트엔드 배포 단계 진행
+```
+
+**방법 B – GitHub Actions**
+
+- `prod` 브랜치에 푸시하면 워크플로가 Terraform 적용 후 빌드·S3 업로드·CloudFront 무효화까지 수행합니다.
+- 새 계정에는 기존 리소스가 없으므로 워크플로의 "Import existing resources" 단계는 실패해도 무시되고, `terraform apply`로 리소스가 새로 생성됩니다.
+
+### 6. (선택) 워크플로에서 버킷 이름 변경
+
+`terraform.tfvars`에서 `bucket_name`을 `earth-app-prod`가 아닌 값으로 썼다면, GitHub Actions에서 import 단계에 쓰는 이름을 맞추고 싶을 때만 `.github/workflows/deploy.yml`의 `env.BUCKET_NAME`을 같은 값으로 수정하면 됩니다. 새 계정 첫 배포에서는 import가 없어도 동작합니다.
+
+---
+
 ## 🚀 배포 방법
 
 ### 방법 1: GitHub Actions 자동 배포 (권장)

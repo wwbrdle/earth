@@ -7,8 +7,9 @@ const GEMINI_MODEL = 'gemini-2.5-flash'; // 빠르고 효율적인 모델
 const GEMINI_API_VERSION = 'v1'; // v1 API 사용
 const PARAMETER_STORE_PATH = '/gemini/api_key';
 
-// SSM Client 초기화
-const ssmClient = new SSMClient({ region: process.env.AWS_REGION || 'ap-northeast-2' });
+// Lambda와 동일 리전의 Parameter Store 사용 (ap-northeast-2)
+const SSM_REGION = process.env.SSM_REGION || process.env.AWS_REGION || 'ap-northeast-2';
+const ssmClient = new SSMClient({ region: SSM_REGION });
 
 // API 키 캐시 (Cold start 최적화)
 let cachedApiKey = null;
@@ -31,8 +32,8 @@ async function getApiKeyFromParameterStore() {
         cachedApiKey = response.Parameter.Value;
         return cachedApiKey;
     } catch (error) {
-        console.error('Error getting parameter from Parameter Store:', error);
-        throw error;
+        console.error('Error getting parameter from Parameter Store:', { region: SSM_REGION, path: PARAMETER_STORE_PATH, message: error.message });
+        throw new Error(`Parameter Store (${SSM_REGION}): ${error.message}. Ensure /gemini/api_key exists in the same region as the Lambda.`);
     }
 }
 

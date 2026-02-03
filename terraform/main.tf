@@ -258,9 +258,8 @@ resource "aws_s3_bucket_policy" "cloudfront" {
   depends_on = [aws_cloudfront_distribution.app]
 }
 
-# Lambda 함수용 IAM 역할 (us-east-1)
+# Lambda 함수용 IAM 역할 (ap-northeast-2)
 resource "aws_iam_role" "lambda_role" {
-  provider = aws.us_east_1
   name     = "${var.bucket_name}-lambda-role"
 
   lifecycle {
@@ -283,14 +282,12 @@ resource "aws_iam_role" "lambda_role" {
 
 # Lambda 함수용 IAM 정책 (기본 실행 권한)
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
-  provider   = aws.us_east_1
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # Lambda 함수용 IAM 정책 (Parameter Store 읽기 권한)
 resource "aws_iam_role_policy" "lambda_ssm" {
-  provider = aws.us_east_1
   name     = "${var.bucket_name}-lambda-ssm-policy"
   role     = aws_iam_role.lambda_role.id
 
@@ -303,7 +300,7 @@ resource "aws_iam_role_policy" "lambda_ssm" {
           "ssm:GetParameter",
           "ssm:GetParameters"
         ]
-        Resource = "arn:aws:ssm:us-east-1:*:parameter/gemini/api_key"
+        Resource = "arn:aws:ssm:${var.aws_region}:*:parameter/gemini/api_key"
       }
     ]
   })
@@ -316,11 +313,10 @@ data "archive_file" "lambda_zip" {
   output_path = "${path.module}/lambda-function.zip"
 }
 
-# AWS Systems Manager Parameter Store에 Gemini API 키 저장 (us-east-1)
+# AWS Systems Manager Parameter Store에 Gemini API 키 저장 (ap-northeast-2)
 # terraform.tfvars에서 gemini_api_key를 제공하지 않으면 기존 값을 유지
 # 주의: 이미 Parameter Store에 키가 있으면 이 리소스를 import하거나 생략해야 합니다
 resource "aws_ssm_parameter" "gemini_api_key" {
-  provider    = aws.us_east_1
   count       = var.gemini_api_key != "" ? 1 : 0
   name        = "/gemini/api_key"
   description = "Google Gemini API Key"
@@ -333,28 +329,24 @@ resource "aws_ssm_parameter" "gemini_api_key" {
   }
 }
 
-# Lambda 함수 (us-east-1)
+# Lambda 함수 (ap-northeast-2)
 resource "aws_lambda_function" "gemini_analysis" {
-  provider         = aws.us_east_1
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "${var.bucket_name}-gemini-analysis"
-  role            = aws_iam_role.lambda_role.arn
-  handler         = "index.handler"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "index.handler"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  runtime         = "nodejs18.x"
-  timeout         = 30
-  memory_size     = 256
-
-  # AWS_REGION은 Lambda에서 자동으로 제공되므로 환경 변수로 설정할 필요 없음
+  runtime          = "nodejs18.x"
+  timeout          = 30
+  memory_size      = 256
 
   depends_on = [
     aws_iam_role_policy.lambda_ssm
   ]
 }
 
-# Lambda Function URL (CORS 활성화, us-east-1)
+# Lambda Function URL (CORS 활성화, ap-northeast-2)
 resource "aws_lambda_function_url" "gemini_analysis" {
-  provider          = aws.us_east_1
   function_name      = aws_lambda_function.gemini_analysis.function_name
   authorization_type = "NONE"
   cors {
@@ -365,4 +357,21 @@ resource "aws_lambda_function_url" "gemini_analysis" {
     expose_headers    = []
     max_age           = 86400
   }
+}
+
+# Function URL 공개 호출 허용 (NONE일 때 API/CLI로 만들면 리소스 정책을 직접 추가해야 함)
+resource "aws_lambda_permission" "allow_public_invoke_url" {
+  statement_id           = "AllowPublicInvokeUrl"
+  action                 = "lambda:InvokeFunctionUrl"
+  function_name          = aws_lambda_function.gemini_analysis.function_name
+  function_url_auth_type = "NONE"
+  principal              = "*"
+}
+
+# 일부 환경에서는 InvokeFunction 권한도 필요
+resource "aws_lambda_permission" "allow_public_invoke_function" {
+  statement_id  = "AllowPublicInvokeFunction"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.gemini_analysis.function_name
+  principal     = "*"
 }

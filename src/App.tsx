@@ -462,7 +462,7 @@ const sampleQuestions: Question[] = [
   {
     id: 6,
     question: "What are the differences between the place you live now and where you lived before?",
-    sampleAnswer: "When I was a child, I used to live in a house in countryside but now I live in an apartment. As there are many convenient facilities in my flat, I think it's better to live there.",
+    sampleAnswer: "The biggest difference is the type of accommodation. Before moving to <strong>Montreal</strong>, I lived in <strong>Vancouver</strong>, where I rented an <strong>entire basement suite</strong> in a house. However, now I’m living in an <strong>apartment</strong>, and I occupy the master room with a private bathroom while sharing the rest of the space.",
     category: "Part 1 - Your Home"
   },
   {

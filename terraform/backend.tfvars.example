@@ -1,0 +1,6 @@
+# Terraform S3 backend 버킷 이름 (전역 고유해야 함)
+# 복사: cp backend.tfvars.example backend.tfvars
+# bucket 값을 고유한 이름으로 수정한 뒤:
+#   terraform init -reconfigure -backend-config=backend.tfvars
+
+bucket = "earth-app-tfstate-YOUR_UNIQUE_SUFFIX"  # 예: earth-app-tfstate-123456789012
