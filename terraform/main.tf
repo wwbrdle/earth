@@ -12,12 +12,11 @@ terraform {
     }
   }
   
-  # State를 S3에 저장 (선택사항 - state 파일 관리용)
-  # backend "s3" {
-  #   bucket = "earth-app-terraform-state"
-  #   key    = "terraform.tfstate"
-  #   region = "ap-northeast-2"
-  # }
+  backend "s3" {
+    bucket = "earth-app-tfstate-newaccount"
+    key    = "terraform.tfstate"
+    region = "ap-northeast-2"
+  }
 }
 
 provider "aws" {

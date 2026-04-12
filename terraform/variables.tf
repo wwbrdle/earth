@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "bucket_name" {
   description = "S3 bucket name"
   type        = string
-  default     = "earth-app-prod"
+  default     = "earth-app-prod-newaccount"
 }
 
 variable "environment" {

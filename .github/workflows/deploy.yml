@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   TF_VERSION: 1.6.0
-  BUCKET_NAME: earth-app-prod
+  BUCKET_NAME: earth-app-prod-newaccount
 
 jobs:
   deploy-infrastructure:
@@ -18,127 +18,55 @@ jobs:
     defaults:
       run:
         working-directory: ./terraform
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: ${{ env.TF_VERSION }}
         terraform_wrapper: false
-    
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-    
+
     - name: Terraform Init
-      run: terraform init -migrate-state
-    
-    - name: Import existing resources (if needed)
-      continue-on-error: true
-      run: |
-        set +e  # 에러가 발생해도 계속 진행
-        
-        # S3 버킷 및 관련 리소스 import
-        echo "=== Importing S3 resources ==="
-        if terraform state show aws_s3_bucket.app >/dev/null 2>&1; then
-          echo "S3 bucket already in state"
-        else
-          echo "Importing S3 bucket..."
-          terraform import aws_s3_bucket.app ${{ env.BUCKET_NAME }} && echo "✅ S3 bucket imported" || echo "❌ S3 bucket import failed"
-        fi
-        
-        if terraform state show aws_s3_bucket_public_access_block.app >/dev/null 2>&1; then
-          echo "S3 public access block already in state"
-        else
-          terraform import aws_s3_bucket_public_access_block.app ${{ env.BUCKET_NAME }} && echo "✅ S3 public access block imported" || echo "❌ S3 public access block import failed"
-        fi
-        
-        if terraform state show aws_s3_bucket_policy.app >/dev/null 2>&1; then
-          echo "S3 bucket policy already in state"
-        else
-          terraform import aws_s3_bucket_policy.app ${{ env.BUCKET_NAME }} && echo "✅ S3 bucket policy imported" || echo "❌ S3 bucket policy import failed"
-        fi
-        
-        if terraform state show aws_s3_bucket_website_configuration.app >/dev/null 2>&1; then
-          echo "S3 website config already in state"
-        else
-          terraform import aws_s3_bucket_website_configuration.app ${{ env.BUCKET_NAME }} && echo "✅ S3 website config imported" || echo "❌ S3 website config import failed"
-        fi
-        
-        # CloudFront OAC import (ID 필요)
-        echo "=== Importing CloudFront OAC ==="
-        if terraform state show aws_cloudfront_origin_access_control.app >/dev/null 2>&1; then
-          echo "CloudFront OAC already in state"
-        else
-          OAC_ID=$(aws cloudfront list-origin-access-controls --query 'OriginAccessControlList.Items[?Name==`earth-app-prod-oac`].Id' --output text 2>/dev/null | head -1)
-          if [ ! -z "$OAC_ID" ] && [ "$OAC_ID" != "None" ] && [ "$OAC_ID" != "" ]; then
-            echo "Found OAC ID: $OAC_ID"
-            terraform import aws_cloudfront_origin_access_control.app $OAC_ID && echo "✅ CloudFront OAC imported" || echo "❌ CloudFront OAC import failed"
-          else
-            echo "CloudFront OAC not found, will be created"
-          fi
-        fi
-        
-        # IAM Role import
-        echo "=== Importing IAM resources ==="
-        if terraform state show aws_iam_role.lambda_role >/dev/null 2>&1; then
-          echo "IAM role already in state"
-        else
-          terraform import aws_iam_role.lambda_role earth-app-prod-lambda-role && echo "✅ IAM role imported" || echo "❌ IAM role import failed"
-        fi
-        
-        if terraform state show aws_iam_role_policy.lambda_ssm >/dev/null 2>&1; then
-          echo "IAM role policy already in state"
-        else
-          terraform import aws_iam_role_policy.lambda_ssm earth-app-prod-lambda-role:earth-app-prod-lambda-ssm-policy && echo "✅ IAM role policy imported" || echo "❌ IAM role policy import failed"
-        fi
-        
-        if terraform state show aws_iam_role_policy_attachment.lambda_basic >/dev/null 2>&1; then
-          echo "IAM role policy attachment already in state"
-        else
-          terraform import aws_iam_role_policy_attachment.lambda_basic earth-app-prod-lambda-role/arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole && echo "✅ IAM role policy attachment imported" || echo "❌ IAM role policy attachment import failed"
-        fi
-        
-        echo "=== Import completed, refreshing state ==="
-        terraform refresh -no-color || true
-        
-        set -e  # 다시 에러 체크 활성화
-    
+      run: terraform init
+
     - name: Package Lambda function
       run: |
         cd ../lambda/gemini-analysis
         npm install --production
         zip -r ../../terraform/lambda-function.zip . -x "*.git*" "*.md" "README*"
         cd ../../terraform
-    
+
     - name: Terraform Plan
-      run: terraform plan -refresh=false
-      continue-on-error: true
-    
+      run: terraform plan
+
     - name: Terraform Apply
       if: github.ref == 'refs/heads/prod' || github.event_name == 'workflow_dispatch'
       run: terraform apply -auto-approve
-    
+
     - name: Get CloudFront Distribution ID
       id: cloudfront
       run: |
         DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id)
         echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
         echo "CloudFront Distribution ID: $DISTRIBUTION_ID"
-    
+
     - name: Get S3 Bucket Name
       id: s3
       run: |
         BUCKET_NAME=$(terraform output -raw s3_bucket_name)
         echo "bucket_name=$BUCKET_NAME" >> $GITHUB_OUTPUT
         echo "S3 Bucket Name: $BUCKET_NAME"
-    
+
     - name: Get Lambda Function URL
       id: lambda
       run: |
@@ -151,38 +79,38 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       website_url: ${{ steps.terraform-output.outputs.website_url }}
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-        
+
     - name: Install dependencies
       run: npm ci
-        
+
     - name: Build application
       env:
         REACT_APP_LAMBDA_FUNCTION_URL: ${{ needs.deploy-infrastructure.outputs.lambda_url }}
       run: npm run build
-        
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: ${{ env.TF_VERSION }}
         terraform_wrapper: false
-    
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-    
+
     - name: Get Terraform outputs
       id: terraform-output
       working-directory: ./terraform
@@ -196,7 +124,7 @@ jobs:
         echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
         echo "website_url=$WEBSITE_URL" >> $GITHUB_OUTPUT
         echo "lambda_url=$LAMBDA_URL" >> $GITHUB_OUTPUT
-    
+
     - name: Deploy to S3
       run: |
         # 정적 파일 업로드 (캐싱 1년)
@@ -206,14 +134,14 @@ jobs:
           --exclude "*.html" \
           --exclude "service-worker.js" \
           --exclude "manifest.json"
-        
+
         # HTML 파일 업로드 (캐싱 없음)
         aws s3 sync build/ s3://${{ steps.terraform-output.outputs.bucket_name }} \
           --delete \
           --cache-control "public, max-age=0, must-revalidate" \
           --exclude "*" \
           --include "*.html"
-        
+
         # service-worker와 manifest는 캐싱 없음
         if [ -f build/service-worker.js ]; then
           aws s3 cp build/service-worker.js s3://${{ steps.terraform-output.outputs.bucket_name }}/ \
@@ -223,14 +151,14 @@ jobs:
           aws s3 cp build/manifest.json s3://${{ steps.terraform-output.outputs.bucket_name }}/ \
             --cache-control "public, max-age=0, must-revalidate"
         fi
-    
+
     - name: Invalidate CloudFront cache
       if: steps.terraform-output.outputs.distribution_id != ''
       run: |
         aws cloudfront create-invalidation \
           --distribution-id ${{ steps.terraform-output.outputs.distribution_id }} \
           --paths "/*"
-        
+
     - name: Deployment summary
       run: |
         echo "✅ Deployment completed!"
