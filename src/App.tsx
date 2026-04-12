@@ -7,6 +7,7 @@ import LandingPage from './components/LandingPage';
 import TEFWriting from './components/TEFWriting';
 import TEFSpeaking from './components/TEFSpeaking';
 import IELTSWriting, { task1Topics as ieltsTask1Topics, task2Prompts as ieltsTask2Prompts, sampleAnswers as ieltsSampleAnswers } from './components/IELTSWriting';
+import SpeakButton from './components/SpeakButton';
 import { analyzeWithGemini } from './utils/geminiApi';
 import { sampleAnswers as tefSampleAnswers } from './components/TEFSampleAnswers';
 import { lettersTopics, lettersSampleAnswers, faitDiverTopics, faitDiverSampleAnswers } from './components/TEFWritingTopics';
@@ -122,13 +123,24 @@ const RandomSpeakingSection: React.FC<RandomSpeakingSectionProps> = ({
 
         <div className="question-card">
           <div className="question-section">
-            <h3>
-              📝 질문 (
-              {question.kind === 'tef'
-                ? `Section ${question.section} - Question ${question.questionNumber}`
-                : question.category}
-              )
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <h3 style={{ margin: 0 }}>
+                📝 질문 (
+                {question.kind === 'tef'
+                  ? `Section ${question.section} - Question ${question.questionNumber}`
+                  : question.category}
+                )
+              </h3>
+              {question.kind !== 'tef' && (
+                <SpeakButton
+                  text={
+                    question.kind === 'ielts-part2'
+                      ? `${question.mainQuestion} ${question.subQuestions.join('. ')}`
+                      : question.question
+                  }
+                />
+              )}
+            </div>
             <div className="question-text" style={{ textAlign: 'left' }}>
               {question.kind === 'tef' ? (
                 <img
@@ -235,6 +247,229 @@ const RandomSpeakingSection: React.FC<RandomSpeakingSectionProps> = ({
     </main>
   </div>
 );
+
+interface RandomIeltsSpeakingViewProps {
+  question: RandomSpeakingQuestion;
+  onBack: () => void;
+  onNext: () => void;
+  autoSpeak: boolean;
+  setAutoSpeak: React.Dispatch<React.SetStateAction<boolean>>;
+  showSampleAnswer: boolean;
+  setShowSampleAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+  userAnswer: string;
+  transcript: string;
+  isRecording: boolean;
+  setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
+  setTranscript: React.Dispatch<React.SetStateAction<string>>;
+  onRecordingComplete: (transcript: string) => void;
+  onAnalyze: () => void;
+  isAnalyzing: boolean;
+  showResult: boolean;
+  similarityScore: number | null;
+  geminiAnalysis: any;
+}
+
+const RandomIeltsSpeakingView: React.FC<RandomIeltsSpeakingViewProps> = ({
+  question,
+  onBack,
+  onNext,
+  autoSpeak,
+  setAutoSpeak,
+  showSampleAnswer,
+  setShowSampleAnswer,
+  userAnswer,
+  transcript,
+  isRecording,
+  setIsRecording,
+  setTranscript,
+  onRecordingComplete,
+  onAnalyze,
+  isAnalyzing,
+  showResult,
+  similarityScore,
+  geminiAnalysis
+}) => {
+  const [isSpeaking, setIsSpeaking] = React.useState(false);
+
+  const speakText = React.useCallback((text: string) => {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (autoSpeak) {
+      const text = getQuestionTextForTTS(question);
+      if (text) speakText(text);
+      setAutoSpeak(false);
+    }
+  }, [question, autoSpeak, setAutoSpeak, speakText]);
+
+  React.useEffect(() => {
+    return () => { window.speechSynthesis.cancel(); };
+  }, []);
+
+  const handleStop = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
+
+  const questionText = getQuestionTextForTTS(question);
+  const categoryLabel =
+    question.kind === 'ielts-part1' ? question.category
+    : question.kind === 'ielts-part2' ? question.category
+    : question.kind === 'ielts-part3' ? question.category
+    : '';
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <button
+          onClick={onBack}
+          className="back-button"
+          style={{ padding: '10px 20px', background: '#f0f0f0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+        >
+          ← 뒤로 가기
+        </button>
+        <h1>🎧 랜덤 영어 스피킹</h1>
+      </header>
+      <main className="App-main" style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ background: 'white', borderRadius: '15px', padding: '25px', boxShadow: '0 5px 20px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ fontWeight: 700, color: '#333' }}>
+              🇬🇧 IELTS Speaking - {question.kind === 'ielts-part1' ? 'Part 1' : question.kind === 'ielts-part2' ? 'Part 2' : 'Part 3'}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => { window.speechSynthesis.cancel(); onNext(); }}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  fontWeight: 600
+                }}
+              >
+                다른 문제
+              </button>
+            </div>
+          </div>
+
+          <div className="question-card">
+            <div className="question-section">
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <h3 style={{ margin: 0 }}>📝 질문 ({categoryLabel})</h3>
+                {isSpeaking ? (
+                  <button
+                    onClick={handleStop}
+                    className="speak-button speaking"
+                    title="읽기 중지"
+                  >
+                    ⏹ 중지
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => speakText(questionText)}
+                    className="speak-button"
+                    title="문제 듣기"
+                  >
+                    🔊 문제 듣기
+                  </button>
+                )}
+              </div>
+              <div className="question-text" style={{ textAlign: 'left' }}>
+                {question.kind === 'ielts-part2' ? (
+                  <>
+                    <div style={{ fontWeight: 700, marginBottom: '8px' }}>{question.topic}</div>
+                    <div style={{ marginBottom: '8px' }}>{question.mainQuestion}</div>
+                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                      {question.subQuestions.map((subQ, index) => (
+                        <li key={index}>{subQ}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <div>{question.kind === 'ielts-part1' || question.kind === 'ielts-part3' ? question.question : ''}</div>
+                )}
+              </div>
+            </div>
+
+            <div className="sample-answer-section">
+              <button
+                onClick={() => setShowSampleAnswer((prev) => !prev)}
+                className="show-answer-button"
+              >
+                {showSampleAnswer ? '📖 모범 답안 숨기기' : '📖 모범 답안 보기'}
+              </button>
+              {showSampleAnswer && (
+                <div className="sample-answer-content">
+                  <p
+                    className="sample-answer-text"
+                    style={{ whiteSpace: 'pre-line' }}
+                    dangerouslySetInnerHTML={{
+                      __html: question.sampleAnswer || '모범 답안이 아직 작성되지 않았습니다.'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <SpeechRecognition
+            isRecording={isRecording}
+            onStartRecording={() => {
+              setIsRecording(true);
+              setTranscript('');
+            }}
+            onStopRecording={() => setIsRecording(false)}
+            onRecordingComplete={onRecordingComplete}
+            onTranscriptUpdate={setTranscript}
+          />
+
+          {isRecording && (
+            <div className="user-answer">
+              <h3>🎤 실시간 음성 인식:</h3>
+              <p style={{ fontStyle: 'italic', color: '#666' }}>
+                {transcript || '음성을 인식하고 있습니다...'}
+              </p>
+            </div>
+          )}
+
+          {userAnswer && !isRecording && (
+            <div className="user-answer">
+              <h3>🎤 당신의 답변:</h3>
+              <p>{userAnswer}</p>
+              <button
+                onClick={onAnalyze}
+                className="compare-button"
+                disabled={isAnalyzing}
+              >
+                {isAnalyzing ? '분석 중...' : '🤖 Gemini로 분석하기'}
+              </button>
+            </div>
+          )}
+
+          {showResult && (
+            <ResultDisplay
+              similarityScore={similarityScore ?? 0}
+              userAnswer={userAnswer}
+              sampleAnswer={question.sampleAnswer || ''}
+              geminiAnalysis={geminiAnalysis}
+              isAnalyzing={isAnalyzing}
+            />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
 
 interface RandomWritingSectionProps {
   onBack: () => void;
@@ -2184,6 +2419,23 @@ const randomQuestionPool: RandomQuestion[] = [
 const getRandomMixedQuestion = () =>
   randomQuestionPool[Math.floor(Math.random() * randomQuestionPool.length)];
 
+const randomIeltsSpeakingPool: RandomSpeakingQuestion[] = randomSpeakingPool.filter(
+  (q) => q.kind === 'ielts-part1' || q.kind === 'ielts-part2' || q.kind === 'ielts-part3'
+);
+
+const getRandomIeltsSpeakingQuestion = () =>
+  randomIeltsSpeakingPool[Math.floor(Math.random() * randomIeltsSpeakingPool.length)];
+
+const getQuestionTextForTTS = (question: RandomSpeakingQuestion): string => {
+  if (question.kind === 'ielts-part2') {
+    return `${question.mainQuestion} You should say: ${question.subQuestions.join('. ')}`;
+  }
+  if (question.kind === 'ielts-part1' || question.kind === 'ielts-part3') {
+    return question.question;
+  }
+  return '';
+};
+
 const isSpeakingQuestion = (question: RandomQuestion): question is RandomSpeakingQuestion =>
   question.kind === 'tef' ||
   question.kind === 'ielts-part1' ||
@@ -2192,7 +2444,7 @@ const isSpeakingQuestion = (question: RandomQuestion): question is RandomSpeakin
 
 function App() {
   const [currentView, setCurrentView] = useState<
-    'landing' | 'ieltsSelection' | 'ieltsSpeaking' | 'ieltsWriting' | 'tefSelection' | 'tefWriting' | 'tefSpeaking' | 'randomQuestion'
+    'landing' | 'ieltsSelection' | 'ieltsSpeaking' | 'ieltsWriting' | 'tefSelection' | 'tefWriting' | 'tefSpeaking' | 'randomQuestion' | 'randomIeltsSpeaking'
   >('landing');
   const [currentPart, setCurrentPart] = useState<'part1' | 'part2' | 'part3'>('part1');
   const [currentQuestion, setCurrentQuestion] = useState<Question>(sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)]);
@@ -2213,6 +2465,16 @@ function App() {
   const [randomWritingGeminiAnalysis, setRandomWritingGeminiAnalysis] = useState<any>(null);
   const [randomWritingIsAnalyzing, setRandomWritingIsAnalyzing] = useState<boolean>(false);
   const [randomWritingShowSampleAnswer, setRandomWritingShowSampleAnswer] = useState<boolean>(false);
+  const [ieltsSpkQuestion, setIeltsSpkQuestion] = useState<RandomSpeakingQuestion>(() => getRandomIeltsSpeakingQuestion());
+  const [ieltsSpkUserAnswer, setIeltsSpkUserAnswer] = useState<string>('');
+  const [ieltsSpkTranscript, setIeltsSpkTranscript] = useState<string>('');
+  const [ieltsSpkIsRecording, setIeltsSpkIsRecording] = useState<boolean>(false);
+  const [ieltsSpkSimilarityScore, setIeltsSpkSimilarityScore] = useState<number | null>(null);
+  const [ieltsSpkShowResult, setIeltsSpkShowResult] = useState<boolean>(false);
+  const [ieltsSpkGeminiAnalysis, setIeltsSpkGeminiAnalysis] = useState<any>(null);
+  const [ieltsSpkIsAnalyzing, setIeltsSpkIsAnalyzing] = useState<boolean>(false);
+  const [ieltsSpkShowSampleAnswer, setIeltsSpkShowSampleAnswer] = useState<boolean>(false);
+  const [ieltsSpkAutoSpeak, setIeltsSpkAutoSpeak] = useState<boolean>(false);
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [currentTranscript, setCurrentTranscript] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -2467,6 +2729,69 @@ function App() {
     }
   };
 
+  const refreshIeltsSpkQuestion = () => {
+    const newQ = getRandomIeltsSpeakingQuestion();
+    setIeltsSpkQuestion(newQ);
+    setIeltsSpkUserAnswer('');
+    setIeltsSpkTranscript('');
+    setIeltsSpkIsRecording(false);
+    setIeltsSpkSimilarityScore(null);
+    setIeltsSpkShowResult(false);
+    setIeltsSpkGeminiAnalysis(null);
+    setIeltsSpkIsAnalyzing(false);
+    setIeltsSpkShowSampleAnswer(false);
+    setIeltsSpkAutoSpeak(true);
+  };
+
+  const calculateIeltsSpkSimilarity = async () => {
+    if (!ieltsSpkUserAnswer.trim()) return;
+
+    setIeltsSpkIsAnalyzing(true);
+    setIeltsSpkGeminiAnalysis(null);
+
+    const sampleAnswer = ieltsSpkQuestion.sampleAnswer || '';
+    const question =
+      ieltsSpkQuestion.kind === 'ielts-part2'
+        ? ieltsSpkQuestion.mainQuestion
+        : ieltsSpkQuestion.kind === 'ielts-part1' || ieltsSpkQuestion.kind === 'ielts-part3'
+        ? ieltsSpkQuestion.question
+        : '';
+
+    try {
+      const lambdaUrl = process.env.REACT_APP_LAMBDA_FUNCTION_URL;
+      const data = await analyzeWithGemini(
+        { userAnswer: ieltsSpkUserAnswer, sampleAnswer, question, analysisType: 'similarity' },
+        lambdaUrl
+      );
+
+      if (data.success && data.analysis) {
+        setIeltsSpkGeminiAnalysis(data.analysis);
+        if (data.analysis.similarityScore !== undefined) {
+          setIeltsSpkSimilarityScore(data.analysis.similarityScore);
+        } else if (data.analysis.overallScore !== undefined) {
+          setIeltsSpkSimilarityScore(data.analysis.overallScore);
+        } else {
+          const userWords = ieltsSpkUserAnswer.toLowerCase().split(/\s+/);
+          const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+          const commonWords = userWords.filter(word => sampleWords.includes(word));
+          setIeltsSpkSimilarityScore(Math.round((commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100));
+        }
+      } else {
+        throw new Error(data.error || 'Analysis failed');
+      }
+      setIeltsSpkShowResult(true);
+    } catch (error) {
+      console.error('Error analyzing with Gemini:', error);
+      const userWords = ieltsSpkUserAnswer.toLowerCase().split(/\s+/);
+      const sampleWords = sampleAnswer.toLowerCase().split(/\s+/);
+      const commonWords = userWords.filter(word => sampleWords.includes(word));
+      setIeltsSpkSimilarityScore(Math.round((commonWords.length / Math.max(userWords.length, sampleWords.length)) * 100));
+      setIeltsSpkShowResult(true);
+    } finally {
+      setIeltsSpkIsAnalyzing(false);
+    }
+  };
+
   const refreshRandomQuestion = () => {
     setRandomQuestion(getRandomMixedQuestion());
     setRandomUserAnswer('');
@@ -2494,10 +2819,43 @@ function App() {
           refreshRandomQuestion();
           setCurrentView('randomQuestion');
         }}
+        onSelectRandomIeltsSpeaking={() => {
+          refreshIeltsSpkQuestion();
+          setCurrentView('randomIeltsSpeaking');
+        }}
       />
     );
   }
- 
+
+  if (currentView === 'randomIeltsSpeaking') {
+    return (
+      <RandomIeltsSpeakingView
+        question={ieltsSpkQuestion}
+        onBack={() => { window.speechSynthesis.cancel(); setCurrentView('landing'); }}
+        onNext={refreshIeltsSpkQuestion}
+        autoSpeak={ieltsSpkAutoSpeak}
+        setAutoSpeak={setIeltsSpkAutoSpeak}
+        showSampleAnswer={ieltsSpkShowSampleAnswer}
+        setShowSampleAnswer={setIeltsSpkShowSampleAnswer}
+        userAnswer={ieltsSpkUserAnswer}
+        transcript={ieltsSpkTranscript}
+        isRecording={ieltsSpkIsRecording}
+        setIsRecording={setIeltsSpkIsRecording}
+        setTranscript={setIeltsSpkTranscript}
+        onRecordingComplete={(transcript) => {
+          setIeltsSpkUserAnswer(transcript);
+          setIeltsSpkTranscript('');
+          setIeltsSpkIsRecording(false);
+        }}
+        onAnalyze={calculateIeltsSpkSimilarity}
+        isAnalyzing={ieltsSpkIsAnalyzing}
+        showResult={ieltsSpkShowResult}
+        similarityScore={ieltsSpkSimilarityScore}
+        geminiAnalysis={ieltsSpkGeminiAnalysis}
+      />
+    );
+  }
+
   if (currentView === 'randomQuestion') {
     if (isSpeakingQuestion(randomQuestion)) {
       const isFrench = randomQuestion.kind === 'tef';
@@ -2865,7 +3223,12 @@ function App() {
           <QuestionCard question={currentQuestion} />
         ) : currentPart === 'part2' ? (
           <div className="part2-question">
-            <h2>{currentPart2Question.topic}</h2>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+              <h2 style={{ margin: 0 }}>{currentPart2Question.topic}</h2>
+              <SpeakButton
+                text={`${currentPart2Question.mainQuestion} You should say: ${currentPart2Question.subQuestions.join('. ')}`}
+              />
+            </div>
             <h3>{currentPart2Question.mainQuestion}</h3>
             <div className="sub-questions">
               <p>You should say:</p>
@@ -2882,7 +3245,10 @@ function App() {
           </div>
         ) : (
           <div className="part3-question">
-            <h2>Part 3 - Discussion Question</h2>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <h2 style={{ margin: 0 }}>Part 3 - Discussion Question</h2>
+              <SpeakButton text={currentPart3Question.question} />
+            </div>
             <h3>{currentPart3Question.question}</h3>
             <details className="sample-answer">
               <summary>Sample Answer</summary>
@@ -2952,6 +3318,10 @@ function App() {
       onSelectRandomQuestion={() => {
         refreshRandomQuestion();
         setCurrentView('randomQuestion');
+      }}
+      onSelectRandomIeltsSpeaking={() => {
+        refreshIeltsSpkQuestion();
+        setCurrentView('randomIeltsSpeaking');
       }}
     />
   );

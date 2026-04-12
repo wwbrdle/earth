@@ -5,6 +5,7 @@ interface LandingPageProps {
   onSelectIELTS: () => void;
   onSelectTEF: () => void;
   onSelectRandomQuestion: () => void;
+  onSelectRandomIeltsSpeaking: () => void;
 }
 
 interface ModelInfo {
@@ -23,7 +24,8 @@ interface ModelsData {
 const LandingPage: React.FC<LandingPageProps> = ({
   onSelectIELTS,
   onSelectTEF,
-  onSelectRandomQuestion
+  onSelectRandomQuestion,
+  onSelectRandomIeltsSpeaking
 }) => {
   const [models, setModels] = useState<ModelsData>({});
   const [loading, setLoading] = useState(false);
@@ -148,6 +150,14 @@ const LandingPage: React.FC<LandingPageProps> = ({
         </div>
 
         <div className="exam-buttons random-speaking-row">
+          <button
+            onClick={onSelectRandomIeltsSpeaking}
+            className="exam-button random-ielts-speaking-button"
+          >
+            <div className="exam-icon">🎧</div>
+            <div className="exam-title">랜덤 영어 스피킹</div>
+            <div className="exam-description">IELTS Speaking 랜덤 + 자동 음성</div>
+          </button>
           <button
             onClick={onSelectRandomQuestion}
             className="exam-button random-question-button"

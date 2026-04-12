@@ -73,6 +73,11 @@
   background: linear-gradient(135deg, #4facfe15 0%, #00f2fe15 100%);
 }
 
+.random-ielts-speaking-button:hover {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+}
+
 .exam-icon {
   font-size: 4rem;
   margin-bottom: 15px;

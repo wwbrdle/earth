@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './QuestionCard.css';
+import SpeakButton from './SpeakButton';
 
 interface Question {
   id: number;
@@ -18,7 +19,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
   return (
     <div className="question-card">
       <div className="question-section">
-        <h3>📝 질문 ({question.category})</h3>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+          <h3 style={{ margin: 0 }}>📝 질문 ({question.category})</h3>
+          <SpeakButton text={question.question} />
+        </div>
         <p className="question-text">{question.question}</p>
       </div>
       

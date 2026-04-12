@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { analyzeWithGemini, buildGeminiPrompt } from '../utils/geminiApi';
+import SpeakButton from './SpeakButton';
 
 type WritingSection = 'task1' | 'task2';
 
@@ -905,7 +906,10 @@ const IELTSWriting: React.FC<IELTSWritingProps> = ({ onBack }) => {
                   <li>"Eventually" (결국)</li>
                 </ul>
               </div>
-              <h3 style={{ marginTop: 0, marginBottom: '10px', color: '#333' }}>📝 Topic</h3>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                <h3 style={{ margin: 0, color: '#333' }}>📝 Topic</h3>
+                <SpeakButton text={selectedPrompt.prompt} label="주제 듣기" />
+              </div>
               <p style={{ marginTop: 0, lineHeight: '1.6', color: '#333', whiteSpace: 'pre-line' }}>
                 {selectedPrompt.prompt}
               </p>
