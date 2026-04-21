@@ -1387,7 +1387,7 @@ const sampleQuestions: Question[] = [
   {
     id: 130,
     question: "Do you work or study at the moment?",
-    sampleAnswer: "At the moment, I'm working in the software engineering field. It keeps me busy but also challenges me in a good way.",
+    sampleAnswer: "At the moment, I'm working in the software engineering field. I work as a backend developer, mainly building server-side systems and APIs that can handle high traffic.",
     category: "Part 1 - General"
   },
   {
@@ -1497,7 +1497,7 @@ const sampleQuestions: Question[] = [
   {
     id: 148,
     question: "What was the last gift you received?",
-    sampleAnswer: "The last gift I got was a new watch from my parents for my graduation. It’s a classic silver design and I wear it every day. It's very sentimental to me.",
+    sampleAnswer: "The last gift I got was a $100 casino voucher from my cousin to celebrate my visit to Shreveport in the United States, where he lives. I recently used it to enjoy the casino, a restaurant, and a hotel. It was a really fun and memorable experience.",
     category: "Part 1 - Gifts"
   },
   {
@@ -1511,6 +1511,114 @@ const sampleQuestions: Question[] = [
     question: "Is it difficult to choose a gift for someone?",
     sampleAnswer: "It can be, especially if you don't know the person very well. But if it's for a close friend or family member, I usually have a good idea of what they like. I think the trick is to listen to them throughout the year for any hints!",
     category: "Part 1 - Gifts"
+  },
+  {
+    id: 151,
+    question: "What kind of rules are common in a school?",
+    sampleAnswer: "In most schools, there are rules related to behavior, such as respecting teachers and classmates, as well as rules about attendance and punctuality. Students are also usually required to wear uniforms and follow classroom guidelines, like not using their phones during lessons.",
+    category: "Part 1 - Rules & Law"
+  },
+  {
+    id: 152,
+    question: "How important is it to have rules in a school?",
+    sampleAnswer: "I think rules are extremely important because they create a safe and organized learning environment. Without rules, it would be difficult for teachers to manage students, and learning could easily become chaotic.",
+    category: "Part 1 - Rules & Law"
+  },
+  {
+    id: 153,
+    question: "What do you recommend should happen if children break school rules?",
+    sampleAnswer: "I believe the punishment should depend on the seriousness of the behavior. For minor mistakes, a warning or guidance is enough, but for more serious issues, schools should take stricter actions, such as detention. However, the focus should be on helping students learn from their mistakes.",
+    category: "Part 1 - Rules & Law"
+  },
+  {
+    id: 154,
+    question: "Why do many students decide to study law at university?",
+    sampleAnswer: "Many students choose to study law because it offers stable career opportunities and a high social status. In addition, some people are interested in justice and want to make a positive impact on society.",
+    category: "Part 1 - Rules & Law"
+  },
+  {
+    id: 155,
+    question: "What are the key personal qualities needed to be a successful lawyer?",
+    sampleAnswer: "To be a successful lawyer, a person needs strong analytical skills and attention to detail. Good communication skills are also essential, as lawyers need to explain complex ideas clearly. In addition, they should be patient and able to handle pressure.",
+    category: "Part 1 - Rules & Law"
+  },
+  {
+    id: 156,
+    question: "Do you agree that working in the legal profession is very stressful?",
+    sampleAnswer: "Yes, I agree that it can be very stressful. Lawyers often have to deal with tight deadlines and high expectations from clients. Moreover, they are responsible for important decisions that can significantly affect people's lives, which adds a lot of pressure.",
+    category: "Part 1 - Rules & Law"
+  },
+  {
+    id: 157,
+    question: "Do you have a favourite cafe?",
+    sampleAnswer: "Yes, I have a favorite cafe near my home. I like it because it has a cozy atmosphere and serves really good coffee.",
+    category: "Part 1 - Cafes"
+  },
+  {
+    id: 158,
+    question: "Do you often go to cafes by yourself?",
+    sampleAnswer: "Yes, I often go alone, especially when I want to relax or focus on something like studying or reading.",
+    category: "Part 1 - Cafes"
+  },
+  {
+    id: 159,
+    question: "What helps to make a cafe very popular?",
+    sampleAnswer: "I think a good atmosphere and high-quality drinks are the most important factors. In addition, friendly service and a convenient location can also attract more customers.",
+    category: "Part 1 - Cafes"
+  },
+  {
+    id: 160,
+    question: "Why do some people prefer chain cafes rather than local cafes?",
+    sampleAnswer: "Many people prefer chain cafes because they offer consistent quality and a familiar environment. They also tend to be more reliable, especially when traveling.",
+    category: "Part 1 - Cafes"
+  },
+  {
+    id: 161,
+    question: "Do you prefer spending holidays with friends or with family?",
+    sampleAnswer: "I generally prefer spending holidays with my friends because it feels more relaxed and enjoyable. That said, I also value spending time with my family, especially during special occasions or traditional holidays.",
+    category: "Part 1 - Holidays"
+  },
+  {
+    id: 162,
+    question: "What kind of holiday accommodation do you like to stay in?",
+    sampleAnswer: "I tend to prefer staying in hotels because they are comfortable and offer convenient services. However, when I travel with friends, I sometimes choose Airbnb, as it provides more privacy and flexibility.",
+    category: "Part 1 - Holidays"
+  },
+  {
+    id: 163,
+    question: "What plans do you have for your next holiday?",
+    sampleAnswer: "I'm planning to travel abroad, possibly to a warmer destination. I'd like to unwind, try some local cuisine, and take part in outdoor activities such as swimming or sightseeing.",
+    category: "Part 1 - Holidays"
+  },
+  {
+    id: 164,
+    question: "Is your city or region a good place for other people to visit on holiday?",
+    sampleAnswer: "Yes, I believe it is a great place to visit because it offers a balance between natural scenery and modern amenities. In addition, it is less crowded than major cities, which allows visitors to enjoy a more peaceful and relaxing experience.",
+    category: "Part 1 - Holidays"
+  },
+  {
+    id: 165,
+    question: "Have you travelled a lot by plane?",
+    sampleAnswer: "I travelled quite a lot by plane when I went on a trip to South America about ten years ago. Since the continent is much larger than I expected, I had to take several flights to get around.",
+    category: "Part 1 - Planes"
+  },
+  {
+    id: 166,
+    question: "Why do you think some people enjoy travelling by plane?",
+    sampleAnswer: "I think many people enjoy it because it's both convenient and time-efficient. In addition, some people are fascinated by the experience of flying itself, as well as the views from the window, particularly during takeoff and landing.",
+    category: "Part 1 - Planes"
+  },
+  {
+    id: 167,
+    question: "Would you like to live near an airport?",
+    sampleAnswer: "Yes, I actually like living near an airport. I travel quite often, so it's really convenient for me. I can get home in about 30 minutes by taking just one subway from the airport, which saves a lot of time and effort. It makes traveling much less stressful.",
+    category: "Part 1 - Planes"
+  },
+  {
+    id: 168,
+    question: "In the future, do you think that you will travel by plane more often?",
+    sampleAnswer: "Probably not, to be honest. I've traveled quite a lot so far, and as I get older, I feel like I won't have as much energy as before. Because of that, I don't think I'll be taking flights very often in the future.",
+    category: "Part 1 - Planes"
   }
 ];
 
@@ -1525,7 +1633,16 @@ const part2Questions: Part2Question[] = [
       "What you will do in this weather",
       "and explain why you like it"
     ],
-    sampleAnswer: "One type of weather I really enjoy is hot and sunny weather. Bright sunshine and warm temperatures always put me in a good mood.\n\nI usually experience this weather when I visit Miami, Florida, which is famous for its beaches and tropical climate. The sun is almost always shining there, and the warmth near the ocean feels very inviting.\n\nDuring this weather, I love swimming, relaxing by the water, or fishing with friends. It's a perfect way to enjoy the outdoors and the lively atmosphere of the city.\n\nI like hot and sunny weather because it makes me feel energetic and carefree. I can wear light clothes comfortably, spend time outdoors, and it just leaves me with happy memories.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+덥고 화창한 날씨를 좋아한다는 답변입니다. 주로 마이애미에서 이런 날씨를 경험하며, 해변에서 수영하거나 친구들과 낚시를 즐깁니다. 이 날씨가 활력을 주고 편안한 기분이 들게 해서 좋아한다고 설명합니다.
+
+One type of weather I really enjoy is hot and sunny weather. Bright sunshine and warm temperatures always put me in a good mood.
+
+I usually experience this weather when I visit Miami, Florida, which is famous for its beaches and tropical climate. The sun is almost always shining there, and the warmth near the ocean feels very inviting.
+
+During this weather, I love swimming, relaxing by the water, or fishing with friends. It's a perfect way to enjoy the outdoors and the lively atmosphere of the city.
+
+I like hot and sunny weather because it makes me feel energetic and carefree. I can wear light clothes comfortably, spend time outdoors, and it just leaves me with happy memories.`,
     category: "Part 2 - Weather",
     part3Questions: [
       {
@@ -1555,7 +1672,16 @@ const part2Questions: Part2Question[] = [
       "What you would do there",
       "and explain why you would like to visit this place"
     ],
-    sampleAnswer: "A place I would really like to visit is Japan, specifically Tokyo. I've always been fascinated by Japanese culture, technology, and cuisine.\n\nI know about this place through various sources - documentaries, travel shows, and friends who have visited. I've also read about its rich history and modern innovations.\n\nIf I could visit, I would explore the traditional temples and shrines, try authentic Japanese food like sushi and ramen, visit the famous Shibuya crossing, and experience the unique blend of old and new that Tokyo offers.\n\nI want to visit Japan because it represents the perfect balance between preserving tradition and embracing innovation. The culture seems so different from what I'm used to, and I think it would be an eye-opening experience.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+방문하고 싶은 장소로 일본 도쿄를 꼽은 답변입니다. 다큐멘터리, 여행 프로그램, 방문한 친구들을 통해 알게 되었으며, 전통 사찰과 신사 탐방, 정통 일식 체험, 시부야 교차로 방문 등을 하고 싶다고 합니다. 전통과 혁신의 조화가 매력적이라고 설명합니다.
+
+A place I would really like to visit is Japan, specifically Tokyo. I've always been fascinated by Japanese culture, technology, and cuisine.
+
+I know about this place through various sources - documentaries, travel shows, and friends who have visited. I've also read about its rich history and modern innovations.
+
+If I could visit, I would explore the traditional temples and shrines, try authentic Japanese food like sushi and ramen, visit the famous Shibuya crossing, and experience the unique blend of old and new that Tokyo offers.
+
+I want to visit Japan because it represents the perfect balance between preserving tradition and embracing innovation. The culture seems so different from what I'm used to, and I think it would be an eye-opening experience.`,
     category: "Part 2 - Place",
     part3Questions: [
       {
@@ -1585,7 +1711,16 @@ const part2Questions: Part2Question[] = [
       "What kinds of things you like to do together",
       "And explain why you admire this person"
     ],
-    sampleAnswer: "The person I admire is the Queen Elizabeth II of the UK. She just turned to 90 years old this year, and she has been the queen of England for the longest period, 63 years altogether.\n\nThe queen visited Korea in 1999, when I was a child. It was big news for Korean people, and I watched news programmes on TV while she was staying in Korea. After that, I went to study in England, and read news, books, and journals about her and royal family so I got to know her more.\n\nWell, to be honest, I'd like to ask her some questions like how she feels, what her hobbies are - just ordinary stuff like I'm talking to my friend. Maybe we could have some tea, and talk to each other if possible.\n\nI admire her because she spent all of her life-time as the queen. I heard that she didn't want to be the queen of England when she was young as the role is a big burden for her. However after all, she did a great job to make England as one of the most powerful countries in the world. Also I think she is not afraid of trying new things out, which I am weak at. An article I read showed a picture of her using iPhone, and she is an early-adapter. It was quite surprising for me as I thought she would only respect tradition. I think that she is very open to new things. That's probably why she is beloved by many people.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+존경하는 나이 많은 인물로 엘리자베스 2세 여왕을 꼽은 답변입니다. 1999년 여왕�� 한국 방문을 TV로 보고, ��후 영국 유학 중 더 알게 되었습니다. 평생 여��으로 헌신한 점과 아이폰을 사용하는 등 새로운 것에 열린 태도를 보여 존경한다고 설명합니다.
+
+The person I admire is the Queen Elizabeth II of the UK. She just turned to 90 years old this year, and she has been the queen of England for the longest period, 63 years altogether.
+
+The queen visited Korea in 1999, when I was a child. It was big news for Korean people, and I watched news programmes on TV while she was staying in Korea. After that, I went to study in England, and read news, books, and journals about her and royal family so I got to know her more.
+
+Well, to be honest, I'd like to ask her some questions like how she feels, what her hobbies are - just ordinary stuff like I'm talking to my friend. Maybe we could have some tea, and talk to each other if possible.
+
+I admire her because she spent all of her life-time as the queen. I heard that she didn't want to be the queen of England when she was young as the role is a big burden for her. However after all, she did a great job to make England as one of the most powerful countries in the world. Also I think she is not afraid of trying new things out, which I am weak at. An article I read showed a picture of her using iPhone, and she is an early-adapter. It was quite surprising for me as I thought she would only respect tradition. I think that she is very open to new things. That's probably why she is beloved by many people.`,
     category: "Part 2 - People",
     part3Questions: [
       {
@@ -1615,7 +1750,14 @@ const part2Questions: Part2Question[] = [
       "How you know this person",
       "And explain why you want to meet them"
     ],
-    sampleAnswer: "A person I would like to meet from the news is Elon Musk. He is the CEO of Tesla and SpaceX, and he's known for his innovative work in electric cars and space exploration.\n\nI know about him through various news sources, social media, and documentaries. I've been following his work for several years, especially his efforts to make electric vehicles more accessible and his ambitious plans for Mars colonization.\n\nI would like to meet him because I'm fascinated by his vision for the future and his ability to turn ambitious ideas into reality. I think he would have interesting insights about technology, innovation, and the future of transportation and space travel. It would be amazing to hear his thoughts firsthand and ask him about his future plans.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+뉴스에서 본 사람 중 만나고 싶은 인물로 일론 머스크를 선택한 답변입니다. 테슬라와 스페이스X의 CEO로 전기차와 우주 탐사 분야의 혁신으로 유명합니다. 뉴스, SNS, 다큐멘터리를 통해 알게 되었으며, 미래에 대한 비전과 야심찬 아이디어를 현실로 만드는 능력에 매료되어 만나보고 싶다고 설명합니다.
+
+A person I would like to meet from the news is Elon Musk. He is the CEO of Tesla and SpaceX, and he's known for his innovative work in electric cars and space exploration.
+
+I know about him through various news sources, social media, and documentaries. I've been following his work for several years, especially his efforts to make electric vehicles more accessible and his ambitious plans for Mars colonization.
+
+I would like to meet him because I'm fascinated by his vision for the future and his ability to turn ambitious ideas into reality. I think he would have interesting insights about technology, innovation, and the future of transportation and space travel. It would be amazing to hear his thoughts firsthand and ask him about his future plans.`,
     category: "Part 2 - Plane",
     part3Questions: [
       {
@@ -1655,7 +1797,14 @@ const part2Questions: Part2Question[] = [
       "How you know about them",
       "And explain why you admire them"
     ],
-    sampleAnswer: "A celebrity I really admire is Tom Hanks. He is one of the most respected actors in Hollywood, known for his versatile performances in films like Forrest Gump, Cast Away, and The Green Mile.\n\nI know about him through his movies, interviews, and various media appearances. I've been watching his films since I was a child, and I've always been impressed by his ability to portray such diverse characters convincingly.\n\nI admire him because he seems like a genuinely good person both on and off screen. He's known for his professionalism, kindness, and positive attitude. Despite his fame, he appears to be humble and down-to-earth. I also respect his work ethic and the way he chooses meaningful projects that often have positive messages.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+존경하는 유명인으로 톰 행크스를 꼽은 답변입니다. 포레스트 검프, 캐스트 어웨이 등으로 유명한 할리우드 배우로, 어릴 때부터 영화를 보며 알게 되었습니다. 다양한 캐릭터를 설득력 있게 연기하는 능력과 겸손하고 친절한 인품을 존경한다고 설명합니다.
+
+A celebrity I really admire is Tom Hanks. He is one of the most respected actors in Hollywood, known for his versatile performances in films like Forrest Gump, Cast Away, and The Green Mile.
+
+I know about him through his movies, interviews, and various media appearances. I've been watching his films since I was a child, and I've always been impressed by his ability to portray such diverse characters convincingly.
+
+I admire him because he seems like a genuinely good person both on and off screen. He's known for his professionalism, kindness, and positive attitude. Despite his fame, he appears to be humble and down-to-earth. I also respect his work ethic and the way he chooses meaningful projects that often have positive messages.`,
     category: "Part 2 - Celebrity/News",
     part3Questions: [
       {
@@ -1700,16 +1849,16 @@ const part2Questions: Part2Question[] = [
       "How you found out about it",
       "And explain why it interested you"
     ],
-    sampleAnswer: `I'd like to talk about a news story I found really interesting, which is about airfares becoming more expensive due to higher fuel surcharges.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+유류할증료 인상으로 항공권이 비싸진다는 뉴스에 대한 답변입니다. 3월 말에 휴대폰으로 온라인 뉴스를 읽다가 접했으며, 평소 비행기를 자주 타기 때문에 바로 관심을 갖게 되었습니다. 4월부터 유류할증료가 크게 오른다는 내용이었고, 이 소식은 본인의 여행 계획과 직접적으로 관련이 있어 흥미로웠다고 설명합니다. 기본 운임이 합리적으로 보여도 유류할증료 같은 추가 비용이 최종 가격에 큰 영향을 줄 수 있다는 점도 언급합니다.
+
+I'd like to talk about a news story I found really interesting, which is about airfares becoming more expensive due to higher fuel surcharges.
 
 I heard about it in late March, just before April started. I came across it while reading online news on my phone, and since I travel by plane quite often, it immediately caught my attention.
 
 The news said that from April, fuel surcharges on flights would increase significantly, which meant that airline tickets would become more expensive. What made it especially noticeable was that the increase was quite sharp, so even people who had already been thinking about traveling suddenly felt pressured to book earlier.
 
-I found this story interesting because it was directly related to my own life. Since I fly fairly often, changes in ticket prices affect my travel decisions a lot. It also reminded me that even when the base fare looks reasonable, extra charges like fuel surcharges can make a big difference to the final cost. So for me, it was not just a piece of general news, but something practical that could actually influence my future travel plans.
-
-<strong>[한국어 개요]</strong>
-유류할증료 인상으로 항공권이 비싸진다는 뉴스에 대한 답변입니다. 3월 말에 휴대폰으로 온라인 뉴스를 읽다가 접했으며, 평소 비행기를 자주 타기 때문에 바로 관심을 갖게 되었습니다. 4월부터 유류할증료가 크게 오른다는 내용이었고, 이 소식은 본인의 여행 계획과 직접적으로 관련이 있어 흥미로웠다고 설명합니다. 기본 운임이 합리적으로 보여도 유류할증료 같은 추가 비용이 최종 가격에 큰 영향을 줄 수 있다는 점도 언급합니다.`,
+I found this story interesting because it was directly related to my own life. Since I fly fairly often, changes in ticket prices affect my travel decisions a lot. It also reminded me that even when the base fare looks reasonable, extra charges like fuel surcharges can make a big difference to the final cost. So for me, it was not just a piece of general news, but something practical that could actually influence my future travel plans.`,
     category: "Part 2 - The News",
     part3Questions: [
       {
@@ -1764,7 +1913,16 @@ I found this story interesting because it was directly related to my own life. S
       "Why you want to learn it",
       "And explain how it would be useful for you"
     ],
-    sampleAnswer: "A foreign language I would really like to learn is Spanish. I think it's a beautiful and widely spoken language that would open up many opportunities for me.\n\nI would learn it through various methods - taking formal classes, using language learning apps, watching Spanish movies and TV shows, and practicing with native speakers. I believe immersion is the best way to learn a language effectively.\n\nI want to learn Spanish because it's spoken by millions of people around the world, especially in many countries in Latin America and Spain. It would be incredibly useful for travel, business, and cultural exchange.\n\nLearning Spanish would be very useful for me because it would enhance my career prospects, especially if I work in international business or tourism. It would also allow me to communicate with Spanish-speaking communities and understand their culture better.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+배우고 싶은 외국어로 스페인어를 선택한 답변입니다. 정규 수업, 언어 학습 앱, 스페인 영화 시청, 원어민과의 연습 등으로 배울 계획이며, 전 세계 수백만 명이 사용하는 언어로 여행, 비즈니스, 문화 교류에 유용할 것이라고 설명합니다.
+
+A foreign language I would really like to learn is Spanish. I think it's a beautiful and widely spoken language that would open up many opportunities for me.
+
+I would learn it through various methods - taking formal classes, using language learning apps, watching Spanish movies and TV shows, and practicing with native speakers. I believe immersion is the best way to learn a language effectively.
+
+I want to learn Spanish because it's spoken by millions of people around the world, especially in many countries in Latin America and Spain. It would be incredibly useful for travel, business, and cultural exchange.
+
+Learning Spanish would be very useful for me because it would enhance my career prospects, especially if I work in international business or tourism. It would also allow me to communicate with Spanish-speaking communities and understand their culture better.`,
     category: "Part 2 - Foreign Language",
     part3Questions: [
       {
@@ -1799,7 +1957,16 @@ I found this story interesting because it was directly related to my own life. S
       "What it tasted like",
       "And explain whether or not you liked this food"
     ],
-    sampleAnswer: "Around 3-4 years ago, I tried a new food for the first time at a new Spanish restaurant in Korea. The food was Paella, specifically the seafood one.\n\nIt looked like some kinds of stir-fried rice, but it was really new and exotic, not like Korean or European food. It actually tasted more like risotto. The rice wasn't that dry, and the seafood like shrimps and mussels were amazing. It was a bit salty but scrumptious. I finished it in about 10 minutes.\n\nI absolutely fell in love with Spanish cuisine including Paella, tapas, and others. It was very different to what I expected before I tried but it was truly awesome. I really liked everything we tried on that day and thought it would be wonderful if I really go to Spain and try the local food.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+맘스터치의 스페셜 에디션 버거를 먹어본 경험입니다. 치킨 패티가 안은 부드럽고 겉은 바삭해서 좋았고, 소스는 달콤하면서도 짭짤한 균형이 잘 맞았습니다. 다만 번이 좀 차가웠고, 재료 배치가 아쉬웠습니다. 전반적으로 만족스러웠지만 약간의 개선이 있으면 더 좋을 것 같다는 내용입니다.
+
+Recently, I tried a special edition burger from Mom's Touch, and it was quite memorable.
+
+The texture was definitely the highlight. The chicken patty was tender on the inside and crunchy on the outside, which I really enjoyed. The sauce was quite gooey and perfectly balanced between sweet and savory, so it added a rich flavor to the burger. Also, the lettuce and tomato gave it a nice burst of freshness, which made it feel less greasy.
+
+However, there were a couple of things I didn't like. For instance, the bun was a bit cold, which slightly ruined the overall experience. Also, I wasn't a big fan of how the ingredients were assembled. The chicken patty and lettuce were placed in the same layer, whereas I personally prefer each ingredient to be evenly distributed in separate layers.
+
+Overall, it was still a satisfying meal, but I think it could have been much better with a few small improvements.`,
     category: "Part 2 - Food",
     part3Questions: [
       {
@@ -1844,7 +2011,14 @@ I found this story interesting because it was directly related to my own life. S
       "Who you were with",
       "And explain why you felt angry"
     ],
-    sampleAnswer: "Actually I faced a situation which made me quite angry last week. It was last week, at the bus stop. I was heading to my home when I finished the work. Before it happened, it was quite a tough day for me as I had lots of things to finish on that day.\n\nWhen I arrived at the bus stop, it was very crowded with lots of people as there are 5 or 6 bus stops altogether. There were like at least 50 people waiting for their buses, so I found mine then joined the queue. At that time, I was on my own, listening to music while waiting for the bus, and waited for about 20 minutes.\n\nThen when the bus came towards the stop, a young girl suddenly came up somewhere and jumped in the queue right before me. I was so annoyed since I waited for 20 minutes, and there were tons of people behind me. I'm sure most people felt the same thing as me. So people started to yell at her, then she went back of the queue at the end. It was such a frustrating situation, and hope not to experience such thing again.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+버스 정류장에서 새치기를 당해 화가 났던 경험입니다. 힘든 하루를 보내고 퇴근길에 20분 넘게 줄을 서서 기다리고 있었는데, 버스가 오자 한 여성이 갑자기 앞에 끼어들었습니다. 주변 사람들도 화를 내자 결국 뒤로 돌아갔지만, 매우 짜증나는 경험이었다고 합니다.
+
+Actually I faced a situation which made me quite angry last week. It was last week, at the bus stop. I was heading to my home when I finished the work. Before it happened, it was quite a tough day for me as I had lots of things to finish on that day.
+
+When I arrived at the bus stop, it was very crowded with lots of people as there are 5 or 6 bus stops altogether. There were like at least 50 people waiting for their buses, so I found mine then joined the queue. At that time, I was on my own, listening to music while waiting for the bus, and waited for about 20 minutes.
+
+Then when the bus came towards the stop, a young girl suddenly came up somewhere and jumped in the queue right before me. I was so annoyed since I waited for 20 minutes, and there were tons of people behind me. I'm sure most people felt the same thing as me. So people started to yell at her, then she went back of the queue at the end. It was such a frustrating situation, and hope not to experience such thing again.`,
     category: "Part 2 - Anger",
     part3Questions: [
       {
@@ -1884,7 +2058,10 @@ I found this story interesting because it was directly related to my own life. S
       "What the situation was",
       "And explain how you felt during this experience"
     ],
-    sampleAnswer: `One of the first times I used a foreign language to communicate was when I attended my first Japanese language class at a language school.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+일본어 학원에서 처음 외국어로 소통했던 경험에 대한 답변입니다. 첫 수업 날 일본어 선생님과 반 친구들과 대화했지만, 일본어를 전혀 못해서 간단한 인사와 이름 소개 정도만 할 수 있었습니다. 반에 한국인 학생이 없어 모국어에 의지할 수도 없었고, 선생님이 대부분 일본어로 말해서 압도당하는 느낌이었습니다. 긴장되고 답답했지만 동시에 큰 동기부여가 되었고, 이후 숙제를 열심히 하고 친구들에게 먼저 말을 걸려고 노력했다고 설명합니다. 어려운 경험이었지만 언어 실력 향상의 전환점이 되었다는 내용입니다.
+
+One of the first times I used a foreign language to communicate was when I attended my first Japanese language class at a language school.
 
 On that day, I communicated mainly with my Japanese teacher and a few classmates. The problem was that I couldn't speak Japanese at all at that time, so I was only able to say very basic expressions like simple greetings or introducing my name. Most of the time, I just listened and tried to understand what was going on.
 
@@ -1894,10 +2071,7 @@ At that moment, I felt quite nervous and even a little frustrated because I coul
 
 So, after that experience, I made two main efforts. First, I focused on completing all the homework given by my teacher. Second, I tried to actively start conversations with my classmates, even if my sentences were not perfect.
 
-Overall, although it was a difficult experience, it became a turning point that pushed me to improve my language skills.
-
-<strong>[한국어 개요]</strong>
-일본어 학원에서 처음 외국어로 소통했던 경험에 대한 답변입니다. 첫 수업 날 일본어 선생님과 반 친구들과 대화했지만, 일본어를 전혀 못해서 간단한 인사와 이름 소개 정도만 할 수 있었습니다. 반에 한국인 학생이 없어 모국어에 의지할 수도 없었고, 선생님이 대부분 일본어로 말해서 압도당하는 느낌이었습니다. 긴장되고 답답했지만 동시에 큰 동기부여가 되었고, 이후 숙제를 열심히 하고 친구들에게 먼저 말을 걸려고 노력했다고 설명합니다. 어려운 경험이었지만 언어 실력 향상의 전환점이 되었다는 내용입니다.`,
+Overall, although it was a difficult experience, it became a turning point that pushed me to improve my language skills.`,
     category: "Part 2 - Foreign Language Communication",
     part3Questions: [
       {
@@ -1932,7 +2106,36 @@ Overall, although it was a difficult experience, it became a turning point that 
       "What happened",
       "And explain how you felt when you had to change your plans"
     ],
-    sampleAnswer: "Well, there was a moment that I had to change my schedule because of heavy storm while I was studying at the university. I was supposed to meet a pen friend in London, who was visiting for the first time. I had meticulously planned her visit, including places to see and where to eat, aiming for her to have a good time.\n\nI hoped for pleasant and warm weather for her visit in March. Before her arrival, the weather was not bad compared to normal British weather, with no strong wind, sunny skies, and no rain for weeks.\n\nUpon her friend's arrival, the weather turned really bad. A strongest storm in 30 years was about to hit, and it started raining cats and dogs, continuing throughout her visit.\n\nI felt really frustrated because my plans to visit many tourist attractions became useless. As someone who dislikes changing plans, I found it quite stressful and get really upset whenever I have to change something from my plan even though it's because of the weather. However, there was a positive side: we could talk, enjoy the view of rainy London, and felt quite relaxed. We managed to take some pictures of the London Eye and Big Ben and had a lovely dinner together. Although the weather wasn't perfect, it was not a bad day.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+몬트리올에서 살던 겨울, 뉴욕 경유 후 마이애미로 가려던 여행 계획이 폭설로 변경된 경험입니다. 공항에서 대기 중 블리자드 경보가 발령되어 항공편이 5시간 이상 지연된 후 결항되었고, 항공사가 마이애미 직항으로 변경해주었습니다. 뉴욕 쇼핑 계획이 취소되어 실망했지만, 덕분에 마이애미에서 더 많은 시간을 보내며 해변과 수영을 즐길 수 있었다는 내용입니다.
+
+Well, I remember a time when I had to change my travel plans because of severe weather.
+
+It happened this winter when I was living in Montreal.
+
+I was at the airport, waiting for my flight.
+
+My original plan was to have a two-day layover in New York, where I wanted to do some shopping and look around the city.
+
+After that, I was planning to fly to Miami to enjoy swimming in the ocean and watch a basketball game.
+
+I was hoping for calm and stable weather so that my flight wouldn't be affected.
+
+At first, the weather seemed quite normal. However, all of a sudden, a blizzard warning was announced.
+
+Because of that, my flight was delayed for over five hours.
+
+Eventually, the flight was cancelled, and the airline changed my ticket to a direct flight to Miami.
+
+As a result, I had to cancel my plan to stay in New York.
+
+At first, I felt quite disappointed because I had really been looking forward to shopping there.
+
+However, I soon realized that it wasn't all bad.
+
+Since I arrived in Miami earlier than expected, I had more time to relax on the beach, enjoy the sunshine, and go swimming.
+
+Overall, even though the weather forced me to change my plans, it turned out to be a pretty enjoyable and memorable trip.`,
     category: "Part 2 - Weather Plans",
     part3Questions: [
       {
@@ -1977,7 +2180,18 @@ Overall, although it was a difficult experience, it became a turning point that 
       "Who you were with",
       "And how you felt about getting up early that day"
     ],
-    sampleAnswer: "I'm actually quite used to getting up early in the morning but I think I got up around 4 in the morning to catch a train around 5 years ago. I thought it would be like a nightmare because I never woke up that early before.\n\nOn that specific day, I had to attend a business meeting which was held in Birmingham. As I was travelling by a train with one of my colleagues, we had to book the tickets in advance. Strangely, most trains were fully booked so only one that we could find seats was departing at 5:20 in the morning. Of course we couldn't miss the meeting so had to take that train so we met at Waterloo station at around 4:40 am. I was quite afraid of myself becoming too exhausted in the meeting since I woke up too early.\n\nWell, although I'm a morning person, I never got up before 5 in the morning so it was quite tired. At first when I left home, everywhere was so quiet and dark so I couldn't really see a thing. It was truly odd to walk a street where there's no one around. And even my colleague and I managed to sleep on the train, we were exhausted when we got back to London. I thought the day passes really slowly. Also I quite liked the atmosphere of the early morning. It was really dark and chilly, but I felt I'm quite lively and pleased. So even I woke up really early, I think the day wasn't that bad as I expected.",
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+지난 화요일에 현대자동차 시승 프로모션에 참여하기 위해 일찍 일어났던 경험에 대한 답변입니다. 김포에 살고 있어 서울 용산의 드라이빙 센터까지 대중교통으로 이동하기가 불편했고, 오전 9시까지 도착해야 했기 때문에 아침 6시에 기상해야 했습니다. 퇴직 후 대학원 준비 중이라 평소 9시에 일어나는 습관이었기에 매우 힘들었지만, 이동하면서 점점 잠이 깨고 시승 행사에 대한 기대감이 생겼다고 합니다. 힘들었지만 새로운 경험을 할 수 있어 보람 있었다는 내용입니다.
+
+I'd like to talk about an occasion when I had to get up extremely early, which happened just last Tuesday.
+
+On that day, I had to go to a driving center in Yongsan, Seoul by 9 a.m. to take part in a test-driving promotion held by Hyundai. Since I currently live in Gimpo, getting there isn't very convenient by public transportation, especially during rush hour.
+
+I went there alone because it was an individual event. These days, I'm preparing to apply for graduate school after quitting my job, so I usually wake up quite late, around 9 a.m. However, on that particular day, I had to leave my house at around 7 a.m. to make sure I arrived on time. That meant I needed to get up at around 6 a.m. to get ready, which was quite a big change for me.
+
+To be honest, it was really tough to wake up that early because I wasn't used to it. I felt quite sleepy and a bit reluctant at first. However, once I got on my way, I started to feel more awake, and I was actually quite excited about the event.
+
+Overall, even though getting up early was challenging, it turned out to be a worthwhile experience because I got to try something new and break out of my usual routine.`,
     category: "Part 2 - Getting Up Early",
     part3Questions: [
       {
@@ -2022,7 +2236,10 @@ Overall, although it was a difficult experience, it became a turning point that 
       "What you did",
       "And explain why you think it was special for you"
     ],
-    sampleAnswer: `Last September, I went to Osaka for 3 days with my family. Actually I had planned for this holiday for whole year, so I was really excited before I go there. I looked up on the internet and found some tourist attractions, restaurants, and shopping areas. The minute after I got out from the airplane, I was very surprised because the airport was really crowded although it was out of the season.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+가족과 함께 오사카로 3일간 여행을 다녀온 경험입니다. 1년간 계획한 첫 일본 여행으로, 교토도 방문했고 도톤보리에서 쇼핑을 즐겼습니다. 일본어 소통이 어려웠지만 사람들이 친절했고, 백화점에서 잃어버린 스카프를 분실물센터에서 찾은 특별한 경험도 있었습니다.
+
+Last September, I went to Osaka for 3 days with my family. Actually I had planned for this holiday for whole year, so I was really excited before I go there. I looked up on the internet and found some tourist attractions, restaurants, and shopping areas. The minute after I got out from the airplane, I was very surprised because the airport was really crowded although it was out of the season.
 
 For those 3 days, we visited lots of places including Kyoto which is located near to Osaka. Well, to be honest, it wasn't like my expectation but it was still good because everything looked so new to me, and Japanese food was amazing. The best place for me was Dotonbori, which is a famous shopping street in Osaka, and I could buy some souvenirs for my friends there and we spent loads of hours on shopping.
 
@@ -2066,35 +2283,49 @@ The trip was special for me as it was the first time to visit Japan. I've always
       "Who you went with",
       "And explain how you felt about this trip."
     ],
-    sampleAnswer: `Well, I can remember when I was in England. I was travelling to one of the towns in Cotswold from London, but I forgot the name of the town. It was a lovely town with some old British cottages, and I think it took around 5 hours by a coach. I found the journey itself really boring. I travelled with my mother, and although we brought some snacks to eat, it felt really long.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+몬트리올에서 뉴욕으로 친구와 렌터카 여행을 한 경험입니다. 비행기 대신 차를 빌렸는데, 심한 교통 체증과 국경에서의 긴 대기로 예상보다 훨씬 오래 걸렸습니다. 처음에는 지치고 스트레스를 받았지만, 음악을 듣고 대화하며 시간을 보내다 보니 오히려 기억에 남는 경험이 되었다고 합니다.
 
-The trip was great actually. We had wonderful time in that town, enjoyed lovely view of British countryside. Also local people there were very kind throughout the trip. My mother and I managed to look around everywhere in town, and we loved the time we spent on that day. Also I was quite surprised as it was very convenient and comfortable to travel by a coach. At that time, I only took a coach to go to the airport or to go somewhere near London so it was actually my first time to take a long journey. However, the problem was on the way back to London. There was a baby on the coach, and the baby cried for whole 5 hours. It was driving me crazy, and we ended up having a headache. As the trip itself was gorgeous, I would like to visit there again if I have another chance.`,
+I'd like to talk about a car journey I experienced that took much longer than I had expected.
+
+This happened when I was traveling from Montreal to New York for a short vacation before continuing on to another destination.
+
+I was with a friend, and we decided to rent a car instead of flying because we thought it would give us more flexibility and make the trip more enjoyable.
+
+However, things didn't go as planned. The journey ended up taking significantly longer due to heavy traffic and long delays at the border. In particular, we had to wait for several hours just to cross the border, which was quite frustrating.
+
+At first, I felt exhausted and slightly stressed because everything was taking so long. However, as time went on, we tried to make the best of the situation by listening to music and having conversations. In the end, it turned into a surprisingly memorable experience.`,
     category: "Part 2 - Traveling",
     part3Questions: [
       {
         id: 1,
-        question: "Do people in your country like to travel away from home when they have a holiday?",
-        sampleAnswer: "It seems like people tend to spend their holiday somewhere else, not their home. In Korea, travelling abroad is getting more and more popular nowadays, and it's still popular to travel around within the country, but definitely away from home."
+        question: "How interested are young people in your country in learning to drive?",
+        sampleAnswer: "I think many young people are quite interested in learning to drive, as it gives them a sense of freedom and independence. However, in large cities, some people are less motivated because public transportation is so efficient and convenient."
       },
       {
         id: 2,
-        question: "Do young people generally prefer to spend holidays with their family, or with their friends?",
-        sampleAnswer: "Young generations nowadays prefer to go on holidays with their friends more, I believe. From my surroundings, I saw lots of young ones who spend their holidays with friends and they actually like going on a holiday with someone who have the same interests."
+        question: "What are the differences between driving in the countryside and in the city?",
+        sampleAnswer: "Driving in the countryside is generally more relaxing due to lighter traffic and open roads. In contrast, driving in the city can be quite stressful because of congestion, narrow streets, and frequent stops at traffic lights."
       },
       {
         id: 3,
-        question: "Can you think of any advantages in having short holidays?",
-        sampleAnswer: "It's a good way to chill out from busy life for a while without worrying too much about coming back after the holiday. Mini-breaks make people relaxed even for a short while and they can get rid of their stress. Also people can have some anticipation on their short breaks and it will lead to greater productivity at work."
+        question: "Do you consider most drivers where you live to be good drivers?",
+        sampleAnswer: "I would say most drivers are reasonably skilled, but some can be quite aggressive, especially during rush hour. Overall, I'd say the standard is average rather than particularly high."
       },
       {
         id: 4,
-        question: "Which do you prefer, several short holidays or just a few long holidays (vacations) during the year?",
-        sampleAnswer: "I prefer to have a few long holidays as I can't really do or travel in short breaks. I like travelling and whenever I travel, I tend to spend at least a week in a certain destination to see the most, so I'd rather have some long holidays, not short ones."
+        question: "How popular are electric cars in your country?",
+        sampleAnswer: "Electric cars have become increasingly popular in Korea, particularly in recent years. This is largely due to government support, such as subsidies, as well as the expansion of charging infrastructure."
       },
       {
         id: 5,
-        question: "Can you explain how people benefit from having a holiday from work or study?",
-        sampleAnswer: "Well, obviously they can relax for a bit, and make themselves refreshed by having a holiday. Also it can be one of motivations they can have. People could work harder and will probably set short goals in order to have holidays."
+        question: "In what ways could more people be persuaded to buy electric cars?",
+        sampleAnswer: "I think more people could be encouraged to buy electric cars through stronger financial incentives, such as subsidies or tax benefits. In addition, improving charging infrastructure would make electric vehicles more practical and appealing."
+      },
+      {
+        id: 6,
+        question: "Do you think all cars will be electric one day?",
+        sampleAnswer: "I think it's possible in the long term, but it is likely to take quite a long time. There are still challenges, such as battery efficiency and charging convenience, so the transition will probably be gradual rather than immediate."
       }
     ]
   },
@@ -2108,7 +2339,10 @@ The trip was great actually. We had wonderful time in that town, enjoyed lovely 
       "When you would like to live there",
       "And explain why you would like to live in such a place."
     ],
-    sampleAnswer: `I don't really have clear image of the house I would like to live in, but I want to live in a house in an unspoilt countryside. I don't mind of living in any countries. I've been living in a city for a long time, and don't want to carry on living there. And I had really good experience of living in a countryside when I was a child. My dream house doesn't need to be huge, only thing I want to have is a garden. Of course there will be some rooms, bathroom and kitchen, but I've always dreamed of having a house with a garden so that I can grow some vegetables, raise some pets, and so on. Hopefully, I would like it to happen in next 10 years. I have to work hard to make it happen. I'd like to live in this house because I'm quite tired of living in a city now. Since I graduated my secondary school, I always lived in the heart of city, or suburbs. So city-life is not new to me anymore. I think it's good time to move into countryside in next 10 years. Also I really want to keep a lot of pets. It has been my dream for years, but as I've been living in apartments, it never happened. So if I have a chance, I'll definitely live in a house, possibly in countryside.`,
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+자연이 보존된 시골에 정원이 있는 집에서 살고 싶다는 답변입니다. 오랫동안 도시에서 살아왔기 때문에 도시 생활에 지쳤고, 10년 안에 시골로 이사하고 싶습니다. 정원에서 채소를 기르고 반려동물을 키우는 것이 꿈이라고 설명합니다.
+
+I don't really have clear image of the house I would like to live in, but I want to live in a house in an unspoilt countryside. I don't mind of living in any countries. I've been living in a city for a long time, and don't want to carry on living there. And I had really good experience of living in a countryside when I was a child. My dream house doesn't need to be huge, only thing I want to have is a garden. Of course there will be some rooms, bathroom and kitchen, but I've always dreamed of having a house with a garden so that I can grow some vegetables, raise some pets, and so on. Hopefully, I would like it to happen in next 10 years. I have to work hard to make it happen. I'd like to live in this house because I'm quite tired of living in a city now. Since I graduated my secondary school, I always lived in the heart of city, or suburbs. So city-life is not new to me anymore. I think it's good time to move into countryside in next 10 years. Also I really want to keep a lot of pets. It has been my dream for years, but as I've been living in apartments, it never happened. So if I have a chance, I'll definitely live in a house, possibly in countryside.`,
     category: "Part 2 - Housing",
     part3Questions: [
       {
@@ -2153,13 +2387,18 @@ The trip was great actually. We had wonderful time in that town, enjoyed lovely 
       "What kinds of pollution you saw there",
       "And explain how this place was affected"
     ],
-    sampleAnswer: `Well, I'd have to talk about Seoul. I was out of Korea for few years to study, then I got back to Korea 3 years ago. It wasn't like the same place that I experienced before. It was totally surprising, but of course in negative way.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+약 1년 전 친구들과 방문한 태국 방콕의 대기오염에 대한 답변입니다. 활기찬 분위기는 좋았지만, 차량 배기가스로 인한 공기오염이 심각했습니다. 일부 지역에서는 공기가 탁하고 매연 냄새가 났으며, 바쁜 도로를 걸을 때 눈이 불편할 정도였습니다. 건강 문제를 유발할 수 있는 심각한 문제라고 설명합니다.
 
-Actually, the minute after I got out of the Incheon airport, I couldn't stop coughing. It was extremely hard to breathe. Not long after that, I went to see my friend in Seoul, the place was even worse.
+I'd like to talk about Bangkok, the capital city of Thailand, which I visited about a year ago.
 
-The first thing that I was surprised at was the noise. Drivers were beeping their horns, hordes of people around me were making noises, and there were tones of yellow dusts so I could barely see what is ahead of me. And I started coughing again because of that. Seriously, I thought it was disgusting then I avoided going there for a while.
+I went there for a short trip with my friends, mainly to enjoy the food and explore the city. While I really liked the vibrant atmosphere, one thing that stood out to me was the level of air pollution, especially from traffic.
 
-I knew the noise pollution was serious in Seoul, but I felt it got worse. Everywhere I went was so crowded with people and was extremely noisy. I was feeling dizzy with hearing all these car horns and noises from people. Also the air wasn't fresh as it used to be in the past. The colour of the sky was actually yellow with all dusts, and the city itself looked very dark and grey. It looked like a doomed city and ironic for me as people looked very happy. I'm sure all these pollution would affect people, especially residents of Seoul.`,
+Bangkok is well known for its heavy traffic, and I noticed a large amount of exhaust fumes from cars, buses, and motorcycles. In some areas, the air felt quite thick, and there was a noticeable smell of smoke. At times, it even made my eyes slightly uncomfortable, particularly when I was walking along busy roads.
+
+This kind of pollution clearly affects the quality of life in the city. For example, it can cause health problems such as breathing difficulties, especially for people who live or work there long-term. In addition, it makes the environment less pleasant for both residents and tourists.
+
+Overall, although Bangkok is an exciting and lively city, I believe that air pollution is a serious issue that needs to be addressed in order to improve people's well-being.`,
     category: "Part 2 - Pollution",
     part3Questions: [
       {
@@ -2194,7 +2433,10 @@ I knew the noise pollution was serious in Seoul, but I felt it got worse. Everyw
       "Why you went there",
       "And explain why you liked this place."
     ],
-    sampleAnswer: `A place came up on my mind is Hastings, in England. It's a city located in East Sussex, and when I visited there, I was travelling Sussex area such as Rye, Dover, and ended up my trip in Hastings.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+영국 이스트 서섹스의 헤이스팅스를 방문한 경험입니다. 대학 졸업 프로젝트를 마치고 지도에서 무작위로 골라 여행했습니다. 그리스처럼 보이는 곳도 있었고, 브라이턴과 달리 바다가 맑고 푸르러 놀라웠습니다. 아름다운 풍경 덕에 스트레스를 해소할 수 있었다고 합니다.
+
+A place came up on my mind is Hastings, in England. It's a city located in East Sussex, and when I visited there, I was travelling Sussex area such as Rye, Dover, and ended up my trip in Hastings.
 
 When I visited there, it was around May or June. So the weather was quite hot and sunny. I was walking alongside of the sea, and saw lots of people swimming, riding skateboards, sitting at the beach, and drinking beer.
 
@@ -2245,7 +2487,10 @@ Actually, Hastings was very interesting place. I didn't expect anything but some
       "When it was given to you",
       "And explain why this person gave you this clothing."
     ],
-    sampleAnswer: `I'd like to talk about a cardigan that my mother gave me. I think it was my last birthday. She bought it from a department store. Actually, I didn't expect to receive any presents from my parents at that time, but she surprisingly gave me a small paper bag. When I opened it, there was a navy-colored cardigan.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+어머니가 생일에 선물해주신 네이��색 가디건에 대한 답변입니다. 환절기에 입을 옷이 부족했는데 어머니가 백화점에서 사다 주셨습니다. 꼭 필요했던 옷이라 ���뻤고, 어머니의 관심과 사랑을 느낄 수 있었다고 합니다. 지금도 자주 입으며, 입을 때마다 어머니가 생각���다고 합니다.
+
+I'd like to talk about a cardigan that my mother gave me. I think it was my last birthday. She bought it from a department store. Actually, I didn't expect to receive any presents from my parents at that time, but she surprisingly gave me a small paper bag. When I opened it, there was a navy-colored cardigan.
 
 It was a very basic but lovely cardigan. As I didn't have many clothes which are suitable for the change of seasons, she bought me one. At that time, I had many shirts or t-shirts but didn't have any clothes to wear on top of them. I was very happy when I received it, not only because it was exactly what I needed, but also because I could feel how much my mother cares about me.
 
@@ -2279,7 +2524,10 @@ Since then, I've been wearing it very often. It's very easy to match with any ot
       "What you were waiting for",
       "And explain why you had to be patient."
     ],
-    sampleAnswer: `I'd like to talk about a time when I had to wait for a long time at a famous restaurant. It was last year, during the weekend. I went to a well-known Italian restaurant in Seoul with my friends. We had heard that the food there was amazing, so we decided to give it a try.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+서울의 유명 이탈리안 레스토랑에서 오래 기다린 경험입니다. 친구들과 주말에 갔는데 대기 시간이 최소 1시간이었습니다. 다른 곳으로 갈까 고민했지만 시그니처 파스타를 먹고 싶어 기다렸고, 결국 1시간 반 후 자리에 앉았습니다. 음식이 정말 맛있어서 인내심의 보람을 느꼈다고 합니다.
+
+I'd like to talk about a time when I had to wait for a long time at a famous restaurant. It was last year, during the weekend. I went to a well-known Italian restaurant in Seoul with my friends. We had heard that the food there was amazing, so we decided to give it a try.
 
 When we arrived, there was a huge queue of people waiting outside. We were told that the waiting time would be at least an hour. At first, we were a bit frustrated and considered going to another place. However, we really wanted to try their signature pasta, so we decided to wait.
 
@@ -2308,15 +2556,18 @@ While waiting, we talked about various topics and time went by. It actually took
       "Who it was for",
       "And explain why you remember it."
     ],
-    sampleAnswer: `I’d like to talk about a health-related advertisement that I saw recently, which was for a <strong>dermatology clinic</strong>.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+지하철역 빌보드에서 본 피부과 광고에 대한 답변입니다. 출퇴근 중 눈에 띄었으며, 매우 아름다운 여성이지만 피부 트러블이 있는 모델을 사용한 것이 인상적이었습니다. 완벽한 모델 대신 피부 고민에 공감하게 만든 후 해결책을 제시하는 영리한 마케팅이었다고 설명합니다.
+
+I’d like to talk about a health-related advertisement that I saw recently, which was for a <strong>dermatology clinic</strong>.
 
 I first came across this ad on a <strong>billboard in a subway station</strong> while I was commuting to work. Since the station is usually crowded and people are often in a rush, it’s quite rare for an advertisement to truly grab someone’s attention, but this one definitely did.
 
 The advertisement was primarily targeting <strong>adult women</strong> who are interested in skincare and aesthetic treatments. It featured a strikingly beautiful woman, but as I looked closer, I noticed she had quite <strong>troubled skin</strong> with some visible blemishes.
 
-The reason this ad stuck in my mind is because of its clever <strong>visual impact</strong>. At first, I thought to myself, 'She would be absolutely perfect if she just had clearer skin.' As I read the fine print, I realized it was a clever promotion for a local dermatology clinic. The contrast between her features and her skin condition was so sharp that it made the message very persuasive.
+The reason this ad stuck in my mind is because of its clever <strong>visual impact</strong>. At first, I thought to myself, ‘She would be absolutely perfect if she just had clearer skin.’ As I read the fine print, I realized it was a clever promotion for a local dermatology clinic. The contrast between her features and her skin condition was so sharp that it made the message very persuasive.
 
-Even now, I can still clearly remember the name of the clinic, which proves how effective the marketing was. I think it was a <strong>brilliantly designed ad</strong> because it didn't just show a flawless model; instead, it made me sympathize with the 'skin concerns' and then offered a solution.`,
+Even now, I can still clearly remember the name of the clinic, which proves how effective the marketing was. I think it was a <strong>brilliantly designed ad</strong> because it didn’t just show a flawless model; instead, it made me sympathize with the ‘skin concerns’ and then offered a solution.`,
     category: "Part 2 - Health & Advertisements",
     part3Questions: [
       {
@@ -2356,13 +2607,153 @@ Even now, I can still clearly remember the name of the clinic, which proves how 
       "Why you chose that gift",
       "And explain how you felt about giving it."
     ],
-    sampleAnswer: `I'd like to talk about a gift I gave to my younger sister last year. It was a high-end digital camera. She had just started a course in photography at her college and was using her smartphone for all her assignments, so I thought it was the perfect time to get her some professional equipment.
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+친한 친구에게 아기 옷을 선물한 경험입니다. 친구가 아기를 낳아서 출산 축하 겸 실용적인 선물로 부드러운 면 바디수트와 귀여운 잠옷 세트를 골랐습니다. 신생아에게 편안하도록 부드럽고 통기성 좋은 원단을 선택했으며, 처음으로 신생아 선물을 사본 특별한 경험이었다고 합니다.
 
-I spent a lot of time researching different models online because I wanted to find something that was user-friendly but still had all the advanced features a student would need. I eventually chose a compact mirrorless camera because it's lightweight and easy for her to carry around campus.
+I'd like to talk about a gift I gave to a close friend of mine last year.
 
-When I gave it to her on her birthday, she was absolutely speechless. She didn't expect such an expensive gift. Seeing her so excited made me feel really proud and happy. It was great to know that I could support her passion and help her with her studies. Now, she uses it all the time and her photos have improved significantly, which makes me feel like it was money well spent.`,
+He had just had a baby, so I decided to buy some baby clothes for his newborn. I chose a few small outfits, including a soft cotton onesie and a cute set of pajamas.
+
+I gave it to him because I wanted to celebrate the birth of his baby and also give him something practical. I thought baby clothes would be really useful since newborns grow quickly and need to be changed often.
+
+I also made sure to choose clothes made from soft and breathable fabric so that they would be comfortable for the baby.
+
+To be honest, I felt really happy and excited when I gave him the gift. It was a special experience for me because it was my first time buying a gift for a newborn. Seeing his reaction made me feel that my gift was meaningful, and it also made me feel closer to him.`,
     category: "Part 2 - Gifts",
     part3Questions: []
+  },
+  {
+    id: 22,
+    topic: "Rules & Law",
+    mainQuestion: "Describe a law in your country that you think is good",
+    subQuestions: [
+      "What the law is",
+      "How you first learned about it",
+      "Who it affects",
+      "And explain why you think it is good"
+    ],
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+한국의 '민식이법'에 대한 답변입니다. 어린이가 스쿨존에서 음주운전 차량에 사망한 사건 이후 제정된 법으로, 스쿨존에서 시속 30km 이하로 감속해야 하며 중대 사고 시 엄격한 처벌이 부과됩니다. 어린이를 보호하고 도로 안전 인식을 높이는 데 기여한 좋은 법이라고 설명합니다.
+
+I'd like to talk about a law in Korea known as the "Min-sik Law."
+
+This law was introduced by Korean lawmakers a few years ago. It was created after a tragic accident in which a child was killed by a drunk driver near a school, which caused nationwide anger.
+
+The law requires drivers to slow down to under 30 kilometers per hour in school zones, and it imposes strict punishment if a serious accident occurs.
+
+I think this law is a very good idea because it helps protect children in areas where they are most vulnerable. Also, it made people more aware of road safety, especially around schools. As a result, I believe it has contributed to reducing traffic accidents involving children.`,
+    category: "Part 2 - Rules & Law",
+    part3Questions: []
+  },
+  {
+    id: 23,
+    topic: "Beautiful Views",
+    mainQuestion: "Describe a place you visited that had beautiful views",
+    subQuestions: [
+      "Where this place was",
+      "When you visited it",
+      "What you saw there",
+      "And explain why you liked the views"
+    ],
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+겨울 여행 중 방문한 마이애미 비치에 대한 답변입니다. 추운 날씨를 피해 바다를 즐기러 갔으며, 맑고 푸른 바다와 밝은 하늘, 수상 활동을 즐기는 사람들이 인상적이었습니다. 특히 일몰이 가장 좋았고, 주황색과 분홍색으로 물든 하늘이 평화로운 장면을 만들었다고 합니다.
+
+I'd like to talk about a place I visited that had beautiful views.
+
+It was Miami Beach in the United States, which I visited during a winter trip. I went there because I wanted to escape the cold weather and enjoy the ocean.
+
+The most impressive thing about this place was the view of the ocean. The water was very clear and blue, and the sky was bright and sunny. I could also see people enjoying water activities, which made the atmosphere even more lively.
+
+What I liked the most was watching the sunset. The sky turned orange and pink, and it created a very peaceful and relaxing scene.
+
+Overall, it was one of the most memorable places I've ever visited.`,
+    category: "Part 2 - Beautiful Views",
+    part3Questions: [
+      {
+        id: 1,
+        question: "Do you agree that most beauty products are a waste of money?",
+        sampleAnswer: "I partially agree. Some products are overpriced and not very effective, but others can be useful, especially for skincare or personal care."
+      },
+      {
+        id: 2,
+        question: "How does the beauty industry advertise its products so successfully?",
+        sampleAnswer: "The beauty industry uses celebrities and influencers to promote products, which makes them more appealing. They also use attractive visuals and persuasive marketing to create a strong desire among consumers."
+      },
+      {
+        id: 3,
+        question: "Should beauty products be advertised to children?",
+        sampleAnswer: "I think they should not be directly targeted at children because it can create unnecessary pressure about appearance at a young age. Children should focus more on health rather than beauty."
+      },
+      {
+        id: 4,
+        question: "Why do many people equate youth with beauty?",
+        sampleAnswer: "I think it's because youth is often associated with health, energy, and clear skin. These features are commonly seen as attractive in many cultures."
+      },
+      {
+        id: 5,
+        question: "Could being beautiful affect a person's success?",
+        sampleAnswer: "Yes, to some extent. Attractive people may have advantages in social situations or certain careers. However, I believe skills and effort are much more important in the long run."
+      },
+      {
+        id: 6,
+        question: "Why might society's ideas about beauty change over time?",
+        sampleAnswer: "Ideas about beauty can change due to cultural shifts, media influence, and changing values. For example, what was considered attractive in the past may not be the same today."
+      }
+    ]
+  },
+  {
+    id: 24,
+    topic: "Awards & Prizes",
+    mainQuestion: "Describe a person in your country who has received an award or a prize",
+    subQuestions: [
+      "Who this person is",
+      "What award or prize they received",
+      "How they achieved this",
+      "And explain why you admire them"
+    ],
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+손흥민 선수에 대한 답변입니다. 프리미어리그 득점왕(골든부트)을 수상한 것이 가장 주목할 만한 업적이며, 페널티킥 없이 공동 수상했다는 점이 더욱 인상적입니다. 뛰어난 실력뿐 아니라 강한 직업 윤리와 겸손한 성격을 존경하며, 한국 젊은이들에게 훌륭한 롤모델이라고 설명합니다.
+
+I'd like to talk about Son Heung-min, who is one of the most well-known athletes in my country.
+
+He has received numerous awards throughout his career, but one of the most significant ones is the Premier League Golden Boot, which is awarded to the top goal scorer in the league.
+
+He earned this award by maintaining an exceptionally high level of performance and scoring a remarkable number of goals over the course of the season. What makes this achievement even more impressive is that he managed to share the award without taking any penalty kicks, which highlights his outstanding ability as a player.
+
+I really admire him not only for his talent but also for his strong work ethic and humble personality. He has become a great role model, particularly for young people in Korea.`,
+    category: "Part 2 - Awards & Prizes",
+    part3Questions: [
+      {
+        id: 1,
+        question: "What types of school prizes do children in your country receive?",
+        sampleAnswer: "In Korea, students are typically rewarded for academic achievement, such as high grades. In addition, there are awards for good behavior, perfect attendance, and accomplishments in sports or the arts."
+      },
+      {
+        id: 2,
+        question: "What are the advantages of rewarding schoolchildren?",
+        sampleAnswer: "Rewarding students can serve as a strong motivation for them to perform better academically and behave appropriately. It also boosts their confidence and gives them a sense of accomplishment."
+      },
+      {
+        id: 3,
+        question: "Is it more important to receive rewards from parents than teachers?",
+        sampleAnswer: "I think both play important roles, but rewards from parents may have a stronger emotional impact. On the other hand, recognition from teachers can feel more objective and can be particularly encouraging in an academic context."
+      },
+      {
+        id: 4,
+        question: "Do you think some sportspeople are paid too much money?",
+        sampleAnswer: "Yes, in some cases, I believe they are paid excessively, especially when compared to essential professions like teaching or healthcare. However, their high salaries are often justified by the large amount of revenue and attention they generate."
+      },
+      {
+        id: 5,
+        question: "Should everyone on a team get the same prize money?",
+        sampleAnswer: "I think it depends on the situation. On the one hand, equal rewards can promote a sense of fairness and teamwork. On the other hand, individual contributions can vary, so performance-based rewards may also be justified."
+      },
+      {
+        id: 6,
+        question: "Is taking part more important than winning?",
+        sampleAnswer: "I partially agree with this view. Taking part is important because it allows people to gain experience and improve their skills. However, winning can also be a powerful source of motivation and a clear indicator of success."
+      }
+    ]
   }
 ];
 
@@ -3262,7 +3653,7 @@ function App() {
             </div>
               <details className="sample-answer">
                 <summary>Sample Answer</summary>
-                <p>{currentPart2Question.sampleAnswer}</p>
+                <p dangerouslySetInnerHTML={{ __html: currentPart2Question.sampleAnswer }} />
               </details>
           </div>
         ) : (
@@ -3274,7 +3665,7 @@ function App() {
             <h3>{currentPart3Question.question}</h3>
             <details className="sample-answer">
               <summary>Sample Answer</summary>
-              <p>{currentPart3Question.sampleAnswer}</p>
+              <p dangerouslySetInnerHTML={{ __html: currentPart3Question.sampleAnswer }} />
             </details>
           </div>
         )}
