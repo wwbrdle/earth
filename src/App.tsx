@@ -1700,7 +1700,16 @@ const part2Questions: Part2Question[] = [
       "How you found out about it",
       "And explain why it interested you"
     ],
-    sampleAnswer: "A news story that really interested me was about the successful landing of NASA's Perseverance rover on Mars in 2021. This was a major achievement in space exploration.\n\nI heard about this news in February 2021 when it was all over the media. It was a significant milestone in space exploration, and I was fascinated by the technology and engineering involved.\n\nI found out about it through various news sources, including social media, news websites, and television coverage. The story was everywhere because it was such a remarkable achievement.\n\nThis news interested me because I've always been fascinated by space exploration and the possibility of finding evidence of life on other planets. The technology involved in landing a rover on Mars is incredibly complex, and I was amazed by the scientists' ability to accomplish this feat. It also made me think about the future of space travel and what other discoveries might be possible.",
+    sampleAnswer: `I'd like to talk about a news story I found really interesting, which is about airfares becoming more expensive due to higher fuel surcharges.
+
+I heard about it in late March, just before April started. I came across it while reading online news on my phone, and since I travel by plane quite often, it immediately caught my attention.
+
+The news said that from April, fuel surcharges on flights would increase significantly, which meant that airline tickets would become more expensive. What made it especially noticeable was that the increase was quite sharp, so even people who had already been thinking about traveling suddenly felt pressured to book earlier.
+
+I found this story interesting because it was directly related to my own life. Since I fly fairly often, changes in ticket prices affect my travel decisions a lot. It also reminded me that even when the base fare looks reasonable, extra charges like fuel surcharges can make a big difference to the final cost. So for me, it was not just a piece of general news, but something practical that could actually influence my future travel plans.
+
+<strong>[한국어 개요]</strong>
+유류할증료 인상으로 항공권이 비싸진다는 뉴스에 대한 답변입니다. 3월 말에 휴대폰으로 온라인 뉴스를 읽다가 접했으며, 평소 비행기를 자주 타기 때문에 바로 관심을 갖게 되었습니다. 4월부터 유류할증료가 크게 오른다는 내용이었고, 이 소식은 본인의 여행 계획과 직접적으로 관련이 있어 흥미로웠다고 설명합니다. 기본 운임이 합리적으로 보여도 유류할증료 같은 추가 비용이 최종 가격에 큰 영향을 줄 수 있다는 점도 언급합니다.`,
     category: "Part 2 - The News",
     part3Questions: [
       {
