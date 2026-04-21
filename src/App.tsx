@@ -1884,7 +1884,20 @@ I found this story interesting because it was directly related to my own life. S
       "What the situation was",
       "And explain how you felt during this experience"
     ],
-    sampleAnswer: "When I was 14 years old, I went to England to study so that was the first moment I communicated in a foreign language. A minute after the airplane landed at Heathrow airport in London, I was so excited and everything looked so different. Then I faced really big challenge, I had to talk in English at the immigration inspection.\n\nI was all alone and got to talk to one of the staffs and she seemed not happy as I couldn't really speak English much. She came up with some basic questions like what my purpose of entry is, how long I am going to stay in England, and other questions related to immigration. I was very nervous and couldn't really think of good answers so I mumbled a lot. I don't clearly remember what I really said, but I assume my answers were not quite relevant to the situation. It was like a nightmare. There was huge queue behind me, the immigration officer was staring at me, and I was scared by the situation so couldn't even speak a single thing. So she made me to stay at the airport for like 5 hours until a translator came.\n\nIt was quite embarrassing experience. I felt really embarrassing while sitting in the immigration office. I thought it happened because I wasn't good at English so kind of decided to study hard. Also I felt quite scary. I thought that I would be sent to Korea straight after I reached England, and actually saw a few people going back to their country because they couldn't obtain visa on that day. So I felt really nervous until I came out of the airport, I didn't want to go back on the first day I arrived in England. After that, I never had the same experience, and don't want to experience similar situation whenever I travel.",
+    sampleAnswer: `One of the first times I used a foreign language to communicate was when I attended my first Japanese language class at a language school.
+
+On that day, I communicated mainly with my Japanese teacher and a few classmates. The problem was that I couldn't speak Japanese at all at that time, so I was only able to say very basic expressions like simple greetings or introducing my name. Most of the time, I just listened and tried to understand what was going on.
+
+The situation was quite challenging because it was my first day at the language school, and there were no Korean students in my class. So, I couldn't rely on my native language at all. I remember the teacher speaking mostly in Japanese, which made me feel a bit overwhelmed. Also, when my classmates tried to talk to me, I struggled to respond properly.
+
+At that moment, I felt quite nervous and even a little frustrated because I couldn't express myself. However, at the same time, it motivated me a lot. I realized that if I wanted to communicate with my classmates and improve my Japanese skills, I really needed to study hard.
+
+So, after that experience, I made two main efforts. First, I focused on completing all the homework given by my teacher. Second, I tried to actively start conversations with my classmates, even if my sentences were not perfect.
+
+Overall, although it was a difficult experience, it became a turning point that pushed me to improve my language skills.
+
+<strong>[한국어 개요]</strong>
+일본어 학원에서 처음 외국어로 소통했던 경험에 대한 답변입니다. 첫 수업 날 일본어 선생님과 반 친구들과 대화했지만, 일본어를 전혀 못해서 간단한 인사와 이름 소개 정도만 할 수 있었습니다. 반에 한국인 학생이 없어 모국어에 의지할 수도 없었고, 선생님이 대부분 일본어로 말해서 압도당하는 느낌이었습니다. 긴장되고 답답했지만 동시에 큰 동기부여가 되었고, 이후 숙제를 열심히 하고 친구들에게 먼저 말을 걸려고 노력했다고 설명합니다. 어려운 경험이었지만 언어 실력 향상의 전환점이 되었다는 내용입니다.`,
     category: "Part 2 - Foreign Language Communication",
     part3Questions: [
       {
