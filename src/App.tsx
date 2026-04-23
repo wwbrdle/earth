@@ -2013,6 +2013,126 @@ Yes, I have. I once tried making pasta at home. It wasn't perfect, but it was a 
 
 I would definitely recommend Korean barbecue. It's not only delicious but also interactive, as people cook the meat themselves at the table. I think it's a unique and enjoyable experience.`,
     category: "Part 1 - International Food"
+  },
+  {
+    id: 191,
+    question: "What do you do to relax?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 주로 음악을 듣는다는 답변입니다. 특히 록이나 K-pop을 즐기며, 오래된 한국 노래는 가사가 시적이고 감동적이어서 긴장을 푸는 데 도움이 된다고 합니다.
+
+I usually listen to music, especially rock or K-pop. In particular, I enjoy older Korean songs because the lyrics are quite poetic and emotionally moving. It really helps me relax.`,
+    category: "Part 1 - Relax"
+  },
+  {
+    id: 192,
+    question: "Do you think doing sports is a good way to relax?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 스포츠가 스트레스를 해소하고 마음을 새롭게 하는 좋은 방법이라고 생각한다는 답변입니다. 동시에 신체적으로도 건강을 유지할 수 있다고 합니다.
+
+Yes, definitely. I think doing sports is a great way to relieve stress and refresh your mind. It also helps you stay physically healthy at the same time.`,
+    category: "Part 1 - Relax"
+  },
+  {
+    id: 193,
+    question: "Do you think vacation is a good time for you to relax?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 전일제로 일하는 사람에게 휴가는 매우 중요하다는 답변입니다. 일상에서 벗어나 신체적, 정신적으로 재충전할 수 있는 기회를 준다고 합니다.
+
+Absolutely. For people like me who work full-time, vacations are very important. They give us a chance to take a break from our routine and recharge both physically and mentally.`,
+    category: "Part 1 - Relax"
+  },
+  {
+    id: 194,
+    question: "Do you think students need more relaxing time?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 특히 한국에서 학생들은 학업 경쟁으로 많은 압박을 받고 있어 더 많은 휴식 시간이 필요하다고 생각한다는 답변입니다. 스트레스를 줄이고 전반적인 웰빙을 개선하는 데 도움이 될 것이라고 합니다.
+
+Yes, I believe so. Especially in Korea, students are under a lot of pressure due to academic competition. Having more time to relax would help reduce stress and improve their overall well-being.`,
+    category: "Part 1 - Relax"
+  },
+  {
+    id: 195,
+    question: "Do you recycle now? Why?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 한국에서는 재활용이 꽤 엄격하고 의무적인 경우도 있다는 답변입니다. 규칙을 따르지 않으면 벌금을 내야 할 수 있어서 지정된 쓰레기봉투를 사용하고 분리수거를 제대로 해야 합니다.
+
+Yes, I do. In Korea, recycling is quite strict and even mandatory in some cases. If you don't follow the rules, you may have to pay a fine. So people are required to use designated trash bags and separate items properly.`,
+    category: "Part 1 - Recycle"
+  },
+  {
+    id: 196,
+    question: "Did you recycle when you were a kid?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 어렸을 때 부모님에게서 배우고 학교에서도 강조되었다는 답변입니다. 그래서 어린 나이부터 재활용이 습관이 되었다고 합니다.
+
+Yes, I did. I learned it from my parents at home, and it was also strongly emphasized at school. So recycling became a habit from a young age.`,
+    category: "Part 1 - Recycle"
+  },
+  {
+    id: 197,
+    question: "What kind of things do you recycle?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 보통 플라스틱, 캔, 종이를 재활용하고, 필요할 때는 가구 같은 대형 물품도 재활용한다는 답변입니다.
+
+I usually recycle plastics, cans, paper, and sometimes even large items like furniture when necessary.`,
+    category: "Part 1 - Recycle"
+  },
+  {
+    id: 198,
+    question: "Do you think recycling is important?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 재활용이 원자재를 보존하고 에너지 소비를 줄이는 데 도움이 되며, 환경 보호에도 중요한 역할을 한다는 답변입니다.
+
+Yes, definitely. Recycling helps conserve raw materials and reduce energy consumption. It also plays an important role in protecting the environment.`,
+    category: "Part 1 - Recycle"
+  },
+  {
+    id: 199,
+    question: "Do you like perfumes?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 향수를 좋아하지만 지금은 잘 사용하지 않는다는 답변입니다. 이미 향이 강한 헤어 제품을 사용하고 있어서 다른 향과 섞이는 것을 좋아하지 않기 때문입니다.
+
+Yes, I do. I used to wear perfume quite often, but I don't really use it anymore because I already use hair products with a strong scent. I don't like mixing different fragrances.`,
+    category: "Part 1 - Perfume"
+  },
+  {
+    id: 200,
+    question: "What kind of perfumes do you like?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 가볍고 과일 향의 향수를 선호한다는 답변입니다. 좋은 향은 기분과 자신감을 높여주며, 향수는 다른 사람에게 좋은 인상을 남길 수 있는 보이지 않는 액세서리와 같다고 합니다.
+
+I prefer light and fruity fragrances. A nice scent can boost my mood and even my confidence. I also think perfume is like an invisible accessory that can leave a good impression on others.`,
+    category: "Part 1 - Perfume"
+  },
+  {
+    id: 201,
+    question: "Have you ever given someone's perfume as a present?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 군 전역하는 선배에게 향수를 선물한 적이 있다는 답변입니다. 일종의 전통이어서 유명 브랜드를 골라 선물했다고 합니다.
+
+Yes, I have. I gave perfume to a senior colleague when he was discharged from the military. It was kind of a tradition, so I chose a well-known brand for him.`,
+    category: "Part 1 - Perfume"
+  },
+  {
+    id: 202,
+    question: "Have you received perfume as a gift?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 군 전역할 때 향수를 선물 받았다는 답변입니다. 흔한 전통이었고, 람보르기니 향수를 받은 것이 기억난다고 합니다.
+
+Yes, I received one when I was discharged from the military as well. It was a common tradition, and I remember getting a Lamborghini fragrance as a gift.`,
+    category: "Part 1 - Perfume"
+  },
+  {
+    id: 203,
+    question: "Did you make any items by hand when you were at school?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 초등학교 때 연을 직접 만든 적이 있다는 답변입니다. 재미있고 기억에 남는 경험이었다고 합니다.
+
+Yes, I did. When I was in elementary school, I made a kite by hand. It was a fun and memorable experience.`,
+    category: "Part 1 - Handmade Items"
+  },
+  {
+    id: 204,
+    question: "Do you have any plans to make handmade items in the future?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 자신의 몸에 딱 맞는 의자를 만들고 싶다는 답변입니다. 기성품 가구가 잘 맞지 않는 경우가 많기 때문입니다.
+
+Yes, I'd like to make a chair that perfectly fits my body. I often find that ready-made furniture doesn't suit me very well.`,
+    category: "Part 1 - Handmade Items"
+  },
+  {
+    id: 205,
+    question: "Is it necessary that children should learn how to make handmade things?",
+    sampleAnswer: `<strong>[한국어 개요]</strong> 중요하다고 생각한다는 답변입니다. 창의력과 실용적인 기술을 발전시키는 데 도움이 되며, 실생활에서 유용할 수 있습니다.
+
+Yes, I think it is important. It helps develop creativity and practical skills, which can be useful in real life.`,
+    category: "Part 1 - Handmade Items"
   }
 ];
 
@@ -3217,17 +3337,60 @@ To be honest, I felt really happy and excited when I gave him the gift. It was a
       "And explain why you think it is good"
     ],
     sampleAnswer: `<strong>[한국어 개요]</strong>
-한국의 '민식이법'에 대한 답변입니다. 어린이가 스쿨존에서 음주운전 차량에 사망한 사건 이후 제정된 법으로, 스쿨존에서 시속 30km 이하로 감속해야 하며 중대 사고 시 엄격한 처벌이 부과됩니다. 어린이를 보호하고 도로 안전 인식을 높이는 데 기여한 좋은 법이라고 설명합니다.
+공공장소 흡연 제한법에 대한 답변입니다. 정부가 몇 년 전에 공중보건을 보호하기 위해 도입한 법으로, 식당, 카페, 대중교통 지역 등에서 간접흡연을 줄이고 더 깨끗하고 안전한 환경을 만드는 것이 목적입니다. 비흡연자들이 건강 걱정 없이 공공장소를 즐길 수 있게 되었고, 흡연의 해로움에 대한 인식도 높아져 사회에 긍정적인 영향을 미쳤다고 합니다.
 
-I'd like to talk about a law in Korea known as the "Min-sik Law."
+I'd like to talk about a law in my country that restricts smoking in public places. This law was introduced by the government several years ago to protect public health.
 
-This law was introduced by Korean lawmakers a few years ago. It was created after a tragic accident in which a child was killed by a drunk driver near a school, which caused nationwide anger.
+The main purpose of this law was to reduce second-hand smoke and create a cleaner and safer environment, especially in places like restaurants, cafés, and public transport areas.
 
-The law requires drivers to slow down to under 30 kilometers per hour in school zones, and it imposes strict punishment if a serious accident occurs.
+I think it was a very good idea because it has improved the quality of life for many people. Non-smokers can now enjoy public spaces without worrying about their health.
 
-I think this law is a very good idea because it helps protect children in areas where they are most vulnerable. Also, it made people more aware of road safety, especially around schools. As a result, I believe it has contributed to reducing traffic accidents involving children.`,
+Also, it has raised awareness about the harmful effects of smoking, which may encourage more people to quit. Overall, I believe this law has had a positive impact on society.`,
     category: "Part 2 - Rules & Law",
-    part3Questions: []
+    part3Questions: [
+      {
+        id: 1,
+        question: "What kinds of rules are common in a school?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 학교에서 흔한 규칙에 대한 답변입니다. 교복 착용, 시간 준수, 교사와 급우 존중 등이 있으며, 이런 규칙들이 학교 환경의 질서와 규율을 유지하는 데 도움이 됩니다.
+
+Common school rules usually include wearing uniforms, being punctual, and respecting teachers and classmates. These rules help maintain order and discipline in the school environment.`
+      },
+      {
+        id: 2,
+        question: "How important is it to have rules in a school?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 학교에서 규칙이 매우 중요하다고 생각한다는 답변입니다. 학생들을 위한 체계적이고 안전한 환경을 만들어주며, 규칙 없이는 행동을 관리하고 효과적인 학습을 보장하기 어렵습니다.
+
+I think rules are very important because they create a structured and safe environment for students. Without rules, it would be difficult to manage behavior and ensure effective learning.`
+      },
+      {
+        id: 3,
+        question: "What do you recommend should happen if children break school rules?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 벌은 너무 가혹하기보다는 공정하고 교육적이어야 한다는 답변입니다. 예를 들어 학생에게 자신의 행동을 반성하게 하거나 실수를 이해하기 위한 추가 과제를 수행하게 할 수 있습니다.
+
+I think the punishment should be fair and educational rather than too harsh. For example, students could be asked to reflect on their behavior or complete extra tasks to understand their mistakes.`
+      },
+      {
+        id: 4,
+        question: "Can you suggest why many students decide to study law at university?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 많은 학생들이 법학을 선택하는 이유에 대한 답변입니다. 안정적인 직업 기회와 좋은 수입을 제공하며, 일부는 정의에 관심이 있고 법적 지식을 통해 다른 사람을 돕고 싶기 때문이라고 합니다.
+
+Many students choose to study law because it offers stable career opportunities and a good income. In addition, some people are interested in justice and want to help others through legal knowledge.`
+      },
+      {
+        id: 5,
+        question: "What are the key personal qualities needed to be a successful lawyer?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 성공적인 변호사에게 필요한 자질에 대한 답변입니다. 강한 의사소통 능력과 비판적 사고가 필수적이며, 복잡한 아이디어를 명확히 설명하고 상황을 신중히 분석하여 효과적인 논증을 해야 합니다.
+
+I think strong communication skills and critical thinking are essential. Lawyers need to explain complex ideas clearly and analyze situations carefully to make effective arguments.`
+      },
+      {
+        id: 6,
+        question: "Do you agree that working in the legal profession is very stressful?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 어느 정도 동의한다는 답변입니다. 변호사는 촉박한 기한과 높은 압박 상황을 자주 다루지만, 스트레스 수준은 하는 일의 종류에 따라 다를 수 있다고 합니다.
+
+Yes, I agree to some extent. Lawyers often deal with tight deadlines and high-pressure situations. However, I think the level of stress can vary depending on the type of work they do.`
+      }
+    ]
   },
   {
     id: 23,
@@ -3417,6 +3580,60 @@ Another effective method is establishing clear roles and responsibilities within
 Many organizations also promote an open communication culture by encouraging regular meetings, feedback sessions, and the use of collaborative tools like Slack or Microsoft Teams. This ensures that information flows freely and that team members can easily coordinate their efforts.
 
 Additionally, some companies invest in professional development programs that focus specifically on collaboration and communication skills. By training employees to work more effectively with others, organizations can create a more cohesive and productive workforce.`
+      }
+    ]
+  },
+  {
+    id: 26,
+    topic: "Helping a Friend",
+    mainQuestion: "Describe a time you helped a friend",
+    subQuestions: [
+      "When this happened",
+      "Who you helped",
+      "How you helped them",
+      "And explain how you felt about helping them"
+    ],
+    sampleAnswer: `<strong>[한국어 개요]</strong>
+약 2주 전 가까운 친구를 도운 경험입니다. 학창 시절부터 오랜 친구인데, 어머니가 심하게 아파서 병원비가 필요해 돈을 빌려주었습니다. 그가 힘들어하는 모습에 감정적이었고, 자신의 부모님에 대해서도 생각하게 되어 정기 건강검진과 보험을 확인하게 되었다고 합니다.
+
+I'd like to talk about a time I helped a close friend about two weeks ago.
+
+He is a long-time friend from my school days, and he was going through a very difficult situation. His mother was seriously ill, and he needed money for hospital expenses, so I lent him some money.
+
+I decided to help him because we've known each other for a long time, and I didn't want him to lose his mother without doing everything he could.
+
+At that time, I felt really emotional because he was struggling, and it affected me as well. It also made me think more about my own parents. After that, I encouraged them to have regular health check-ups, and I also reviewed their insurance plans to make sure they were well prepared.
+
+Overall, although it was a difficult experience, I felt that helping my friend was the right thing to do.`,
+    category: "Part 2 - Helping a Friend",
+    part3Questions: [
+      {
+        id: 1,
+        question: "How do people usually help each other?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 사람들은 보통 일상적인 작은 어려움에서 서로 돕는다는 답변입니다. 특히 아파트 단지처럼 많은 사람이 함께 사는 곳에서 도구를 빌려주거나, 무거운 물건을 옮기거나, 긴급 상황에서 경찰이나 구급차를 부르는 등의 도움을 줍니다.
+
+People usually help each other in small everyday challenges, especially in places like apartment complexes where many people live together. For example, they might lend tools, help carry heavy items, or even call the police or an ambulance in an emergency situation.`
+      },
+      {
+        id: 2,
+        question: "How is online help different from real-life help?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 온라인 도움은 길 안내나 정보 요청처럼 보통 더 편리하고 빠릅니다. 반면 실제 도움은 특히 긴급한 상황에서 더 실용적이고 즉각적입니다.
+
+Online help is usually more convenient and faster, such as asking for directions or information. However, real-life help is often more practical and immediate, especially in urgent situations.`
+      },
+      {
+        id: 3,
+        question: "Should schools be responsible for teaching students how to cooperate?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 학교가 사회적 기술을 가르치는 데 중요한 역할을 하며, 협력은 학생들의 미래 직업과 인간관계에 필수적이라는 답변입니다.
+
+Yes, definitely. Schools play an important role in teaching social skills, and cooperation is essential for students' future careers and relationships.`
+      },
+      {
+        id: 4,
+        question: "What are the differences between help from friends and help from family?",
+        sampleAnswer: `<strong>[한국어 개요]</strong> 가족의 도움은 보통 더 무조건적이고 장기적인 반면, 친구의 도움은 상황적인 경우가 많다는 답변입니다. 친구는 일상적인 문제를 도와주지만 가족은 어떤 상황에서든 지지해주는 경향이 있습니다.
+
+I think help from family is usually more unconditional and long-term, while help from friends is often more situational. For example, friends may help with daily problems, but family members tend to support you no matter what.`
       }
     ]
   }
