@@ -106,7 +106,7 @@ const RandomSpeakingSection: React.FC<RandomSpeakingSectionProps> = ({
             {isFrench ? '🇫🇷 TEF Canada - Expression Orale' : '🇬🇧 IELTS - Speaking'}
           </div>
           <button
-            onClick={onNext}
+            onClick={() => { window.speechSynthesis.cancel(); onNext(); }}
             style={{
               padding: '8px 14px',
               borderRadius: '8px',
@@ -522,7 +522,7 @@ const RandomWritingSection: React.FC<RandomWritingSectionProps> = ({
             {isIelts ? '🇬🇧 IELTS - Writing' : '🇫🇷 TEF Canada - Expression Écrite'}
           </div>
           <button
-            onClick={onNext}
+            onClick={() => { window.speechSynthesis.cancel(); onNext(); }}
             style={{
               padding: '8px 14px',
               borderRadius: '8px',

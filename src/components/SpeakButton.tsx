@@ -16,10 +16,12 @@ const SpeakButton: React.FC<SpeakButtonProps> = ({ text, lang = 'en-US', label =
   }, []);
 
   useEffect(() => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, []);
+  }, [text]);
 
   const handleSpeak = () => {
     if (isSpeaking) {
