@@ -793,7 +793,7 @@ const sampleQuestions: Question[] = [
   {
     id: 21,
     question: "Which television channel do you usually watch?",
-    sampleAnswer: "<strong>[한국어 개요]</strong> 자연과 야생동물 프로그램에 관심이 많아 내셔널 지오그래픽을 주로 시청한다는 내용입니다.\n\nI'd say I mostly watch National Geographic because I'm really interested in programs about nature and wildlife. I love shows that study animals in the wild since that's something we rarely see in daily life, and I find it absolutely fascinating.",
+    sampleAnswer: "<strong>[한국어 개요]</strong> 주로 스포츠 채널을 시청하며, 야구와 축구 위주로 보지만 다른 스포츠도 즐겨본다는 내용입니다. 운동선수들에게서 영감을 많이 받아 시간이 날 때마다 시청한다고 합니다.\n\nI usually watch sports channels. I mainly watch baseball and football, but I also enjoy other types of sports. I find athletes very inspiring, so I like watching them whenever I have time.",
     category: "Part 1 - Television"
   },
   {
@@ -1241,9 +1241,9 @@ Well, I think clothes and fashion are quite important, because they show your pe
   {
     id: 97,
     question: "What kind of clothes do you dislike?",
-    sampleAnswer: `<strong>[한국어 개요]</strong> 정장 입는 것을 별로 좋아하지 않는다는 답변입니다. 한국에서 일할 때 정장을 입어야 했는데 편하지 않았다고 합니다.
+    sampleAnswer: `<strong>[한국어 개요]</strong> 정장 입는 것을 별로 좋아하지 않는다는 답변입니다. 일본에서 살 때 정장이 기본 예의라고 여겨져서 일할 때 입어야 했는데 편하지 않았다고 합니다.
 
-I don't really like wearing suits. Back in Korea, I had to wear one for work, and honestly, it wasn't very comfortable for me.`,
+I don't really like wearing a suit. Because it was uncomfortable for me. When I lived in Japan, I had to wear one for work as they think wearing a suit is a basic form of etiquette.`,
     category: "Part 1 - Fashion"
   },
   {
@@ -2295,9 +2295,9 @@ I would like to meet him because I'm fascinated by his vision for the future and
       {
         id: 1,
         question: "Do you think planes will have a negative influence in your country?",
-        sampleAnswer: `<strong>[한국어 개요]</strong> 부정적인 영향이 있을 수 있다고 생각합니다. 환경 오염과 소음 문제 등이 있으며, 해외 여행이 늘면서 국내 관광에 영향을 줄 수 있습니다.
+        sampleAnswer: `<strong>[한국어 개요]</strong> 비행기가 부정적인 영향을 줄 수 있다고 생각합니다. 주요 문제는 항공 여행이 많은 탄소 배출을 일으킨다는 환경적 영향이며, 공항 주변 거주민들에게는 소음 공해도 문제가 됩니다. 그럼에도 불구하고 비행기는 국제 여행과 경제 성장에 여전히 필수적입니다.
 
-Yes, it could have a negative impact. Yes, it might lead to severe effects, such as increased crime. Obsession with celebrities could cause depression. Some, especially business people, prefer traveling abroad.`
+Yes, I think planes can have some negative influence in my country. One major issue is environmental impact, as air travel produces a large amount of carbon emissions. In addition, airports can cause noise pollution for people living nearby. However, despite these drawbacks, planes are still essential for international travel and economic growth.`
       },
       {
         id: 2,
@@ -2770,9 +2770,9 @@ The first one came up on my mind is the ones who work outside like builders as t
       {
         id: 4,
         question: "Are weather forecasts in your country usually accurate?",
-        sampleAnswer: `<strong>[한국어 개요]</strong> 비나 눈이 올 때는 대체로 정확하고 신뢰할 수 있지만, 대부분의 경우 그렇지 않습니다. 최소 다섯 번 중 한 번은 잘못된 정보를 방송하며, 대부분의 사람들이 일기예보를 크게 믿지 않습니다.
+        sampleAnswer: `<strong>[한국어 개요]</strong> 일기예보는 전반적으로 상당히 정확하다고 생각합니다. 위성과 첨단 예보 시스템 같은 현대 기술 덕분에 특히 며칠 내 예측은 꽤 신뢰할 만합니다. 다만 날씨가 갑자기 변할 때는 틀릴 수도 있습니다.
 
-When it rains or snows, they are mostly accurate and reliable. But in most cases, they aren't. I think they broadcast wrong information once in five times at least, and most people don't quite believe the weather information they provide.`
+Yes, I would say they are generally quite accurate. With modern technology like satellites and advanced forecasting systems, predictions are fairly reliable, especially for the next few days. That said, they can still be wrong when the weather changes unexpectedly.`
       },
       {
         id: 5,
